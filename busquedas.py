@@ -238,7 +238,7 @@ def busqueda_costo_uniforme(problema):
 
 #-------------------------------------------------------------------------------------------------
 #
-# Problema 2 (25 puntos): Desarrolla el método de búsqueda de A* siguiendo las especificaciones 
+# Problema 1 (25 puntos): Desarrolla el método de búsqueda de A* siguiendo las especificaciones 
 # de la función pruebalo con el 8 puzzle (ocho_puzzle.py) antes de hacerlo en el Lights_out que es 
 # mucho más dificl (en el archivo se incluyen las heurísticas del 8 puzzle y el resultado esperado)
 #

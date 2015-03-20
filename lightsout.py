@@ -15,7 +15,7 @@ from busquedas import *
 
 class Lights_out(ProblemaBusqueda):
 #----------------------------------------------------------------------------
-# Problema 1 (25 puntos): Completa la clase para el problema de lights out
+# Problema 2 (25 puntos): Completa la clase para el problema de lights out
 #
 #----------------------------------------------------------------------------
     """
