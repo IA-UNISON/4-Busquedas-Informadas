@@ -45,7 +45,7 @@ class Ocho_puzzle(ProblemaBusqueda):
         """
         s_meta = (0, 1, 2, 3, 4, 5, 6, 7, 8, 0)
 
-        super(Ocho_puzzle, self).__init__(pos_ini + (pos_ini.index(0),), 
+        super(Ocho_puzzle, self).__init__(pos_ini + (pos_ini.index(0),),
                                           lambda s: s == s_meta)
 
         self.acciones = {0: ['S', 'E'],
@@ -166,5 +166,5 @@ if __name__ == "__main__":
 
 
     print "\n\n\n" + '-'*30 + '\n'
-    print u"y por último"
+    print "y por último"
     muestra((1, 7, 8, 2, 3, 4, 5, 6, 0))

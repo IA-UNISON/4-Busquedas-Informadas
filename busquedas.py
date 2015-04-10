@@ -252,6 +252,7 @@ def busqueda_A_estrella(problema, heuristica):
     @param heuristica: Una funcion de heuristica, esto es, una función heuristica(nodo), la cual devuelva
                        un número mayor o igual a cero con el costo esperado desde nodo hasta un nodo 
                        objetivo.
+
     @return Un objeto tipo Nodo con la estructura completa
 
     """

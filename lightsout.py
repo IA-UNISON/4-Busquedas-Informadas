@@ -41,8 +41,9 @@ class Lights_out(ProblemaBusqueda):
     ---------------------
     |   |   |   |   |   |
     ---------------------
-    
-    Las acciones posibles son de elegir cambiar una luz y sus casillas adjacentes, por lo que la accion es
+
+    Las acciones posibles son de elegir cambiar una luz y sus casillas
+    adjacentes, por lo que la accion es
     un número entre 0 y 24.
 
     Para mas información sobre el juego, se puede consultar
@@ -54,13 +55,35 @@ class Lights_out(ProblemaBusqueda):
         # ¡El formato y lo que lleva la inicialización de 
         # la super hay que cambiarlo al problema!
         #super(Lights_out, self).__init__(s0, meta)
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        s_meta = tuple([0 for i in xrange(25)])
+        super(Lights_out, self).__init__(pos_inicial, lambda s: s == s_meta)
+        # raise NotImplementedError('Hay que hacerlo de tarea')
 
     def acciones_legales(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return range(25)
+        # raise NotImplementedError('Hay que hacerlo de tarea')
 
     def sucesor(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        estado_nuevo = list(estado)
+        estado_nuevo[accion] = estado_nuevo[accion]%2
+        
+        def obtener_ady(accion):
+            a = []
+            if accion + 5 <= 24:
+                a.append(accion + 5)
+            if accion - 5 >= 0:
+                a.append(accion - 5)
+            if accion%5 != 4:
+                a.append(accion + 1)
+            if accion%5 != 0:
+                a.append(accion - 1)
+            return a
+
+        vecinos = obtener_ady(accion)
+        for i in vecinos:
+            estado_nuevo[i] = estado_nuevo%2
+        return estado_nuevo
+        # raise NotImplementedError('Hay que hacerlo de tarea')
 
     def costo_local(self, estado, accion):
         raise NotImplementedError('Hay que hacerlo de tarea')
