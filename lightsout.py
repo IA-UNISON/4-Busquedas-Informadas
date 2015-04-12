@@ -137,7 +137,7 @@ def h_1(nodo):
         acc = 0
     return costo
 
-#-------------------------------------------------------------------------------------------------
+#-------------------------l------------------------------------------------------------------------
 # Problema 4 (25 puntos): Desarrolla otra política admisible. 
 # Analiza y di porque piensas que es (o no es) dominante una respecto otra política
 #-------------------------------------------------------------------------------------------------
@@ -146,27 +146,93 @@ def h_2(nodo):
     DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN PLATICADA DE PORQUÉ CREES QUE
     LA HEURÍSTICA ES ADMISIBLE
 
+    Hice 3 intentos de heuristica, los 2 primeros no los pude comprobar porque me comian
+    la memoria del ordenador :(.. pero el que mas me convencio (creo que es correcto)
+    es el que no esta comentado.
+    Es bastante sencillo, consiste en contar las casillas que tienen una
+    casilla a la derecha adyacente a ella y al final el numero de casillas
+    que cumplieron con esta condicion (mas su respectiva casilla a la derecha) 
+    dividirlo entre 2.
+    Porque ?.. Me base en la idea de un problema relajado para el juego, en vez
+    de que al presionar una casilla, se cambien de valor las 5 adyacentes a esta,
+    solo se cambia la misma y la de la derecha. Por ejemplo:
+    ---------------------
+    | X | X |   | X | X |
+    ---------------------
+    |   |   | X | X |   |
+    ---------------------
+    |   |   |   | X | X |
+    ---------------------
+    |   | X |   |   |   |
+    ---------------------
+    |   |   |   | X | X |
+    ---------------------
+    En esa configuracion, si contamos las casillas que tienen un 1,
+    y a su derecha otro 1, nos da un total 10, al dividir 10/2 nos da 5.
+    Esto es el minimo numero de movimientos que podemos hacer para llegar
+    a una solución, cabe resaltar que son movimientos "minimos", dado que
+    en la mayoria de las veces hay casillas solas (separadas) y este hace
+    que se requieran mas movimientos.
+    Es por esa misma razon que la heuristica se basa en una configuracion
+    casi ideal (como la del ejemplo), la cual no es tan probalble que ocurra.
+    La heuristica es admisible porque si tenemos en el tablero solo dos
+    luces prendidas (juntas con orientacion horizontal), hace falta solo un 
+    movimiento para llegar a la solucion, en cambio en el problema no
+    relajado, esto no sucede asi, harian falta mas movimientos dado que se 
+    prenderian las casillas de arriba, abajo y a la izquierda, lo cual
+    genera mas costo para llegar a la solucion final.
+
     """
-    return 0
+
+    """
+
+    PRIMER INTENTO
+
+    estado = np.asarray(nodo.estado).reshape((5,5))
+    acc = 5
+    for i in estado:
+        if not 1 in i:
+            acc -= 1
+            break
+    return acc
+    """
+
+    """
+    SEGUNDO INTENTO
+    estado = np.asarray(nodo.estado).reshape((5, 5))
+    acc = 0
+    for i in estado:
+        if i[0] == i[-1] == 1:
+            acc += 1
+    return 1 / (acc + .1)
+    """
+
+    # TERCER INTENTO
+    a = [i for i in xrange(25) if i%5 != 4]
+    acc = 0
+    for j in a:
+        if nodo.estado[j] == nodo.estado[j + 1] == 1:
+            acc += 2
+    return acc / 2.0
 
 
 def prueba_clase():
     """
     Prueba la clase Lights_out
-    
+
     """
-    
+
     pos_ini = (0, 1, 0, 1, 0,
                0, 0, 1, 1, 0,
                0, 0, 0, 1, 1,
                0, 0, 1, 1, 1,
                0, 0, 0, 1, 1)
 
-    pos_a0 =  (1, 0, 0, 1, 0,
-               1, 0, 1, 1, 0,
-               0, 0, 0, 1, 1,
-               0, 0, 1, 1, 1,
-               0, 0, 0, 1, 1)
+    pos_a0 = (1, 0, 0, 1, 0,
+              1, 0, 1, 1, 0,
+              0, 0, 0, 1, 1,
+              0, 0, 1, 1, 1,
+              0, 0, 0, 1, 1)
 
     pos_a4 =  (1, 0, 0, 0, 1,
                1, 0, 1, 1, 1,
@@ -239,8 +305,8 @@ def compara_metodos(pos_inicial, heuristica_1, heuristica_2):
     # n1 = prueba_busqueda(pos_inicial, busqueda_ancho)
     # n2 = prueba_busqueda(pos_inicial, busqueda_profundidad_iterativa)
     # n3 = prueba_busqueda(pos_inicial, busqueda_costo_uniforme)
-    n4 = prueba_busqueda(pos_inicial, busqueda_A_estrella, heuristica_1)
-    # n5 = prueba_busqueda(pos_inicial, busqueda_A_estrella, heuristica_2)
+    # n4 = prueba_busqueda(pos_inicial, busqueda_A_estrella, heuristica_1)
+    n5 = prueba_busqueda(pos_inicial, busqueda_A_estrella, heuristica_2)
 
     print '\n\n' + '-' * 50
     print 'Método'.center(10) + 'Costo de la solucion'.center(20) + 'Nodos explorados'.center(20)
@@ -248,8 +314,8 @@ def compara_metodos(pos_inicial, heuristica_1, heuristica_2):
     # print 'BFS'.center(10) + str(n1.costo).center(20) + str(n1.nodos_visitados)
     # print 'IDS'.center(10) + str(n2.costo).center(20) + str(n2.nodos_visitados)
     # print 'UCS'.center(10) + str(n3.costo).center(20) + str(n3.nodos_visitados)
-    print 'A* con h1'.center(10) + str(n4.costo).center(20) + str(n4.nodos_visitados)
-    # print 'A* con h2'.center(10) + str(n5.costo).center(20) + str(n5.nodos_visitados)
+    # print 'A* con h1'.center(10) + str(n4.costo).center(20) + str(n4.nodos_visitados)
+    print 'A* con h2'.center(10) + str(n5.costo).center(20) + str(n5.nodos_visitados)
     print ''
     print '-' * 50 + '\n\n'
 
