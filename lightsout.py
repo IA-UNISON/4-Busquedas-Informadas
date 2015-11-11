@@ -53,17 +53,30 @@ class Lights_out(ProblemaBusqueda):
     def __init__(self, pos_inicial):
         # ¡El formato y lo que lleva la inicialización de 
         # la super hay que cambiarlo al problema!
-        #super(Lights_out, self).__init__(s0, meta)
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        super(Lights_out, self).__init__(pos_inicial, lambda s: s == s_meta)
+        s_meta = [0 for i in range(25)]
 
     def acciones_legales(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return range(25)
 
     def sucesor(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        estado_nuevo = list(estado)
+
+        estado_nuevo[accion] = (estado_nuevo[accion] * -1) + 1
+
+        if accion <= 19:
+            estado_nuevo[accion + 5] = (estado_nuevo[accion + 5] * -1) + 1
+        if accion >= 5:
+            estado_nuevo[accion - 5] = (estado_nuevo[accion - 5] * -1) + 1
+        if (accion % 5) != 0:
+            estado_nuevo[accion - 1] = (estado_nuevo[accion - 1] * -1) + 1
+        if ((accion + 1) % 5)!= 0:
+            estado_nuevo[accion + 1] = (estado_nuevo[accion + 1] * -1) + 1
+
+        return tuple(estado_nuevo)
 
     def costo_local(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return 1
 
     @staticmethod
     def bonito(estado):
@@ -89,8 +102,15 @@ def h_1(nodo):
     DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN PLATICADA DE PORQUÉ CREES QUE
     LA HEURÍSTICA ES ADMISIBLE
 
+    En el mejor de los casos las luces que quedan prendidas seran apagadas 5 con cada movimiento
+
     """
-    return 0
+    suma = 0
+    for i in xrange(25):
+        if nodo.estado[i] == 1:
+            suma+=1
+
+    return suma/5
 
 #-------------------------------------------------------------------------------------------------
 # Problema 4 (25 puntos): Desarrolla otra política admisible. 
@@ -100,9 +120,38 @@ def h_2(nodo):
     """
     DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN PLATICADA DE PORQUÉ CREES QUE
     LA HEURÍSTICA ES ADMISIBLE
+    
+    En esta heuristica se revisan las luces encendidas, y se penaliza por las luces apagadas que esten al lado.
+    Si una luz ya se reviso al checar otra luz, no se vuelve a contar.
+    Me parece una heurisitica admisible porque por cada luz que este encendida, si hay una apagada al lado,
+    complica la solucion pues al apagar la luz, la de enseguida se encendera, por lo que mientras mas uniforme sea el 
+    estado( es decir que al lado de las luces encendidas haya solo luces encendidas), mas cerca de la solucion se esta.
 
     """
-    return 0
+    no_revisado = [i for i in range(25) if nodo.estado[i]==1]
+    suma = 0
+
+    for i in xrange(25):
+        if i in no_revisado:
+            if i <= 19 and nodo.estado[i + 5] == 0:
+                suma+=1
+                if nodo.estado[i+5] in no_revisado:
+                    no_revisado.remove(i + 5)
+            if i >= 5 and nodo.estado[i - 5] == 0:
+                suma+=1
+                if nodo.estado[i - 5] in no_revisado:
+                    no_revisado.remove(i-5)
+            if (i % 5) != 0 and nodo.estado[i - 1] == 0:
+                suma+=1
+                if nodo.estado[i - 1] in no_revisado:
+                    no_revisado.remove(i - 1)
+            if ((i + 1) % 5)!= 0 and nodo.estado[i + 1]:
+                suma+=1
+                if nodo.estado[i - 1] in no_revisado:
+                    no_revisado.remove(i + 1)
+
+
+    return suma
 
 
 def prueba_clase():
