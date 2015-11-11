@@ -3,8 +3,10 @@
 """
 busquedas.py
 ------------
+
 Clases y algoritmos necesarios para desarrollar agentes de búsquedas en entornos determinísticos
 conocidos discretos completamente observables
+
 """
 
 __author__ = 'juliowaissman'
@@ -17,20 +19,24 @@ class ProblemaBusqueda(object):
 
     """
     Clase genérica de un problema de búsqueda.
+
     Todo problema de búsqueda debe de tener:
         a) Un estado inicial
         b) Una función que diga si un estado es una meta o no
         c) Un método que obtenga las acciones legales en cada estado
         d) Un método que calcule cual es es siguiente estado
         e) Una función de costo local
+
     """
 
     def __init__(self, s0, meta):
         """
         Inicializa el problema de búsqueda
+
         @param s0: Una tupla con un estado válido del problema (estado inicial).
         @param meta: Una función meta(s) --> bool, donde meta(s) devuelve True solo
         si el estado s es un estado objetivo.
+
         """
         def es_meta(estado):
             self.num_nodos += 1
@@ -43,25 +49,33 @@ class ProblemaBusqueda(object):
     def acciones_legales(self, estado):
         """
         Lista de acciones legales en un estado dado.
+
         @param estado: Una tupla con un estado válido.
+
         @return: Una lista de acciones legales.
+
         """
         raise NotImplementedError("No implementado todavía.")
 
     def sucesor(self, estado, accion):
         """
         Estado sucesor
+
         @param estado: Una tupla con un estado válido.
         @param accion: Una acción legal en el estado.
+
         @return: Una tupla con el estado sucesor de estado cuando de aplica la acción accion.
+
         """
         raise NotImplementedError("No implementado todavía.")
 
     def costo_local(self, estado, accion):
         """
         Calcula el costo de realizar una acción en un estado.
+
         @param estado: Una tupla con un estado válido.
         @param accion: Una acción legal en estado.
+
         @return: Un número positivo con el costo de realizar la acción en el estado.
         """
         return 1
@@ -71,11 +85,13 @@ class Nodo(object):
 
     """
     Clase para implementar un árbol como estructura de datos.
+
     """
 
     def __init__(self, estado, accion=None, padre=None, costo_local=0):
         """
         Inicializa un nodo como una estructura
+
         """
         self.estado = estado
         self.accion = accion
@@ -86,8 +102,11 @@ class Nodo(object):
     def expande(self, pb):
         """
         Expande un nodo en todos sus posibles nodos hijos de acuero al problema pb
+
         @param pb: Un objeto de una clase heredada de ProblemaBusqueda
+
         @return: Una lista de posibles nodos sucesores
+
         """
         return [Nodo(pb.sucesor(self.estado, a), a, self, pb.costo_local(self.estado, a))
                 for a in pb.acciones_legales(self.estado)]
@@ -95,14 +114,18 @@ class Nodo(object):
     def lista_acciones(self):
         """
         Lista de acciones desde la raiz a este nodo.
+
         @return: Una lista desde la primer acción hasta la última
+
         """
         return [] if not self.padre else self.padre.lista_acciones() + [self.accion]
 
     def lista_estados(self):
         """
         Lista de estados desde la raiz a este nodo.
+
         @return: Una lista desde el estado del nodo raiz hasta este nodo
+
         """
         return [self.estado] if not self.padre else self.padre.lista_estados() + [self.estado]
 
@@ -119,8 +142,11 @@ class Nodo(object):
 def busqueda_ancho(problema):
     """
     Búsqueda a lo ancho para un problema de búsquedas dado
+
     @param problema: Un objeto de una clase heredada de ProblemaBusqueda
+
     @return Un objeto tipo Nodo con la estructura completa
+
     """
     if problema.es_meta(problema.s0):
         return Nodo(problema.s0)
@@ -144,9 +170,12 @@ def busqueda_ancho(problema):
 def busqueda_profundo(problema, max_profundidad=None):
     """
     Búsqueda a lo profundo para un problema de búsquedas dado
+
     @param problema: Un objeto de una clase heredada de ProblemaBusqueda
     @param max_profundidad: Máxima profundidad de búsqueda
+
     @return Un objeto tipo Nodo con la estructura completa
+
     """
     frontera = deque([Nodo(problema.s0)])
     visitados = {problema.s0: 0}
@@ -169,9 +198,12 @@ def busqueda_profundo(problema, max_profundidad=None):
 def busqueda_profundidad_iterativa(problema, max_profundidad=10000):
     """
     Búsqueda por profundidad iterativa dado
+
     @param problema: Un objeto de una clase heredada de ProblemaBusqueda
     @param max_profundidad: Máxima profundidad de búsqueda
+
     @return Un objeto tipo Nodo con la estructura completa
+
     """
     for profundidad in xrange(1, max_profundidad):
         resultado = busqueda_profundo(problema, profundidad)
@@ -183,8 +215,11 @@ def busqueda_profundidad_iterativa(problema, max_profundidad=10000):
 def busqueda_costo_uniforme(problema):
     """
     Búsqueda por costo uniforme
+
     @param problema: Un objeto de una clase heredada de ProblemaBusqueda
+
     @return Un objeto tipo Nodo con la estructura completa
+
     """
     frontera = []
     heapq.heappush(frontera, (0, Nodo(problema.s0)))
@@ -212,26 +247,16 @@ def busqueda_costo_uniforme(problema):
 def busqueda_A_estrella(problema, heuristica):
     """
     Búsqueda A*
+
     @param problema: Un objeto de una clase heredada de ProblemaBusqueda
     @param heuristica: Una funcion de heuristica, esto es, una función heuristica(nodo), la cual devuelva
                        un número mayor o igual a cero con el costo esperado desde nodo hasta un nodo 
                        objetivo.
+
     @return Un objeto tipo Nodo con la estructura completa
+
     
     """
-    frontera = []
-    heapq.heappush(frontera, (0, Nodo(problema.s0)))
-    visitados = {problema.s0: 0}
-    
-    while frontera:
-        nodo = heapq.heappop(frontera)[1]
-        if problema.es_meta(nodo.estado):
-            nodo.nodos_visitados = problema.num_nodos
-            return nodo
-        
-        for hijo in nodo.expande(problema):
-            if hijo.estado not in visitados or visitados[hijo.estado] > hijo.costo :
-                heapq.heappush(frontera, (hijo.costo + heuristica(hijo), hijo))
-                visitados[hijo.estado] = hijo.costo
+    raise NotImplementedError('Hay que hacerlo de tarea (problema 2 en el archivo busquedas.py)')
 
-    return None
+
