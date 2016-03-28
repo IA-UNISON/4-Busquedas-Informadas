@@ -1,6 +1,5 @@
 # Tarea 05: Búsquedas Informadas
 
-**Fecha de entrega: 10 de noviembre de 2015**
 
 ## Objetivos
 1. Desarrollar el algoritmo de búsqueda A*
