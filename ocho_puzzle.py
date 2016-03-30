@@ -45,7 +45,7 @@ class Ocho_puzzle(ProblemaBusqueda):
         """
         s_meta = (0, 1, 2, 3, 4, 5, 6, 7, 8, 0)
 
-        super(Ocho_puzzle, self).__init__(pos_ini + (pos_ini.index(0),), 
+        super(Ocho_puzzle, self).__init__(pos_ini + (pos_ini.index(0),),
                                           lambda s: s == s_meta)
 
         self.acciones = {0: ['S', 'E'],
@@ -99,7 +99,7 @@ def prueba_busqueda(pos_inicial, metodo, heuristica=None, max_prof=None):
 
     @param pos_inicial: Una tupla con una posicion inicial (una tupla con 8 valores)
     @param metodo: Un metodo de búsqueda a probar
-    @param heuristica: Una función de heurística, por default None 
+    @param heuristica: Una función de heurística, por default None
                        si el método de búsqueda no requiere heuristica
     @param max_prof: Máxima profundidad para los algoritmos de DFS y IDS.
 
@@ -126,13 +126,13 @@ def h_2(nodo):
     """
     Segunda heurística para el 8-puzzle:
 
-    Regresa la suma de las distancias de manhattan 
+    Regresa la suma de las distancias de manhattan
     de los numeros mal colocados.
 
     """
     return sum([abs(i % 3 - nodo.estado[i] % 3) + abs(i // 3 - nodo.estado[i] // 3)
                 for i in range(9) if nodo.estado[i] != 0])
-    
+
 def muestra(pos_ini):
     """
     Muestra el resultado de aplicar una búsqeda de costo uniforme, y dos A* con

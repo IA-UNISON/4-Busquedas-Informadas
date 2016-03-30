@@ -7,7 +7,7 @@ lightsout.py
 Tarea sobre búsquedas, donde lo que es importante es crear nuevas heurísticas
 
 """
-__author__ = 'nombre del estudiante'
+__author__ = 'Juan Manuel Cruz Luque'
 
 
 from busquedas import *
@@ -41,7 +41,7 @@ class Lights_out(ProblemaBusqueda):
     ---------------------
     |   |   |   |   |   |
     ---------------------
-    
+
     Las acciones posibles son de elegir cambiar una luz y sus casillas adjacentes, por lo que la accion es
     un número entre 0 y 24.
 
@@ -51,19 +51,72 @@ class Lights_out(ProblemaBusqueda):
 
     """
     def __init__(self, pos_inicial):
-        # ¡El formato y lo que lleva la inicialización de 
+        # ¡El formato y lo que lleva la inicialización de
         # la super hay que cambiarlo al problema!
         #super(Lights_out, self).__init__(s0, meta)
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        s_meta = tuple(map(lambda s: 0, pos_inicial))
+        super(Lights_out, self).__init__(pos_inicial, lambda s: s == s_meta)
+        #raise NotImplementedError('Hay que hacerlo de tarea')
 
     def acciones_legales(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return range(25)
+        #raise NotImplementedError('Hay que hacerlo de tarea')
 
     def sucesor(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        def obtener_indice(renglon, columna):
+            return columna + renglon * 5
+
+        s = list(estado)
+        renglon = accion // 5
+        columna = accion % 5
+
+        if s[accion] == 1:
+            s[accion] = 0
+        else:
+            s[accion] = 1
+
+        if renglon > 0:
+
+            indice = obtener_indice(renglon - 1, columna)
+
+            if s[indice] == 0:
+                s[indice] = 1
+            else:
+                s[indice] = 0
+
+        if renglon < 4:
+
+            indice = obtener_indice(renglon + 1, columna)
+
+            if s[indice] == 0:
+                s[indice] = 1
+            else:
+                s[indice] = 0
+
+        if columna > 0:
+
+            indice = obtener_indice(renglon, columna - 1)
+
+            if s[indice] == 0:
+                s[indice] = 1
+            else:
+                s[indice] = 0
+
+        if columna < 4:
+
+            indice = obtener_indice(renglon, columna + 1)
+
+            if s[indice] == 0:
+                s[indice] = 1
+            else:
+                s[indice] = 0
+
+        return tuple(s)
+        #raise NotImplementedError('Hay que hacerlo de tarea')
 
     def costo_local(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return 1
+        #raise NotImplementedError('Hay que hacerlo de tarea')
 
     @staticmethod
     def bonito(estado):
@@ -82,18 +135,59 @@ class Lights_out(ProblemaBusqueda):
         return cadena
 
 #-------------------------------------------------------------------------------------------------
-# Problema 3 (25 puntos): Desarrolla una política admisible. 
+# Problema 3 (25 puntos): Desarrolla una política admisible.
 #-------------------------------------------------------------------------------------------------
 def h_1(nodo):
     """
     DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN PLATICADA DE PORQUÉ CREES QUE
     LA HEURÍSTICA ES ADMISIBLE
 
+    Bueno esta heuristica funciona de la siguiente manera, cuando comence a agarrarle la onda de como
+    ganar en el lights out, empece a seguir un orden. Al principio apagaba el primer renglon pulsando
+    la columna debajo de cada casilla, despues hacia lo siguiente con el proximo renglon
+    y asi hasta el ultimo. Cuando llegaba al ultimo y no habia ganado volvia encender una casilla del
+    primer renglon y seguia el mismo procedimiento hasta que ganaba. Esta heuristica Es lo que hace,
+    comienza en el segundo renglon y revisa el renglon de arriba si hay casillas encendidas penaliza
+    y asi sucesivamente solo que aqui no volvemos a encender una primer casilla para seguir. Aqui
+    muestro un ejemplo de como funciona, la X significa que esta encendido.
+
+
+    ---------------------   ---------------------   ---------------------   ---------------------
+    | X | X |   | X | X |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+    ---------------------   ---------------------   ---------------------   ---------------------
+    | X | X | X | X | X |   | X | X | X | X | X |   |   |   |   |   | X |   |   |   |   |   |   |
+    ---------------------   ---------------------   ---------------------   ---------------------
+    |   | X |   | X |   |   | X |   |   |   | X |   |   |   |   | X | X |   |   |   |   |   |   |
+    ---------------------   ---------------------   ---------------------   ---------------------
+    | X | X | X | X | X |   | X | X | X | X | X |   |   |   |   |   | X |   |   |   |   |   |   |
+    ---------------------   ---------------------   ---------------------   ---------------------
+    |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+    ---------------------   ---------------------   ---------------------   ---------------------
+
+    Bueno ahora porque creo que es admisible, para empezar que significa que una heuristica sea admisible?
+
+    La definicion de la wikipedia dice lo siguiente
+
+    En ciencias de la computación, específicamente en algoritmos relacionados con búsqueda de caminos, se dice
+    que una heurística (informática) es admisible si nunca sobreestima el costo de alcanzar el objetivo, o sea,
+    que en el punto actual la estimación del costo de alcanzar el objetivo nunca es mayor que el menor costo posible.
+
+    Lo que entendi es que si evaluo mi heuristica con mi estado meta y me regresa un costo arriba de cero por decir un numero,
+    mi heuristica no es admisible, al evaluar mi estado meta en mi heuristica obtuve el valor cero por lo que creo que mi
+    heuristica es admisible.
+
     """
-    return 0
+    costo = 0
+
+    for i in xrange(5, 25):
+        if nodo.estado[i - 5] != 0:
+            costo += 1
+
+    return costo
+    #return 0
 
 #-------------------------------------------------------------------------------------------------
-# Problema 4 (25 puntos): Desarrolla otra política admisible. 
+# Problema 4 (25 puntos): Desarrolla otra política admisible.
 # Analiza y di porque piensas que es (o no es) dominante una respecto otra política
 #-------------------------------------------------------------------------------------------------
 def h_2(nodo):
@@ -101,16 +195,89 @@ def h_2(nodo):
     DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN PLATICADA DE PORQUÉ CREES QUE
     LA HEURÍSTICA ES ADMISIBLE
 
+    Bueno esta heuristica funciona con la misma idea de la primera heuristica, mi problema es que aprendi a jugar
+    y es muy dificil inventarme otra forma asi que aprovecho la simetria del cuadrado aplicando la misma idea, pero
+    ahora en vez de renglones por columnas, igualmente creo que mi heuristica es admisible porque al evaluar mi estado
+    meta en mi heuritica obtengo costo cero. aqui muestro un ejemplo de como funciona, la X significa que esta encendido.
+
+
+    ---------------------   ---------------------   ---------------------   ---------------------   ---------------------
+    | X |   |   |   | X |   |   |   | X |   | X |   |   |   | X |   | X |   |   |   |   |   |   |   |   |   |   |   |   |
+    ---------------------   ---------------------   ---------------------   ---------------------   ---------------------
+    | X | X |   |   | X |   |   |   | X |   | X |   |   |   | X |   | X |   |   |   |   |   |   |   |   |   |   |   |   |
+    ---------------------   ---------------------   ---------------------   ---------------------   ---------------------
+    | X | X |   |   | X |   |   |   | X |   | X |   |   |   |   |   | X |   |   |   |   |   | X |   |   |   |   |   |   |
+    ---------------------   ---------------------   ---------------------   ---------------------   ---------------------
+    | X |   | X |   | X |   |   | X |   |   | X |   |   |   | X | X | X |   |   |   |   | X |   |   |   |   |   |   |   |
+    ---------------------   ---------------------   ---------------------   ---------------------   ---------------------
+    | X |   | X | X | X |   |   |   |   | X | X |   |   |   | X | X | X |   |   |   |   | X |   |   |   |   |   |   |   |
+    ---------------------   ---------------------   ---------------------   ---------------------   ---------------------
+
+    Diagonal
+    --------------------------------------------------
+      Método  Costo de la solucion  Nodos explorados
+    --------------------------------------------------
+    A* con h1          5          43
+    A* con h2          5          57
+
+    --------------------------------------------------
+
+    Simetria
+    --------------------------------------------------
+      Método  Costo de la solucion  Nodos explorados
+    --------------------------------------------------
+    A* con h1          6          10
+    A* con h2          6          8
+
+    --------------------------------------------------
+
+    Problemin
+    --------------------------------------------------
+      Método  Costo de la solucion  Nodos explorados
+    --------------------------------------------------
+    A* con h1          9          2735
+    A* con h2          9          3801
+
+    --------------------------------------------------
+
+    En cuanto al costo, es el mismo el cambio se ve reflejado en los nodos explorados en diagonal y simetria, pues no
+    se aprecia mucha diferencia, en diagonal tenemos de diferencia 14 nodos que para una computadora como que no pinta
+    mucho. En simetria la diferencia es dos, lo que tampoco nos dice nada, pero en problemin pues podemos ver ya una
+    gran diferencia de 1066 nodos, que ya marcan una buena diferencia pienso yo, la heuristica h1 pienso que fue mejor
+    por el estado inicial del problema, ya que al evaluar el primer renglon se encontraba con dos penalizaciones pero
+    en h2 al evaluar la primera columna se encontraba con cinco penalizaciones entonces entre los nodos que exploro h1
+    se fue mas directamente a la solucion por la ventaja de tres casillas ya apagadas pienso que la cosa depende del
+    estado inicial, de como se comportara una heuristica mejor que otra.
+
     """
-    return 0
+    costo = 0
+
+    for i in xrange(1,25,5):
+        if nodo.estado[i - 1] != 0:
+            costo += 1
+
+    for i in xrange(2,25,5):
+        if nodo.estado[i - 1] != 0:
+            costo += 1
+
+    for i in xrange(3,25,5):
+        if nodo.estado[i - 1] != 0:
+            costo += 1
+
+    for i in xrange(4,25,5):
+        if nodo.estado[i - 1] != 0:
+            costo += 1
+
+    return costo
+    #return 0
 
 
 def prueba_clase():
     """
     Prueba la clase Lights_out
-    
+
     """
-    
+
     pos_ini = (0, 1, 0, 1, 0,
                0, 0, 1, 1, 0,
                0, 0, 0, 1, 1,
@@ -157,7 +324,7 @@ def prueba_clase():
     assert entorno.sucesor(pos_a24, 15) == pos_a15
     assert entorno.sucesor(pos_a15, 12) == pos_a12
     print "Paso la prueba de la clase"
-    
+
 
 def prueba_busqueda(pos_inicial, metodo, heuristica=None, max_prof=None):
     """
@@ -239,8 +406,7 @@ if __name__ == "__main__":
     print u"\n\nVamos a ver como funcionan las búsquedas para un estado inicial"
     print "\n" + Lights_out.bonito(simetria)
     compara_metodos(simetria, h_1, h_2)
-    
+
     print u"\n\nVamos a ver como funcionan las búsquedas para un estado inicial"
     print "\n" + Lights_out.bonito(problemin)
     compara_metodos(problemin, h_1, h_2)
-    
