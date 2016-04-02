@@ -53,17 +53,29 @@ class Lights_out(ProblemaBusqueda):
     def __init__(self, pos_inicial):
         # ¡El formato y lo que lleva la inicialización de 
         # la super hay que cambiarlo al problema!
-        #super(Lights_out, self).__init__(s0, meta)
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        meta = lambda i: sum(i) == 0
+        super(Lights_out, self).__init__(pos_inicial, meta)
+
 
     def acciones_legales(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return range(25)
 
     def sucesor(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        nuevo = list(estado)
+        nuevo[accion] = 1-estado[accion]
+        if accion%5 > 0:
+            nuevo[accion-1] = 1-estado[accion-1]
+        if accion%5 < 4:
+            nuevo[accion+1] = 1-estado[accion+1]
+        if accion/5 > 0:
+            nuevo[accion-5] = 1-estado[accion-5]
+        if accion/5 < 4:
+            nuevo[accion+5] = 1-estado[accion+5]
+        return tuple(nuevo)
+
 
     def costo_local(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return 1
 
     @staticmethod
     def bonito(estado):
@@ -86,11 +98,10 @@ class Lights_out(ProblemaBusqueda):
 #-------------------------------------------------------------------------------------------------
 def h_1(nodo):
     """
-    DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN PLATICADA DE PORQUÉ CREES QUE
-    LA HEURÍSTICA ES ADMISIBLE
-
+    Regresa el numero de luces prendidas dividido entre 5 (redondiando 
+    hacia arriba), dado que con una sola accion se cambian 5 luces
     """
-    return 0
+    return (sum(nodo.estado)+4)//5
 
 #-------------------------------------------------------------------------------------------------
 # Problema 4 (25 puntos): Desarrolla otra política admisible. 
@@ -98,12 +109,38 @@ def h_1(nodo):
 #-------------------------------------------------------------------------------------------------
 def h_2(nodo):
     """
-    DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN PLATICADA DE PORQUÉ CREES QUE
-    LA HEURÍSTICA ES ADMISIBLE
+    Por cada una de las esquinas, checa sus vecinos y si todas (contando la esquina)
+    son ceros, la cuenta queda igual, si todos son unos, se suma 1 a la cuenta,
+    y si esta revuelto suma 2 a la cuenta. 
 
+    Ninguna de las heuristicas domina a la otra, porque en los siguientes dos 
+    ejemplos la heuristica mayor es diferente
+
+        | 0 | 0 | 1 | 0 | 0 |
+        | 0 | 1 | 1 | 1 | 0 |   h_1(n1) = 3
+    n1 =| 1 | 1 | 1 | 1 | 1 |   h_2(n1) = 0
+        | 0 | 1 | 1 | 1 | 0 |
+        | 0 | 0 | 1 | 0 | 0 |
+
+        | 0 | 0 | 0 | 1 | 0 |
+        | 0 | 0 | 0 | 0 | 1 |   h_1(n2) = 2
+    n2 =| 0 | 0 | 0 | 0 | 0 |   h_2(n2) = 5
+        | 1 | 0 | 0 | 0 | 0 |
+        | 1 | 1 | 0 | 0 | 1 |
     """
-    return 0
-
+    r1 = nodo.estado[0]
+    if nodo.estado[1] != r1 or nodo.estado[5] != r1:
+        r1 = 2
+    r2 = nodo.estado[4]
+    if nodo.estado[3] != r2 or nodo.estado[9] != r2:
+        r2 = 2
+    r3 = nodo.estado[20]
+    if nodo.estado[21] != r3 or nodo.estado[15] != r3:
+        r3 = 2
+    r4 = nodo.estado[24]
+    if nodo.estado[23] != r4 or nodo.estado[19] != r4:
+        r4 = 2
+    return r1+r2+r3+r4
 
 def prueba_clase():
     """
@@ -191,20 +228,22 @@ def compara_metodos(pos_inicial, heuristica_1, heuristica_2):
 
     Si la búsqueda no informada es muy lenta, posiblemente tendras que quitarla de la función
     """
-    #n1 = prueba_busqueda(pos_inicial, busqueda_ancho)
-    #n2 = prueba_busqueda(pos_inicial, busqueda_profundidad_iterativa)
-    #n3 = prueba_busqueda(pos_inicial, busqueda_costo_uniforme)
-    n4 = prueba_busqueda(pos_inicial, busqueda_A_estrella, heuristica_1)
-    n5 = prueba_busqueda(pos_inicial, busqueda_A_estrella, heuristica_2)
 
     print '\n\n' + '-' * 50
     print u'Método'.center(10) + 'Costo de la solucion'.center(20) + 'Nodos explorados'.center(20)
     print '-' * 50
+    #n1 = prueba_busqueda(pos_inicial, busqueda_ancho)
     #print 'BFS'.center(10) + str(n1.costo).center(20) + str(n1.nodos_visitados)
+    #n2 = prueba_busqueda(pos_inicial, busqueda_profundidad_iterativa)
     #print 'IDS'.center(10) + str(n2.costo).center(20) + str(n2.nodos_visitados)
+    #n3 = prueba_busqueda(pos_inicial, busqueda_costo_uniforme)
     #print 'UCS'.center(10) + str(n3.costo).center(20) + str(n3.nodos_visitados)
+    n4 = prueba_busqueda(pos_inicial, busqueda_A_estrella, heuristica_1)
     print 'A* con h1'.center(10) + str(n4.costo).center(20) + str(n4.nodos_visitados)
+    n5 = prueba_busqueda(pos_inicial, busqueda_A_estrella, heuristica_2)
     print 'A* con h2'.center(10) + str(n5.costo).center(20) + str(n5.nodos_visitados)
+    n6 = prueba_busqueda(pos_inicial, busqueda_A_estrella, lambda nodo: max(h_1(nodo), h_2(nodo)))
+    print 'A* con h3'.center(10) + str(n6.costo).center(20) + str(n6.nodos_visitados)
     print ''
     print '-' * 50 + '\n\n'
 
