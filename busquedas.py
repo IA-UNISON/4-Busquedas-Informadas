@@ -257,6 +257,23 @@ def busqueda_A_estrella(problema, heuristica):
 
     
     """
-    raise NotImplementedError('Hay que hacerlo de tarea (problema 2 en el archivo busquedas.py)')
+    frontera = []
+    heapq.heappush(frontera, (0, Nodo(problema.s0)))
+    visitados = {problema.s0: 0}
+
+
+    while frontera:
+        (_,nodo) = heapq.heappop(frontera)
+        if problema.es_meta(nodo.estado):
+            nodo.nodos_visitados = problema.num_nodos
+            return nodo
+        for hijo in nodo.expande(problema):
+            costo_nuevo = visitados[nodo.estado] + heuristica(hijo)
+            if hijo.estado not in visitados:
+                visitados[hijo.estado] = hijo.costo
+                prioridad = costo_nuevo + heuristica(hijo)
+                heapq.heappush(frontera, (prioridad, hijo))
+    return None
+
 
 
