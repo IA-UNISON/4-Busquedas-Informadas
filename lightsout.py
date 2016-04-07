@@ -7,7 +7,7 @@ lightsout.py
 Tarea sobre búsquedas, donde lo que es importante es crear nuevas heurísticas
 
 """
-__author__ = 'nombre del estudiante'
+__author__ = 'Luis Fernando Suarez Astiazaran'
 
 
 from busquedas import *
@@ -54,8 +54,21 @@ class Lights_out(ProblemaBusqueda):
         # ¡El formato y lo que lleva la inicialización de 
         # la super hay que cambiarlo al problema!
         #super(Lights_out, self).__init__(s0, meta)
-        raise NotImplementedError('Hay que hacerlo de tarea')
-
+        #raise NotImplementedError('Hay que hacerlo de tarea')
+        s0 = (0,0,1,0,0,1,1,0,0,1,0,0,1,1,0,1,0,1,0,1,0,0,0,0,0)
+        meta=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+        super(Lights_out,self).__init__(s0, meta)
+        
+        self.acciones=(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24)
+        self.sucesor=s0
+       
+        self.movimientos = {0: [1,5],      1: [0,2,6],      2: [1,3,7],       3: [2,4,8],      4: [3,9],
+                         5: [0,6,10],   6: [1,5,7,11],   7: [2,6,8,12],    8: [3,7,9,13],   9:[4,8,14],
+                         10: [0,6,10],  11: [1,5,7,11],  12: [2,6,8,12],   13: [3,7,9,13],  14:[4,8,14], 
+                         15: [0,6,10],  16: [1,5,7,11],  17: [2,6,8,12],   18: [3,7,9,13],  19:[4,8,14],
+                         20: [0,6,10],  21: [1,5,7,11],  22: [2,6,8,12],   23: [3,7,9,13],  24:[4,8,14], 
+                        }
+        
     def acciones_legales(self, estado):
         raise NotImplementedError('Hay que hacerlo de tarea')
 
@@ -90,7 +103,22 @@ def h_1(nodo):
     LA HEURÍSTICA ES ADMISIBLE
 
     """
-    return 0
+    s=list(nodo.estado)
+    costo_total=0
+    for i in range(0,25):
+        if(i>=0 and i<=4 and s[i]==1):   #si hay focos prendidos en el 1er renglon el costo=0.2
+            costo_total=costo_total+0.2
+        elif(i>=5 and i<=9 and s[i]==1): #si hay focos prendidos en el 2er renglon el costo=0.4
+            costo_total=costo_total+0.4
+        elif(i>=10 and i<=14 and s[i]==1): #si hay focos prendidos en el 3er renglon el costo=1
+            costo_total=costo_total+1
+        elif(i>=15 and i<=19 and s[i]==1): #si hay focos prendidos en el 4er renglon el costo=0.4
+            costo_total=costo_total+0.4
+        elif(i>=20 and i<=24 and s[i]==1): #si hay focos prendidos en el 5er renglon el costo=0.2
+            costo_total=costo_total+0.2
+                 
+    return costo_total
+    #return 0
 
 #-------------------------------------------------------------------------------------------------
 # Problema 4 (25 puntos): Desarrolla otra política admisible. 
@@ -102,7 +130,20 @@ def h_2(nodo):
     LA HEURÍSTICA ES ADMISIBLE
 
     """
-    return 0
+    s=list(nodo.estado)
+    costo_total=0
+    for i in range(0,25):
+            if(s[i]==1):                      #hay focos prendidos, el costo=0.3
+                costo_total=costo_total+0.3  # esto es por que las esquinas tienen las capacidad de prender o apagar 3 focos
+        elif((i>0 and i<4)or (i>20 and i<24)or i%5==0 or (i+1)%5==0): #si hay focos prendidos en el contorno del tablero sin considerar las esquinas
+                if(s[i]==1):                                               #el costo=0.4
+                    costo_total=costo_total+0.4   #esto es por que las orillas tienen la capacidad para prender o apagar 4 focos
+        elif((i<=6 and i<=8)or (i<=11 and i<=13)or (i<=14 and i<=15)): #si hay focos prendidos en los centros del tablero el costo=0.5
+                if(s[i]==1):
+                    costo_total=costo_total+0.5
+ 
+    return costo_total
+    #return 0
 
 
 def prueba_clase():
