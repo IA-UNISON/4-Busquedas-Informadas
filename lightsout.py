@@ -7,7 +7,7 @@ lightsout.py
 Tarea sobre búsquedas, donde lo que es importante es crear nuevas heurísticas
 
 """
-__author__ = 'nombre del estudiante'
+__author__ = 'Luis Roberto Alcazar Ortega'
 
 
 from busquedas import *
@@ -54,16 +54,27 @@ class Lights_out(ProblemaBusqueda):
         # ¡El formato y lo que lleva la inicialización de 
         # la super hay que cambiarlo al problema!
         #super(Lights_out, self).__init__(s0, meta)
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        meta = tuple(0 for i in range(25))
+        super(Lights_out,self).__init__(pos_inicial, lambda s: s==meta)
+        #raise NotImplementedError('Hay que hacerlo de tarea')
 
     def acciones_legales(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return range(25)
+        #raise NotImplementedError('Hay que hacerlo de tarea')
 
     def sucesor(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        nuevo = list(estado)
+        nuevo[accion] = abs(nuevo[accion] - 1)
+        adyacentes = vecinos(accion)
+        for i in adyacentes:
+            nuevo[i] = abs(nuevo[i]-1)
+        return tuple(nuevo)
+        #raise NotImplementedError('Hay que hacerlo de tarea')
+
 
     def costo_local(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return 1
+        #raise NotImplementedError('Hay que hacerlo de tarea')
 
     @staticmethod
     def bonito(estado):
@@ -81,6 +92,17 @@ class Lights_out(ProblemaBusqueda):
             cadena += "|\n---------------------\n"
         return cadena
 
+def vecinos(accion):
+        vec = []
+        if((accion+1)%5 != 0):
+            vec.append(accion+1)
+        if(accion%5 != 0):
+            vec.append(accion-1)
+        if(accion+5 <= 24):
+            vec.append(accion+5)
+        if(accion-5 >= 0):
+            vec.append(accion-5)
+        return vec
 #-------------------------------------------------------------------------------------------------
 # Problema 3 (25 puntos): Desarrolla una política admisible. 
 #-------------------------------------------------------------------------------------------------
@@ -89,8 +111,14 @@ def h_1(nodo):
     DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN PLATICADA DE PORQUÉ CREES QUE
     LA HEURÍSTICA ES ADMISIBLE
 
+    La heuristica penaliza si el vecino de arriba esta encendido. Es admisible porque tiene igual costo que las otras busquedas
+    pero es mas rapida y explora menos nodos.
     """
-    return 0
+    costo = 0
+    for i in range(5,25):
+        if nodo.estado[i - 5] == 1:
+            costo+=1
+    return costo
 
 #-------------------------------------------------------------------------------------------------
 # Problema 4 (25 puntos): Desarrolla otra política admisible. 
@@ -100,10 +128,15 @@ def h_2(nodo):
     """
     DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN PLATICADA DE PORQUÉ CREES QUE
     LA HEURÍSTICA ES ADMISIBLE
-
+    
+    La heuristica penaliza si el vecino de abajo esta encendido. Es admisible porque tiene igual costo que las otras busquedas
+    pero es mas rapida y explora menos nodos.
     """
-    return 0
-
+    costo = 0
+    for i in range(0,20):
+        if nodo.estado[i + 5] == 1:
+            costo+=1
+    return costo
 
 def prueba_clase():
     """
@@ -200,7 +233,7 @@ def compara_metodos(pos_inicial, heuristica_1, heuristica_2):
     print '\n\n' + '-' * 50
     print u'Método'.center(10) + 'Costo de la solucion'.center(20) + 'Nodos explorados'.center(20)
     print '-' * 50
-    #print 'BFS'.center(10) + str(n1.costo).center(20) + str(n1.nodos_visitados)
+    print 'BFS'.center(10) + str(n1.costo).center(20) + str(n1.nodos_visitados)
     #print 'IDS'.center(10) + str(n2.costo).center(20) + str(n2.nodos_visitados)
     #print 'UCS'.center(10) + str(n3.costo).center(20) + str(n3.nodos_visitados)
     print 'A* con h1'.center(10) + str(n4.costo).center(20) + str(n4.nodos_visitados)
