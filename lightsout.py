@@ -11,7 +11,8 @@ __author__ = 'nombre del estudiante'
 
 
 from busquedas import *
-
+from random import randint
+import numpy as np
 
 class Lights_out(ProblemaBusqueda):
 #----------------------------------------------------------------------------
@@ -50,20 +51,42 @@ class Lights_out(ProblemaBusqueda):
     http://en.wikipedia.org/wiki/Lights_Out_(game)
 
     """
-    def __init__(self, pos_inicial):
+    
+
+    
+    def __init__(self, pos_ini):
         # ¡El formato y lo que lleva la inicialización de 
         # la super hay que cambiarlo al problema!
         #super(Lights_out, self).__init__(s0, meta)
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        
+        s_meta0 = tuple([0 for i in xrange(25)])
+        s_meta1 = tuple([1 for i in xrange(25)])
+        super(Lights_out, self).__init__(pos_ini, lambda s: s == s_meta0 or s == s_meta1)
+
 
     def acciones_legales(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
-
+        
+        return range(25)
+    
     def sucesor(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        
+        def switch(x):
+            if x: return 0;
+            else: return 1;
+    
+        changeArray = [accion]
+        if(0 <= accion-5): changeArray.append(accion-5)
+        if(accion%5 != 0): changeArray.append(accion-1)
+        if(accion%5 != 4): changeArray.append(accion+1)
+        if(24 >= accion+5): changeArray.append(accion+5)
+        
+        newList = list(estado)
+        for pos in changeArray:
+            newList[pos] = switch(newList[pos])
+        return tuple(newList)
 
     def costo_local(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return 1
 
     @staticmethod
     def bonito(estado):
@@ -88,9 +111,23 @@ def h_1(nodo):
     """
     DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN PLATICADA DE PORQUÉ CREES QUE
     LA HEURÍSTICA ES ADMISIBLE
+    
+    Por cada vecino diferente arriba o abajo de un panel se penaliza el costo. 
+    
+    Es Admisible por que el caso donde exista una diferencia incurre un costo por lo menos de dos movimientos.
 
     """
-    return 0
+
+    costo = 0
+    for i in range(0,25):
+        if(0 <= i-5) and (nodo.estado[i - 5] != nodo.estado[i]): costo+=1
+#        if(i%5 != 0) and (nodo.estado[i - 1] != nodo.estado[i]): costo+=1
+#        if(i%5 != 4) and (nodo.estado[i + 1] != nodo.estado[i]): costo+=1
+        if(24 >= i+5)and (nodo.estado[i + 5] != nodo.estado[i]): costo+=1
+        
+    return costo
+
+
 
 #-------------------------------------------------------------------------------------------------
 # Problema 4 (25 puntos): Desarrolla otra política admisible. 
@@ -99,10 +136,44 @@ def h_1(nodo):
 def h_2(nodo):
     """
     DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN PLATICADA DE PORQUÉ CREES QUE
-    LA HEURÍSTICA ES ADMISIBLE
+    LA HEURÍSTICA ES ADMISIBLE.
+    
+    Igual que la anterior pero penaliza segun sea diferente el vecino a la izquierda/derecha del panel.
+    Es Admisible por que el caso donde exista una diferencia incurre un costo por lo menos de dos movimientos.
+    
+    Intente algunas otras Heuristicas que exploraban muchos menos nodos pero no eran admisibles, tristemente...
+    Entre estas dos muy similares heuristicas la unica diferencia es que dependiendo de la estructura del problema una es 
+    mejor para detectar y penalizar ciertos patrones mejor que la otra.
+
 
     """
-    return 0
+    costo = 0
+
+    for i in range(0,25):
+#        if(0 <= i-5) and (nodo.estado[i - 5] != nodo.estado[i]): costo+=1
+        if(i%5 != 0) and (nodo.estado[i - 1] != nodo.estado[i]): costo+=1
+        if(i%5 != 4) and (nodo.estado[i + 1] != nodo.estado[i]): costo+=1
+#        if(24 >= i+5)and (nodo.estado[i + 5] != nodo.estado[i]): costo+=1
+        
+    return costo
+
+    
+#    for i in range(0,25):
+#        if(0 <= i-5) and (nodo.estado[i - 5] != nodo.estado[i]):
+#            if(i > 10 and i <14): costo+=2
+#            else: costo+=1
+#        if(i%5 != 0) and (nodo.estado[i - 1] != nodo.estado[i]):
+#            if(i > 5 and i < 19): costo+=2
+#            else: costo+=1
+#        if(i%5 != 4) and (nodo.estado[i + 1] != nodo.estado[i]):
+#            if(i > 5 and i < 19): costo+=2
+#            else: costo+=1
+#        if(24 >= i+5)and (nodo.estado[i + 5] != nodo.estado[i]):
+#            if(i > 10 and i <14): costo+=2
+#            else: costo+=1
+#        
+#    return costo
+
 
 
 def prueba_clase():
@@ -176,7 +247,7 @@ def prueba_busqueda(pos_inicial, metodo, heuristica=None, max_prof=None):
     elif max_prof:
         return metodo(Lights_out(pos_inicial), max_prof)
     else:
-        return metodo(Lights_out(pos_inicial))
+        return metodo(Lights_out(pos_inicial), 10)
 
 
 def compara_metodos(pos_inicial, heuristica_1, heuristica_2):
@@ -191,9 +262,9 @@ def compara_metodos(pos_inicial, heuristica_1, heuristica_2):
 
     Si la búsqueda no informada es muy lenta, posiblemente tendras que quitarla de la función
     """
-    #n1 = prueba_busqueda(pos_inicial, busqueda_ancho)
-    #n2 = prueba_busqueda(pos_inicial, busqueda_profundidad_iterativa)
-    #n3 = prueba_busqueda(pos_inicial, busqueda_costo_uniforme)
+#    n1 = prueba_busqueda(pos_inicial, busqueda_ancho)
+#     n2 = prueba_busqueda(pos_inicial, busqueda_profundidad_iterativa)
+#    n3 = prueba_busqueda(pos_inicial, busqueda_costo_uniforme)
     n4 = prueba_busqueda(pos_inicial, busqueda_A_estrella, heuristica_1)
     n5 = prueba_busqueda(pos_inicial, busqueda_A_estrella, heuristica_2)
 
@@ -201,7 +272,7 @@ def compara_metodos(pos_inicial, heuristica_1, heuristica_2):
     print u'Método'.center(10) + 'Costo de la solucion'.center(20) + 'Nodos explorados'.center(20)
     print '-' * 50
     #print 'BFS'.center(10) + str(n1.costo).center(20) + str(n1.nodos_visitados)
-    #print 'IDS'.center(10) + str(n2.costo).center(20) + str(n2.nodos_visitados)
+#    print 'IDS'.center(10) + str(n2.costo).center(20) + str(n2.nodos_visitados)
     #print 'UCS'.center(10) + str(n3.costo).center(20) + str(n3.nodos_visitados)
     print 'A* con h1'.center(10) + str(n4.costo).center(20) + str(n4.nodos_visitados)
     print 'A* con h2'.center(10) + str(n5.costo).center(20) + str(n5.nodos_visitados)
