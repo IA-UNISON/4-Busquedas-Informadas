@@ -7,10 +7,12 @@ lightsout.py
 Tarea sobre búsquedas, donde lo que es importante es crear nuevas heurísticas
 
 """
-__author__ = 'nombre del estudiante'
+__author__ = 'Jorge Carvajal'
 
 
 from busquedas import *
+import copy
+import random
 
 
 class Lights_out(ProblemaBusqueda):
@@ -53,16 +55,39 @@ class Lights_out(ProblemaBusqueda):
     def __init__(self, pos_inicial):
         # ¡El formato y lo que lleva la inicialización de 
         # la super hay que cambiarlo al problema!
-        #super(Lights_out, self).__init__(s0, meta)
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        s0 = pos_inicial
+        def meta(estado):
+            meta = True
+            for i in xrange(25):
+                if(estado[i] == 1):
+                    meta = False
+                    break
+            return meta
+            #return True if estado[0:23] == estado[1:24] else False
+        super(Lights_out, self).__init__(s0, meta)
+        #raise NotImplementedError('Hay que hacerlo de tarea')
 
     def acciones_legales(self, estado):
+        return range(25)
         raise NotImplementedError('Hay que hacerlo de tarea')
 
     def sucesor(self, estado, accion):
+        
+        sucesor =list(estado)
+        sucesor[accion] = 1-sucesor[accion]
+        if(accion%5 > 0):
+            sucesor[accion-1] = 1-sucesor[accion-1]
+        if (accion%5 < 4):
+            sucesor[accion+1] = 1-sucesor[accion+1]
+        if(accion > 4):
+            sucesor[accion-5] = 1-sucesor[accion-5]
+        if(accion < 20):
+            sucesor[accion+5] = 1-sucesor[accion+5]
+        return tuple(sucesor)
         raise NotImplementedError('Hay que hacerlo de tarea')
 
     def costo_local(self, estado, accion):
+        return 1
         raise NotImplementedError('Hay que hacerlo de tarea')
 
     @staticmethod
@@ -85,10 +110,15 @@ class Lights_out(ProblemaBusqueda):
 # Problema 3 (25 puntos): Desarrolla una política admisible. 
 #-------------------------------------------------------------------------------------------------
 def h_1(nodo):
+    return sum(i for i in nodo.estado)
+    
     """
     DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN PLATICADA DE PORQUÉ CREES QUE
     LA HEURÍSTICA ES ADMISIBLE
 
+    Esta heuristica se basa en el numero de luces que hay prendidas en el tablero. NO es admisible
+    (Basta con ver que en el caso de tener solo una cruz de luces, h(s) = 5, donde nomas falta 1 movimiento).
+    Sin embargo, lo hace en chinga, por eso la meti :D
     """
     return 0
 
@@ -97,14 +127,35 @@ def h_1(nodo):
 # Analiza y di porque piensas que es (o no es) dominante una respecto otra política
 #-------------------------------------------------------------------------------------------------
 def h_2(nodo):
+    costo = 0
+    if nodo.estado[0] == 1:
+        costo+=1
+    if nodo.estado[4] == 1:
+        costo+=1
+    if nodo.estado[20] == 1:
+        costo+=1
+    if nodo.estado[24] == 1:
+        costo+=1
+    return costo
     """
     DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN PLATICADA DE PORQUÉ CREES QUE
     LA HEURÍSTICA ES ADMISIBLE
 
+    Esta heuristica devuelve el numero de luces prendidas en las esquinas. Claramente es admisible 
+    cuando el tablero es mayor que 3x3, ya que prender una esquina no afecta a las demas, por lo que 
+    siempre sobre-estima, o nos da igual al costo. No es muy buena, pero creo que es un concepto que 
+    un jugador podria abarcar al jugar (andar jugando en una seccion del tablero es mejor que en todas).
+
     """
-    return 0
+    return costo
 
-
+def meta2(estado):
+            meta = True
+            for i in xrange(25):
+                if(estado[i] == 1):
+                    meta = False
+                    break
+            return meta
 def prueba_clase():
     """
     Prueba la clase Lights_out
@@ -146,8 +197,6 @@ def prueba_clase():
                1, 1, 1, 0, 1,
                1, 1, 0, 1, 0,
                1, 0, 0, 0, 0)
-
-
     entorno = Lights_out(pos_ini)
 
     assert entorno.acciones_legales(pos_ini) == range(25)
@@ -198,7 +247,7 @@ def compara_metodos(pos_inicial, heuristica_1, heuristica_2):
     n5 = prueba_busqueda(pos_inicial, busqueda_A_estrella, heuristica_2)
 
     print '\n\n' + '-' * 50
-    print u'Método'.center(10) + 'Costo de la solucion'.center(20) + 'Nodos explorados'.center(20)
+    print u'Metodo'.center(10) + 'Costo de la solucion'.center(20) + 'Nodos explorados'.center(20)
     print '-' * 50
     #print 'BFS'.center(10) + str(n1.costo).center(20) + str(n1.nodos_visitados)
     #print 'IDS'.center(10) + str(n2.costo).center(20) + str(n2.nodos_visitados)
@@ -232,15 +281,15 @@ if __name__ == "__main__":
                  0, 0, 1, 1, 1,
                  0, 0, 0, 1, 1)
 
-    print u"\n\nVamos a ver como funcionan las búsquedas para un estado inicial"
+    print u"\n\nVamos a ver como funcionan las busquedas para un estado inicial"
     print "\n" + Lights_out.bonito(diagonal)
     compara_metodos(diagonal, h_1, h_2)
 
-    print u"\n\nVamos a ver como funcionan las búsquedas para un estado inicial"
+    print u"\n\nVamos a ver como funcionan las busquedas para un estado inicial"
     print "\n" + Lights_out.bonito(simetria)
     compara_metodos(simetria, h_1, h_2)
     
-    print u"\n\nVamos a ver como funcionan las búsquedas para un estado inicial"
+    print u"\n\nVamos a ver como funcionan las busquedas para un estado inicial"
     print "\n" + Lights_out.bonito(problemin)
     compara_metodos(problemin, h_1, h_2)
     
