@@ -166,5 +166,5 @@ if __name__ == "__main__":
 
 
     print "\n\n\n" + '-'*30 + '\n'
-    print u"y por último"
+    print u"y por ultimo"
     muestra((1, 7, 8, 2, 3, 4, 5, 6, 0))
