@@ -53,17 +53,27 @@ class Lights_out(ProblemaBusqueda):
     def __init__(self, pos_inicial):
         # ¡El formato y lo que lleva la inicialización de 
         # la super hay que cambiarlo al problema!
-        #super(Lights_out, self).__init__(s0, meta)
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        meta = tuple([0 for i in xrange(25)])
+        super(Lights_out, self).__init__(pos_inicial, lambda s: s == meta)
 
     def acciones_legales(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return range(25)
 
     def sucesor(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        acc = [accion]
+
+        if 0 <= accion-5: acc.append(accion-5)
+        if accion%5 != 0: acc.append(accion-1)
+        if accion%5 != 4: acc.append(accion+1)
+        if 24 >= accion+5: acc.append(accion+5)
+
+        nuevo = list(estado)
+        for p in acc:
+            nuevo[p] = 0 if nuevo[p] else 1
+        return tuple(nuevo)
 
     def costo_local(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return 1
 
     @staticmethod
     def bonito(estado):
@@ -89,9 +99,14 @@ def h_1(nodo):
     DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN PLATICADA DE PORQUÉ CREES QUE
     LA HEURÍSTICA ES ADMISIBLE
 
-    """
-    return 0
+    Al tener dos casillas juntas del mismo valor se necesitan al menos dos movimientos (creo xD)
 
+    """
+    costo = 0
+    for i in range(0,25):
+        if(0 <= i-5) and (nodo.estado[i - 5] != nodo.estado[i]): costo+=1
+        if(24 >= i+5) and (nodo.estado[i + 5] != nodo.estado[i]): costo+=1
+    return costo
 #-------------------------------------------------------------------------------------------------
 # Problema 4 (25 puntos): Desarrolla otra política admisible. 
 # Analiza y di porque piensas que es (o no es) dominante una respecto otra política
@@ -102,7 +117,7 @@ def h_2(nodo):
     LA HEURÍSTICA ES ADMISIBLE
 
     """
-    return 0
+    return (sum(nodo.estado)+4)//5
 
 
 def prueba_clase():
