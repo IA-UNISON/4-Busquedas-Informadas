@@ -3,11 +3,9 @@
 """
 lightsout.py
 ------------
-
 Tarea sobre búsquedas, donde lo que es importante es crear nuevas heurísticas
-
 """
-__author__ = 'nombre del estudiante'
+__author__ = 'Ana Sofia Ulloa Enriquez'
 
 
 from busquedas import *
@@ -20,16 +18,12 @@ class Lights_out(ProblemaBusqueda):
 #----------------------------------------------------------------------------
     """
     Problema del jueguito "Ligths out".
-
     La idea del juego es el apagar o prender todas las luces.
     Al seleccionar una casilla, la casilla y sus casillas adjacentes cambian
     (si estan prendidas se apagan y viceversa). El juego consiste en una matriz
     de 5 X 5, cuyo estado puede ser apagado 0 o prendido 1. Por ejemplo el estado
-
        (0,0,1,0,0,1,1,0,0,1,0,0,1,1,0,1,0,1,0,1,0,0,0,0,0)
-
     corresponde a:
-
     ---------------------
     |   |   | X |   |   |
     ---------------------
@@ -44,32 +38,46 @@ class Lights_out(ProblemaBusqueda):
     
     Las acciones posibles son de elegir cambiar una luz y sus casillas adjacentes, por lo que la accion es
     un número entre 0 y 24.
-
     Para mas información sobre el juego, se puede consultar
-
     http://en.wikipedia.org/wiki/Lights_Out_(game)
-
     """
-    def __init__(self, pos_inicial):
-        # ¡El formato y lo que lleva la inicialización de 
-        # la super hay que cambiarlo al problema!
-        #super(Lights_out, self).__init__(s0, meta)
-        raise NotImplementedError('Hay que hacerlo de tarea')
+    def __init__(self, pos_ini):
+
+        meta = tuple([0 for i in xrange(25)])
+        super(Lights_out, self).__init__(pos_ini, lambda s: s == meta)
+
+        
 
     def acciones_legales(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return range(25)
 
     def sucesor(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        s = list(estado)
 
+        s[accion] = (s[accion] + 1) % 2
+
+        if accion%5 < 4:
+            s[accion+1] = (s[accion+1] + 1) % 2
+        
+        if accion%5 > 0:
+            s[accion-1] = (s[accion-1] + 1) % 2
+        
+        if accion/5 < 4:
+            s[accion+5] = (s[accion+5] + 1) % 2
+        
+        if accion/5 >= 1:
+            s[accion-5] = (s[accion-5] + 1) % 2
+
+        return tuple(s)
+    
     def costo_local(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+
+        return 1
 
     @staticmethod
     def bonito(estado):
         """
         El prettyprint de un estado dado
-
         """
         cadena = "---------------------\n"
         for i in range(5):
@@ -86,11 +94,15 @@ class Lights_out(ProblemaBusqueda):
 #-------------------------------------------------------------------------------------------------
 def h_1(nodo):
     """
-    DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN PLATICADA DE PORQUÉ CREES QUE
-    LA HEURÍSTICA ES ADMISIBLE
+    Esta heurística suma el número de casillas prendidas, divide el resultado
+    entre 5 y devuelve el menor entero que es igual o mayor a éste.
 
+    El máximo número de casillas que pueden apagarse a la vez es 5, por lo que
+    en el mejor de los casos se podrá apagar el tablero en n/5 turnos, n siendo
+    el número de casillas prendidas.
     """
-    return 0
+    return int((4+sum([1 for i in range(25) if nodo.estado[i]==1]))/5)
+
 
 #-------------------------------------------------------------------------------------------------
 # Problema 4 (25 puntos): Desarrolla otra política admisible. 
@@ -98,12 +110,17 @@ def h_1(nodo):
 #-------------------------------------------------------------------------------------------------
 def h_2(nodo):
     """
-    DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN PLATICADA DE PORQUÉ CREES QUE
-    LA HEURÍSTICA ES ADMISIBLE
-
+    Esta heurística se basa en un método usado en combinatoria llamado "coloraciones".
+    Se explicarán los detalles en el anexo incluído.
     """
-    return 0
-
+    return max(nodo.estado[0] + nodo.estado[7] + nodo.estado[14] + nodo.estado[16] + nodo.estado[23],
+               nodo.estado[1] + nodo.estado[8] + nodo.estado[10] + nodo.estado[17] + nodo.estado[24],
+               nodo.estado[2] + nodo.estado[9] + nodo.estado[11] + nodo.estado[18] + nodo.estado[20],
+               nodo.estado[3] + nodo.estado[5] + nodo.estado[12] + nodo.estado[19] + nodo.estado[21],
+               nodo.estado[4] + nodo.estado[6] + nodo.estado[13] + nodo.estado[15] + nodo.estado[22])
+    
+    
+    
 
 def prueba_clase():
     """
@@ -162,14 +179,11 @@ def prueba_clase():
 def prueba_busqueda(pos_inicial, metodo, heuristica=None, max_prof=None):
     """
     Prueba un método de búsqueda para el problema del ligths out.
-
     @param pos_inicial: Una tupla con una posicion inicial
     @param metodo: Un metodo de búsqueda a probar
     @param heuristica: Una función de heurística, por default None si el método de búsqueda no requiere heuristica
     @param max_prof: Máxima profundidad para los algoritmos de DFS y IDS.
-
     @return nodo: El nodo solución
-
     """
     if heuristica:
         return metodo(Lights_out(pos_inicial), heuristica)
@@ -182,13 +196,10 @@ def prueba_busqueda(pos_inicial, metodo, heuristica=None, max_prof=None):
 def compara_metodos(pos_inicial, heuristica_1, heuristica_2):
     """
     Compara en un cuadro lo nodos expandidos y el costo de la solución de varios métodos de búsqueda
-
     @param pos_inicial: Una tupla con una posicion inicial
     @param heuristica_1: Una función de heurística
     @param heuristica_2: Una función de heurística
-
     @return None (no regresa nada, son puros efectos colaterales)
-
     Si la búsqueda no informada es muy lenta, posiblemente tendras que quitarla de la función
     """
     #n1 = prueba_busqueda(pos_inicial, busqueda_ancho)
@@ -243,4 +254,3 @@ if __name__ == "__main__":
     print u"\n\nVamos a ver como funcionan las búsquedas para un estado inicial"
     print "\n" + Lights_out.bonito(problemin)
     compara_metodos(problemin, h_1, h_2)
-    
