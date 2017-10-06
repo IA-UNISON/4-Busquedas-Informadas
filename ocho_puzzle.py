@@ -50,12 +50,12 @@ class Modelo8puzzle(busquedas.ModeloBusqueda):
     def acciones_legales(self, estado):
         return self.acciones[estado[-1]]
 
-    def sucesor(self, estado, acción):
+    def sucesor(self, estado, accion):
         s = list(estado)
         ind = s[-1]
-        bias = (-3 if acción is 'N' else
-                3 if acción is 'S' else
-                -1 if acción is 'O' else
+        bias = (-3 if accion is 'N' else
+                3 if accion is 'S' else
+                -1 if accion is 'O' else
                 1)
         s[ind], s[ind + bias] = s[ind + bias], s[ind]
         s[-1] += bias

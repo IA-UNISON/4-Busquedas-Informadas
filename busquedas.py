@@ -37,7 +37,7 @@ class ModeloBusqueda:
         """
         raise NotImplementedError("No implementado todavía.")
 
-    def sucesor(self, estado, acción):
+    def sucesor(self, estado, accion):
         """
         Estado sucesor
 
@@ -50,7 +50,7 @@ class ModeloBusqueda:
         """
         raise NotImplementedError("No implementado todavía.")
 
-    def costo_local(self, estado, acción):
+    def costo_local(self, estado, accion):
         """
         Calcula el costo de realizar una acción en un estado.
 
@@ -143,6 +143,10 @@ class Nodo:
                 self.padre.genera_plan() + [self.accion, self.estado])
 
     def __str__(self):
+        """
+        Muestra el nodo como lo que es en realidad, un plan.
+
+        """
         plan = self.genera_plan()
         return ("Costo: {}\n".format(self.costo) +
                 "Profundidad: {}\n".format(self.profundidad) +
@@ -151,6 +155,8 @@ class Nodo:
                          for (x, a, xp)
                          in zip(plan[:-1:2], plan[1::2], plan[2::2])]))
 
+    # Este método de sobrecarga del operador < es necesario
+    # para poder utilizar los nodos en la heapq
     def __lt__(self, other):
         return self.profundidad < other.profundidad
 
