@@ -89,6 +89,7 @@ class ProblemaBusqueda:
         def es_meta(estado):
             self.num_nodos += 1
             return meta(estado)
+        
         self.es_meta = es_meta
 
         self.x0 = x0
@@ -254,9 +255,8 @@ def busqueda_costo_uniforme(problema):
             nodo.nodos_visitados = problema.num_nodos
             return nodo
         for hijo in nodo.expande(problema.modelo):
-            if (hijo.estado not in visitados or
-                visitados[hijo.estado] > hijo.costo):
-                heapq.heappush(frontera, (hijo.costo, hijo))
+            if (hijo.estado not in visitados or visitados[hijo.estado] > hijo.costo):
+                heapq.heappush( frontera, ( hijo.costo, hijo) )
                 visitados[hijo.estado] = hijo.costo
     return None
 
@@ -276,13 +276,34 @@ def busqueda_A_estrella(problema, heuristica):
     Búsqueda A*
 
     @param problema: Un objeto de una clase heredada de ProblemaBusqueda
+    
     @param heuristica: Una funcion de heuristica, esto es, una función
                        heuristica(nodo), la cual devuelva un número mayor
                        o igual a cero con el costo esperado desde nodo hasta
                        un nodo cuyo estado final sea méta.
 
     @return Un objeto tipo Nodo con la estructura completa
-
     """
-    raise NotImplementedError('Hay que hacerlo de tarea \
-                              (problema 2 en el archivo busquedas.py)')
+    abiertos = []
+    heapq.heappush( abiertos, ( 0, Nodo( problema.x0 ) ) )
+    
+    visitados = dict()
+    visitados[ problema.x0 ] = 0
+    
+    while len(abiertos) > 0:
+        
+        i, nodo = heapq.heappop( abiertos )
+        
+        if problema.es_meta(nodo.estado):
+            nodo.nodos_visitados = problema.num_nodos
+            return nodo
+        
+        sucesores = nodo.expande( problema.modelo )
+        for sucesor in sucesores:
+            
+            if sucesor.estado not in visitados or visitados[sucesor.estado] > sucesor.costo:
+                total = sucesor.costo + heuristica( sucesor )
+                heapq.heappush( abiertos, ( total, sucesor ) )
+                visitados[sucesor.estado] = sucesor.costo
+
+    return None
