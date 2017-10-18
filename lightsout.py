@@ -54,13 +54,14 @@ class LightsOut(busquedas.ModeloBusqueda):
     """
     def __init__(self):
         # conjunto de acciones?
-        
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        self.acciones =  [i for i in range(25)]
 
+       # raise NotImplementedError('Hay que hacerlo de tarea')
+        
     def acciones_legales(self, estado):
         
         #devuelve una lista de casillas donde se puede dar click(Todas)
-        return [i for i in range(25)]
+        return range(25)
 
         raise NotImplementedError('Hay que hacerlo de tarea')
 
@@ -69,7 +70,13 @@ class LightsOut(busquedas.ModeloBusqueda):
         s = list(estado)
         
         s[accion]= 0 if s[accion]==1 else 1
-        for i in [1,-1,5,-5]:
+
+        lim = (accion//5)*5
+        for i in [1,-1]:
+            if accion + i>lim and accion + i<lim + 5:
+                s[accion + i]= 0 if s[accion + i]==1 else 1
+
+        for i in [5,-5]:
             if accion + i>-1 and accion + i<25:
                 s[accion + i]= 0 if s[accion + i]==1 else 1
                       
@@ -120,7 +127,7 @@ class ProblemaLightsOut(busquedas.ProblemaBusqueda):
         def meta(x):
             
             for i in range(25):
-                if x0[i]==1:
+                if x[i]==1:
                     return False
             
             return True
@@ -140,6 +147,11 @@ def h_1(nodo):
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
     """
+    # La idea básicamente consiste en que hay que ir apagando las luces
+    # de la primer fila, luego la segunda y asi sucesivamente.
+    
+    
+    
     return 0
 
 
