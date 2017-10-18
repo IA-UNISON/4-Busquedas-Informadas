@@ -68,6 +68,7 @@ class LightsOut(busquedas.ModeloBusqueda):
         
         s = list(estado)
         
+        s[accion]= 0 if s[accion]==1 else 1
         for i in [1,-1,5,-5]:
             if accion + i>-1 and accion + i<25:
                 s[accion + i]= 0 if s[accion + i]==1 else 1
@@ -83,6 +84,8 @@ class LightsOut(busquedas.ModeloBusqueda):
         for i in range(25):
             if s[i]==1:
                 on+=1 
+                
+        return on
 
         raise NotImplementedError('Hay que hacerlo de tarea')
 
