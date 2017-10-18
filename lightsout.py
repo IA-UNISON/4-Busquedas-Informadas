@@ -53,15 +53,37 @@ class LightsOut(busquedas.ModeloBusqueda):
 
     """
     def __init__(self):
+        # conjunto de acciones?
+        
         raise NotImplementedError('Hay que hacerlo de tarea')
 
     def acciones_legales(self, estado):
+        
+        #devuelve una lista de casillas donde se puede dar click(Todas)
+        return [i for i in range(25)]
+
         raise NotImplementedError('Hay que hacerlo de tarea')
 
     def sucesor(self, estado, accion):
+        
+        s = list(estado)
+        
+        for i in [1,-1,5,-5]:
+            if accion + i>-1 and accion + i<25:
+                s[accion + i]= 0 if s[accion + i]==1 else 1
+                      
+        return tuple(s)
+        
         raise NotImplementedError('Hay que hacerlo de tarea')
 
     def costo_local(self, estado, accion):
+        #cantidad de luces encendidas
+        on = 0
+        s = self.sucesor(estado,accion)
+        for i in range(25):
+            if s[i]==1:
+                on+=1 
+
         raise NotImplementedError('Hay que hacerlo de tarea')
 
     @staticmethod
@@ -93,7 +115,15 @@ class ProblemaLightsOut(busquedas.ProblemaBusqueda):
         # Completa el código
         x0 = tuple(pos_ini)
         def meta(x):
-            raise NotImplementedError("Hay que hacer de tarea")
+            
+            for i in range(25):
+                if x0[i]==1:
+                    return False
+            
+            return True
+            
+            
+        raise NotImplementedError("Hay que hacer de tarea")
 
         super().__init__(x0=x0, meta=meta, modelo=LightsOut())
 
