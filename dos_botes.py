@@ -7,7 +7,7 @@ dos_botes.py
 Una pequeña aplicación de las búsquedas
 
 """
-__author__ = 'nombre del estudiante'
+__author__ = 'Belen Chavarría'
 
 
 import busquedas

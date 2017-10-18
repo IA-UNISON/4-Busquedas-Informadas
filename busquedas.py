@@ -284,5 +284,26 @@ def busqueda_A_estrella(problema, heuristica):
     @return Un objeto tipo Nodo con la estructura completa
 
     """
+    
+
+    abiertos=[]
+    cerrados = {problema.x0: 0}
+    f =  heuristica(Nodo(problema.x0))
+    heapq.heappush(abiertos, (f, Nodo(problema.x0)))
+        
+    
+    while abiertos:
+        (_, nodo) = heapq.heappop(abiertos)
+        if problema.es_meta(nodo.estado):
+            nodo.nodos_visitados = problema.num_nodos
+            return nodo
+        for hijo in nodo.expande(problema.modelo):
+            if (hijo.estado not in cerrados or
+                cerrados[hijo.estado] > hijo.costo + heuristica(hijo)):
+                heapq.heappush(abiertos, (hijo.costo + heuristica(hijo), hijo))
+                cerrados[hijo.estado] = hijo.costo
+       
+    return None
+    
     raise NotImplementedError('Hay que hacerlo de tarea \
                               (problema 2 en el archivo busquedas.py)')
