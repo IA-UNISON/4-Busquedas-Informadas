@@ -244,19 +244,21 @@ def busqueda_costo_uniforme(problema):
     @return Un objeto tipo Nodo con la estructura completa
 
     """
-    frontera = []
-    heapq.heappush(frontera, (0, Nodo(problema.x0)))
-    visitados = {problema.x0: 0}
+    frontera = [] #nodos que vas recorriendo o vas generando
+    heapq.heappush(frontera, (0, Nodo(problema.x0))) #guarda el costo y el nodo x0
+    visitados = {problema.x0: 0} #x0 ya fue visitado
 
     while frontera:
-        (_, nodo) = heapq.heappop(frontera)
-        if problema.es_meta(nodo.estado):
-            nodo.nodos_visitados = problema.num_nodos
-            return nodo
-        for hijo in nodo.expande(problema.modelo):
-            if (hijo.estado not in visitados or
-                visitados[hijo.estado] > hijo.costo):
+        (_, nodo) = heapq.heappop(frontera) #_es para ignorarlo (ignora el costo)
+        if problema.es_meta(nodo.estado): #meta es que encuentre la solucion
+            nodo.nodos_visitados = problema.num_nodos #si es meta se mete a nodos ya visitados
+            return nodo #se devuelve el nodo
+        for hijo in nodo.expande(problema.modelo):  #recorre todos los hijos del problema
+            #hijo.estado = tupla de las posiciones en problema
+            if (hijo.estado not in visitados or visitados[hijo.estado] > hijo.costo): #si el hijo no esta en la lista de visitados o si ya fue visitado se compara el valor del hijo dentro del estado
+               #si pasa esto metemos al hijo al hijo a la frontera
                 heapq.heappush(frontera, (hijo.costo, hijo))
+                #metes el estado y su costo a los nodos visitados
                 visitados[hijo.estado] = hijo.costo
     return None
 
@@ -281,8 +283,36 @@ def busqueda_A_estrella(problema, heuristica):
                        o igual a cero con el costo esperado desde nodo hasta
                        un nodo cuyo estado final sea méta.
 
+    h(n) is a heuristic that estimates the cost of the cheapest path from n to the goal.
+     The heuristic is problem-specific. For the algorithm to find the actual shortest path, t
+     he heuristic function must be admissible, meaning that it never overestimates the actual cost 
+     to get to the nearest goal node.
+
     @return Un objeto tipo Nodo con la estructura completa
 
     """
-    raise NotImplementedError('Hay que hacerlo de tarea \
-                              (problema 2 en el archivo busquedas.py)')
+    #raise NotImplementedError('Hay que hacerlo de tarea \(problema 2 en el archivo busquedas.py)')
+    """
+    To prove the admissibility of A*, the solution path returned by the algorithm is used as follows:
+
+    When A* terminates its search, it has found a path whose actual cost is lower than the estimated cost
+    of any path through any open node. But since those estimates are optimistic, A* can safely ignore those nodes. 
+    In other words, A* will never overlook the possibility of a lower-cost path and so is admissible.
+    """
+    frontera = [] #nodos que vas recorriendo o vas generando
+    heapq.heappush(frontera, (0, Nodo(problema.x0))) #guarda el costo y el nodo x0
+    visitados = {problema.x0: 0} #x0 ya fue visitado
+
+    while frontera:
+        (_, nodo) = heapq.heappop(frontera) #_es para ignorarlo (ignora el costo)
+        if problema.es_meta(nodo.estado): #meta es que encuentre la solucion
+            nodo.nodos_visitados = problema.num_nodos #si es meta se mete a nodos ya visitados
+            return nodo #se devuelve el nodo
+        for hijo in nodo.expande(problema.modelo):  #recorre todos los hijos del problema
+            #hijo.estado = tupla de las posiciones en problema
+            if (hijo.estado not in visitados or visitados[hijo.estado] > hijo.costo): #si el hijo no esta en la lista de visitados o si ya fue visitado se compara el valor del hijo dentro del estado
+               #si pasa esto metemos al hijo al hijo a la frontera y se le suma la heuristica al costo del hijo
+                heapq.heappush(frontera, (hijo.costo+heuristica(hijo), hijo))
+                #metes el estado y su costo a los nodos visitados
+                visitados[hijo.estado] = hijo.costo
+    return None

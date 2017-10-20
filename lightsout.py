@@ -105,7 +105,8 @@ def h_1(nodo):
     """
     DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
-
+    
+    h(n) is a heuristic that estimates the cost of the cheapest path from n to the goal
     """
     return 0
 
