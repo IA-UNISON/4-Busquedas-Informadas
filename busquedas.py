@@ -89,6 +89,7 @@ class ProblemaBusqueda:
         def es_meta(estado):
             self.num_nodos += 1
             return meta(estado)
+            
         self.es_meta = es_meta
 
         self.x0 = x0
@@ -291,17 +292,22 @@ def busqueda_A_estrella(problema, heuristica):
     f =  heuristica(Nodo(problema.x0))
     heapq.heappush(abiertos, (f, Nodo(problema.x0)))
         
-    
+    i=0
     while abiertos:
-        (_, nodo) = heapq.heappop(abiertos)
+        i+=1
+        (fi, nodo) = heapq.heappop(abiertos)
+        #print("se eligió", nodo.accion, nodo.costo)
+        
         if problema.es_meta(nodo.estado):
             nodo.nodos_visitados = problema.num_nodos
             return nodo
         for hijo in nodo.expande(problema.modelo):
+            f = hijo.costo + heuristica(hijo)
             if (hijo.estado not in cerrados or
-                cerrados[hijo.estado] > hijo.costo + heuristica(hijo)):
-                heapq.heappush(abiertos, (hijo.costo + heuristica(hijo), hijo))
-                cerrados[hijo.estado] = hijo.costo
+                cerrados[hijo.estado] > f ):
+                #print("(accion=", hijo.accion, " f: ", f, ")", end=", ")
+                heapq.heappush(abiertos, (f, hijo))
+                cerrados[hijo.estado] = f
        
     return None
     

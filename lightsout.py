@@ -7,7 +7,7 @@ lightsout.py
 Tarea sobre búsquedas, donde lo que es importante es crear nuevas heurísticas
 
 """
-__author__ = 'nombre del estudiante'
+__author__ = 'Belen Chavarría'
 
 
 import busquedas
@@ -85,14 +85,16 @@ class LightsOut(busquedas.ModeloBusqueda):
         raise NotImplementedError('Hay que hacerlo de tarea')
 
     def costo_local(self, estado, accion):
-        #cantidad de luces encendidas
-        on = 0
+        #cantidad de luces encendidas, despues de ejecutar la acción
+
+        on=0
         s = self.sucesor(estado,accion)
         for i in range(25):
             if s[i]==1:
                 on+=1 
                 
         return on
+        
 
         raise NotImplementedError('Hay que hacerlo de tarea')
 
@@ -117,6 +119,7 @@ class LightsOut(busquedas.ModeloBusqueda):
 #  Problema 3: Completa el problema de LightsOut
 # ------------------------------------------------------------
 class ProblemaLightsOut(busquedas.ProblemaBusqueda):
+    
     def __init__(self, pos_ini):
         """
         Utiliza la superclase para hacer el problema
@@ -125,15 +128,12 @@ class ProblemaLightsOut(busquedas.ProblemaBusqueda):
         # Completa el código
         x0 = tuple(pos_ini)
         def meta(x):
-            
+            #si todas las casillas están apagadas devuelve True, si no False
             for i in range(25):
                 if x[i]==1:
-                    return False
-            
+                    return False           
             return True
             
-            
-        raise NotImplementedError("Hay que hacer de tarea")
 
         super().__init__(x0=x0, meta=meta, modelo=LightsOut())
 
@@ -147,13 +147,18 @@ def h_1(nodo):
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
     """
-    # La idea básicamente consiste en que hay que ir apagando las luces
-    # de la primer fila, luego la segunda y asi sucesivamente.
+    # La primer idea consiste en que el máximo de luces que podemos
+    # apagar en una sola jugada es 5. Por lo que en el mejor de los
+    # casos tendremos puras cruces que se apagan con un click cada una
+    # si dividimos entre 5 el total de luces encendidas seria el mínimo 
+    # requerido para apagarlas todas, por lo que la heuristica sería
+    # admisible.
     
-    
-    
-    return 0
+    total=0
+    for i in range(25):
+        total+= nodo.estado[i]
 
+    return int(total/5)
 
 # ------------------------------------------------------------
 #  Problema 5: Desarrolla otra política admisible.
@@ -166,15 +171,65 @@ def h_2(nodo):
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
     """
-    return 0
+    # En esta parte se consideran las luces encendidas en la primer fila 
+    # que se necesitan apagar. Es muy tonta, no debe ser admisible porque no
+    # significa que se tengan que apagar estas luces una por una, pueden ser
+    # todas en un solo movimiento si son tres.
+    fila1 = [i for i in range(5) if nodo.estado[i]==1]
+    
+    return len(fila1)
 
+
+    
+def h_3(nodo):
+    """
+    DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN
+    PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
+
+    """
+    # consiste en contar los grupos de a lo mas 5 luces adyaacentes que estan encendidas.
+    # Hasta ahora, fue la mejor heurística que encontré. Según mi parecer no es admisible
+    # porque los grupos podrían estar mejor distribuidos y reducirse la cantidad de estos.
+    
+    vecindad ={}
+
+    for i in range(25):
+        flag = False
+        if nodo.estado[i] == 1:
+            #buscamos en las vecindades para ver si pertenece a alguna
+            for x in vecindad.keys():
+                if len(vecindad[x])<5:
+                    for xi in vecindad[x]:
+                        if abs(xi-i)==5 or (xi%5==0 and i-xi==1) or (xi%5==4 and xi-i==1) or abs(xi-i)==1:
+                            flag=True
+                            vecindad[x].append(i)
+                            break
+                    if flag==True:
+                        break
+                
+            if flag == False:
+                vecindad[i] = [i]
+    
+    return len(vecindad)
+    
 
 def prueba_modelo():
     """
     Prueba la clase LightsOut
 
     """
-
+    p0 = (0, 0, 1, 0, 0,
+          0, 1, 1, 1, 0,
+          0, 0, 1, 0, 0,
+          0, 0, 0, 0, 0,
+          0, 0, 0, 0, 0)
+    
+    p1 = (0, 0, 1, 0, 0,
+          0, 1, 1, 0, 0,
+          0, 0, 0, 1, 1,
+          0, 0, 0, 1, 0,
+          0, 0, 0, 0, 0)
+    
     pos_ini = (0, 1, 0, 1, 0,
                0, 0, 1, 1, 0,
                0, 0, 0, 1, 1,
@@ -214,6 +269,7 @@ def prueba_modelo():
     modelo = LightsOut()
 
     assert modelo.acciones_legales(pos_ini) == range(25)
+    assert modelo.sucesor(p0, 13) == p1
     assert modelo.sucesor(pos_ini, 0) == pos_a0
     assert modelo.sucesor(pos_a0, 4) == pos_a4
     assert modelo.sucesor(pos_a4, 24) == pos_a24
@@ -222,7 +278,7 @@ def prueba_modelo():
     print("Paso la prueba de la clase LightsOut")
 
 
-def compara_metodos(pos_inicial, heuristica_1, heuristica_2):
+def compara_metodos(pos_inicial, heuristica_1, heuristica_2, heuristica_3):
     """
     Compara en un cuadro lo nodos expandidos y el costo de la solución
     de varios métodos de búsqueda
@@ -237,19 +293,39 @@ def compara_metodos(pos_inicial, heuristica_1, heuristica_2):
     de la función
 
     """
-    solucion1 = busquedas.busqueda_A_estrella(ProblemaLightsOut(pos_inicial),
-                                              heuristica_1)
-    solucion2 = busquedas.busqueda_A_estrella(ProblemaLightsOut(pos_inicial),
-                                              heuristica_2)
-
+    
     print('-' * 50)
     print('Método'.center(10) + 'Costo'.center(20) + 'Nodos visitados')
     print('-' * 50 + '\n\n')
-    print('A* con h1'.center(10) + str(solucion1.costo).center(20) +
-          str(solucion1.nodos_visitados))
-    print('A* con h2'.center(10) + str(solucion2.costo).center(20) +
+    
+    solucion4 = busquedas.busqueda_A_estrella(ProblemaLightsOut(pos_inicial),
+                                             heuristica_3)
+    print('A* con h3'.center(10) + str(solucion4.costo).center(20) +
+          str(solucion4.nodos_visitados))
+    print('-' * 50 + '\n\n')
+    
+    solucion3 = busquedas.busqueda_A_estrella(ProblemaLightsOut(pos_inicial),
+                                             heuristica_2)
+    print('A* con h2'.center(10) + str(solucion3.costo).center(20) +
+          str(solucion3.nodos_visitados))
+    print('-' * 50 + '\n\n')
+    
+    solucion2 = busquedas.busqueda_A_estrella(ProblemaLightsOut(pos_inicial),
+                                              heuristica_1)
+    
+    print('A* con h1'.center(10) + str(solucion2.costo).center(20) +
           str(solucion2.nodos_visitados))
     print('-' * 50 + '\n\n')
+    
+    solucion1 = busquedas.busqueda_costo_uniforme(ProblemaLightsOut(pos_inicial))
+    
+
+    
+    print('A* con BCU'.center(10) + str(solucion1.costo).center(19) +
+          str(solucion1.nodos_visitados))
+    print('-' * 50 + '\n\n')
+    
+    
 
 
 if __name__ == "__main__":
@@ -258,6 +334,20 @@ if __name__ == "__main__":
     print("vamos a verificar medianamente la clase LightsOut")
     prueba_modelo()
 
+    
+    prueba1 = (0, 0, 1, 0, 0,
+               0, 1, 1, 1, 0,
+               0, 0, 1, 0, 0,
+               0, 0, 0, 0, 0,
+               0, 0, 0, 0, 0)
+    
+    
+    prueba2 = (0, 0, 1, 1, 0,
+               0, 1, 1, 1, 0,
+               0, 0, 1, 0, 1,
+               0, 1, 0, 0, 0,
+               0, 0, 0, 0, 0)
+    
     # Tres estados iniciales interesantes
     diagonal = (0, 0, 0, 0, 1,
                 0, 0, 0, 1, 0,
@@ -277,14 +367,25 @@ if __name__ == "__main__":
                  0, 0, 1, 1, 1,
                  0, 0, 0, 1, 1)
 
-    print("\n\nPara el problema en diagonal")
-    print("\n{}".format(LightsOut.bonito(diagonal)))
-    compara_metodos(diagonal, h_1, h_2)
+
+    print("\n\nPara el problema en prueba1")
+    print("\n{}".format(LightsOut.bonito(prueba1)))
+    compara_metodos(prueba1, h_1, h_2,h_3)
 
     print("\n\nPara el problema simétrico")
     print("\n".format(LightsOut.bonito(simetria)))
-    compara_metodos(simetria, h_1, h_2)
-
+    compara_metodos(simetria, h_1, h_2,h_3)
+    
     print("\n\nPara el problema Bonito")
     print("\n".format(LightsOut.bonito(problemin)))
-    compara_metodos(problemin, h_1, h_2)
+    compara_metodos(problemin, h_1, h_2, h_3)
+    
+    print("\n\nPara el problema en diagonal")
+    print("\n{}".format(LightsOut.bonito(diagonal)))
+    compara_metodos(diagonal, h_1, h_2, h_3)
+    
+      
+    
+    
+    
+
