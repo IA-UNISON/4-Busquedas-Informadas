@@ -152,6 +152,9 @@ def h_2(nodo):
     el juego, entonceces al tener las orillas en 0 se podria decir 
     que es el problema del juego ya que el centro siempre esta 
     cambiando.
+    
+    AL parecer h_1 domina a h_2 puesto que revisa menos nodos
+    
 
     """        
     n1=nodo.estado[24]+nodo.estado[23]+nodo.estado[22]+nodo.estado[21]
