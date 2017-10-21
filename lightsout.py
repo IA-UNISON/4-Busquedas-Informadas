@@ -18,11 +18,7 @@ class LightsOut(busquedas.ModeloBusqueda):
     # Problema 2:  Completa la clase
     # para el modelo de lights out
     # --------------------------------------------------------
-    """
-    Problema del jueguito "Ligths out".
-
-    La idea del juego es el apagar o prender todas las luces.
-    Al seleccionar una casilla, la casilla y sus casillas
+    """a
     adjacentes cambian (si estan prendidas se apagan y viceversa).
 
     El juego consiste en una matriz de 5 X 5, cuyo estado puede
@@ -52,17 +48,28 @@ class LightsOut(busquedas.ModeloBusqueda):
     http://en.wikipedia.org/wiki/Lights_Out_(game)
 
     """
-    def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
-
+    def __init__(self, n = 5):
+        self.acciones = {i:i for i in range(n*n)}
+        self.n = n
     def acciones_legales(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return [i for i in range(self.n*self.n)]
 
     def sucesor(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        l = list(estado)
+        l[accion] = 0 if l[accion] == 1 else 1
+        if(accion%self.n > 0 ):
+            l[accion-1] = 1 if l[accion-1] == 0 else 0
+        if(accion%self.n < self.n-1):
+            l[accion+1] = 1 if l[accion+1] == 0 else 0
+        if(accion//self.n > 0):
+            l[accion-self.n] = 1 if l[accion-self.n] == 0 else 0
+        if(accion//self.n < self.n-1):
+            l[accion+self.n] = 1 if l[accion+self.n] == 0 else 0
+        
+        return tuple(l)
 
     def costo_local(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return 1
 
     @staticmethod
     def bonito(estado):
@@ -93,7 +100,12 @@ class ProblemaLightsOut(busquedas.ProblemaBusqueda):
         # Completa el código
         x0 = tuple(pos_ini)
         def meta(x):
-            raise NotImplementedError("Hay que hacer de tarea")
+            for y in list(x):
+                if(y==1):
+                    return False
+            else:
+                return True
+        
 
         super().__init__(x0=x0, meta=meta, modelo=LightsOut())
 
@@ -106,8 +118,16 @@ def h_1(nodo):
     DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
+    h(estado) = numero de focos encendidos en el estado.
+    es admisible ya que para cualquier estado el valor heurístico minímo alcanzable es 0 
+    que es igual al valor del estado meta, es decir 0 focos prendidos, cualquier otro 
+    estado no meta siempre tendra más de 0 focos encendidos.
     """
-    return 0
+    sum=0
+    for x in list(nodo.estado):
+        if(x == 1):
+            sum+=1
+    return sum
 
 
 # ------------------------------------------------------------
@@ -120,9 +140,18 @@ def h_2(nodo):
     DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
+    Esta heuristica es una variacion de la heuristica anterior (hace los mismo pero ahora solo cuenta los cuadros  de las esquinas)
+    por lo cual tambien es admisible (otras heuristicas mas elaboradas que se probaron daban resultados pésimos, el algoritmo no encontraba
+    el camino en un tiempo aceptable).
+    Como es de esperarse al revisar menos cuadros esta heurística hace que el algoritmo tarde mas en encontrar el camino optimo que la heuristica 1. 
+    Siempre revisa mas nodos. 
+    
     """
-    return 0
-
+    
+    
+    return ( nodo.estado[0] + nodo.estado[1] + nodo.estado[3] + nodo.estado[4]
+            + nodo.estado[5] + nodo.estado[9] + nodo.estado[15] + nodo.estado[19] + nodo.estado[20] +
+            nodo.estado[21] + nodo.estado[23] + nodo.estado[24])
 
 def prueba_modelo():
     """
@@ -168,7 +197,7 @@ def prueba_modelo():
 
     modelo = LightsOut()
 
-    assert modelo.acciones_legales(pos_ini) == range(25)
+    assert modelo.acciones_legales(pos_ini) == list(range(25))
     assert modelo.sucesor(pos_ini, 0) == pos_a0
     assert modelo.sucesor(pos_a0, 4) == pos_a4
     assert modelo.sucesor(pos_a4, 24) == pos_a24
@@ -195,7 +224,7 @@ def compara_metodos(pos_inicial, heuristica_1, heuristica_2):
     solucion1 = busquedas.busqueda_A_estrella(ProblemaLightsOut(pos_inicial),
                                               heuristica_1)
     solucion2 = busquedas.busqueda_A_estrella(ProblemaLightsOut(pos_inicial),
-                                              heuristica_2)
+                                             heuristica_2)
 
     print('-' * 50)
     print('Método'.center(10) + 'Costo'.center(20) + 'Nodos visitados')
