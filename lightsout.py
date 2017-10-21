@@ -7,7 +7,7 @@ lightsout.py
 Tarea sobre búsquedas, donde lo que es importante es crear nuevas heurísticas
 
 """
-__author__ = 'nombre del estudiante'
+__author__ = 'Yocu'
 
 
 import busquedas
@@ -52,16 +52,37 @@ class LightsOut(busquedas.ModeloBusqueda):
     http://en.wikipedia.org/wiki/Lights_Out_(game)
 
     """
-    def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
-
+    
+    def __init__(self, pos_inicial):
+        s0 = pos_inicial
+        def meta(estado):
+            meta = True
+            for i in range(25):
+                if(estado[i] == 1):
+                    meta = False
+                    break
+            return meta
+        super(LightsOut, self).__init__(s0, meta)
     def acciones_legales(self, estado):
+        return range(25)
         raise NotImplementedError('Hay que hacerlo de tarea')
 
     def sucesor(self, estado, accion):
+        sucesor =list(estado)
+        sucesor[accion] = 1-sucesor[accion]
+        if(accion%5 > 0):
+            sucesor[accion-1] = 1-sucesor[accion-1]
+        if (accion%5 < 4):
+            sucesor[accion+1] = 1-sucesor[accion+1]
+        if(accion > 4):
+            sucesor[accion-5] = 1-sucesor[accion-5]
+        if(accion < 20):
+            sucesor[accion+5] = 1-sucesor[accion+5]
+        return tuple(sucesor)
         raise NotImplementedError('Hay que hacerlo de tarea')
 
     def costo_local(self, estado, accion):
+        return 1
         raise NotImplementedError('Hay que hacerlo de tarea')
 
     @staticmethod
@@ -85,17 +106,23 @@ class LightsOut(busquedas.ModeloBusqueda):
 #  Problema 3: Completa el problema de LightsOut
 # ------------------------------------------------------------
 class ProblemaLightsOut(busquedas.ProblemaBusqueda):
-    def __init__(self, pos_ini):
+    def __init__(self, pos_inicial):
         """
         Utiliza la superclase para hacer el problema
 
         """
         # Completa el código
-        x0 = tuple(pos_ini)
+        x0 = tuple(pos_inicial)
         def meta(x):
+            meta = True
+            for i in x:
+                if i == 1:
+                    meta = False
+                    break
+                return meta
             raise NotImplementedError("Hay que hacer de tarea")
-
         super().__init__(x0=x0, meta=meta, modelo=LightsOut())
+        
 
 
 # ------------------------------------------------------------
@@ -105,11 +132,22 @@ def h_1(nodo):
     """
     DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
+    """
+    costo = 0
+    if nodo.estado[0] == 1:
+        costo+=1
+    if nodo.estado[4] == 1:
+        costo+=1
+    if nodo.estado[20] == 1:
+        costo+=1
+    if nodo.estado[24] == 1:
+        costo+=1
+    return costo
 
     """
-    return 0
-
-
+    Devuelve el numero de luces prendidas en las esquinas, ya que si prendes una luz
+    de la esquina no afecta a las otras, ... sin ideas         
+    """
 # ------------------------------------------------------------
 #  Problema 5: Desarrolla otra política admisible.
 #  Analiza y di porque piensas que es (o no es) dominante una
