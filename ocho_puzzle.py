@@ -127,7 +127,7 @@ def probando(pos_ini):
 
     """
     print(Modelo8puzzle.dibuja(pos_ini))
-
+    """
     # ------- BFS -----------
     print("---------- Utilizando BFS -------------")
     problema = Ocho_puzzle(pos_ini)
@@ -155,7 +155,7 @@ def probando(pos_ini):
     solucion = busquedas.busqueda_costo_uniforme(problema)
     print(solucion)
     print("Explorando {} nodos\n\n".format(solucion.nodos_visitados))
-    
+    """
     # # ------- A* con h1 -----------
     print("---------- Utilizando A* con h1 -------------")
     problema = Ocho_puzzle(pos_ini)
