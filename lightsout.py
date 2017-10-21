@@ -137,6 +137,14 @@ def h_1(nodo):
     
     return sum(nodo.estado)
     
+    """    
+    suma=0
+    for x in range(5):
+        for y in range(5):
+            if(y==x and nodo.estado[x]==1):
+                suma+=1
+    return suma
+    """
 # ------------------------------------------------------------
 #  Problema 5: Desarrolla otra política admisible.
 #  Analiza y di porque piensas que es (o no es) dominante una
