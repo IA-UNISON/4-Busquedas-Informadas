@@ -7,11 +7,11 @@ lightsout.py
 Tarea sobre búsquedas, donde lo que es importante es crear nuevas heurísticas
 
 """
-__author__ = 'nombre del estudiante'
+__author__ = 'Carlos_Huguez'
 
 
 import busquedas
-
+from random import randint
 
 class LightsOut(busquedas.ModeloBusqueda):
     # --------------------------------------------------------
@@ -53,17 +53,65 @@ class LightsOut(busquedas.ModeloBusqueda):
 
     """
     def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        self.acciones = [ i for i in range( 0, 25 ) ] 
+
 
     def acciones_legales(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return range(25)
 
-    def sucesor(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+    
+    def sucesor(self, estado, accion ):
+      scsr = list(estado).copy()
+      #print( accion )
+      i = accion // 5 # rows
+      j = accion % 5 # colums
+      
+      accn = ((0, 5, 0, 1) if i == 0 and j == 0 else   
+            (0, 5, -1, 0) if i == 0 and j == 4 else 
+            (-5, 0, 0, 1) if i == 4 and j == 0 else 
+            (-5, -1, 0, 0) if i == 4 and j == 4 else 
+            (-5, 5, 0, 1) if i > 0 and j == 0 else 
+            (0, 5, -1, 1) if j > 0 and i == 0 else 
+            (-5, 5, -1, 0) if j == 4 and i > 0 else 
+            (-5, 0, -1, 1) if j > 0 and i == 4 else 
+            (-5, 5, -1, 1) )
+
+      
+      scsr[accion] = ( 1 if scsr[accion] == 0 else 0 )
+      
+      for a in accn:
+        if a != 0:
+          scsr[accion+a] = ( 1 if scsr[accion+a] == 0 else 0 )
+      
+      return tuple(scsr)
+
 
     def costo_local(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
 
+      scsr = list(estado).copy()
+      
+      i = accion // 5 # rows
+      j = accion % 5 # colums
+      
+      accn =( (0, 5, 0, 1) if i == 0 and j == 0 else   
+            (0, 5, -1, 0) if i == 0 and j == 4 else 
+            (-5, 0, 0, 1) if i == 4 and j == 0 else 
+            (-5, -1, 0, 0) if i == 4 and j == 4 else 
+            (-5, 5, 0, 1) if i > 0 and j == 0 else 
+            (0, 5, -1, 1) if j > 0 and i == 0 else 
+            (-5, 5, -1, 0) if j == 4 and i > 0 else 
+            (-5, 0, -1, 1) if j > 0 and i == 4 else 
+            (-5, 5, -1, 1) )
+
+      contar = ( 1 if scsr[accion] == 0 else 0 )
+      
+      for a in accn:
+        if a != 0:
+          contar += ( 1 if scsr[accion+a] == 0 else 0 )
+        
+      return contar
+
+        
     @staticmethod
     def bonito(estado):
         """
@@ -78,7 +126,8 @@ class LightsOut(busquedas.ModeloBusqueda):
                 else:
                     cadena += "|   "
             cadena += "|\n---------------------\n"
-        return cadena
+        print( cadena )
+        #return cadena
 
 
 # ------------------------------------------------------------
@@ -92,8 +141,12 @@ class ProblemaLightsOut(busquedas.ProblemaBusqueda):
         """
         # Completa el código
         x0 = tuple(pos_ini)
-        def meta(x):
-            raise NotImplementedError("Hay que hacer de tarea")
+        def meta( x ):
+            for indice in x:
+              if( indice == 1 ):
+                return False
+            
+            return True
 
         super().__init__(x0=x0, meta=meta, modelo=LightsOut())
 
@@ -106,8 +159,10 @@ def h_1(nodo):
     DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
+    esta heuristica es contar todas las luces en la matriz aunque esta heuristica
+    no es admisible por que con una accion puedes apagra 5 de un golpe
     """
-    return 0
+    return sum( nodo.estado )
 
 
 # ------------------------------------------------------------
@@ -119,9 +174,21 @@ def h_2(nodo):
     """
     DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
-
+    
+    en esta decidi contontar solo las esquinas y el centro por que son los puntos donde encontre mayor aunque esta
+    solo la puedo aplicar con matrices cuadradas 5x5, 10x10, etc esta
+    por su parte no es dominante a la anterior por que visita mas nodos
+    
     """
-    return 0
+
+    contar = 0
+    wawa = ( 0, 4, 12, 20, 24 )
+    
+    for i in wawa:
+      contar += nodo.estado[i]   
+    
+    
+    return contar
 
 
 def prueba_modelo():
@@ -200,18 +267,21 @@ def compara_metodos(pos_inicial, heuristica_1, heuristica_2):
     print('-' * 50)
     print('Método'.center(10) + 'Costo'.center(20) + 'Nodos visitados')
     print('-' * 50 + '\n\n')
-    print('A* con h1'.center(10) + str(solucion1.costo).center(20) +
-          str(solucion1.nodos_visitados))
-    print('A* con h2'.center(10) + str(solucion2.costo).center(20) +
-          str(solucion2.nodos_visitados))
-    print('-' * 50 + '\n\n')
+    print('A* con h1'.center(10) + str(solucion1.costo).center(20) + str(solucion1.nodos_visitados))
+    #print('\n')
+    #LightsOut.bonito(solucion1.estado)
+    #print('-' * 50 + '\n\n')
 
+    print('A* con h2'.center(10) + str(solucion2.costo).center(20) + str(solucion2.nodos_visitados))
+    print('-' * 50 + '\n\n')
+    #LightsOut.bonito(solucion2.estado)
+   
 
 if __name__ == "__main__":
-
+    
     print("Antes de hacer otra cosa,")
     print("vamos a verificar medianamente la clase LightsOut")
-    prueba_modelo()
+    #prueba_modelo()
 
     # Tres estados iniciales interesantes
     diagonal = (0, 0, 0, 0, 1,
@@ -231,15 +301,16 @@ if __name__ == "__main__":
                  0, 0, 0, 1, 1,
                  0, 0, 1, 1, 1,
                  0, 0, 0, 1, 1)
-
+    
     print("\n\nPara el problema en diagonal")
-    print("\n{}".format(LightsOut.bonito(diagonal)))
+    LightsOut.bonito(diagonal)
     compara_metodos(diagonal, h_1, h_2)
-
+    
     print("\n\nPara el problema simétrico")
-    print("\n".format(LightsOut.bonito(simetria)))
+    LightsOut.bonito(simetria)
     compara_metodos(simetria, h_1, h_2)
-
+    
     print("\n\nPara el problema Bonito")
-    print("\n".format(LightsOut.bonito(problemin)))
+    LightsOut.bonito(problemin)
     compara_metodos(problemin, h_1, h_2)
+    
