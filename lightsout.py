@@ -130,11 +130,9 @@ def h_1(nodo):
 
     """
     """
-    Siendo lo mas optimizta posible es que que lo que nos falta para 
-    llegar a la solucion es pensar que lo que falta son el numero de luces
-    encendidas al igual que en el 8-puzzle y funciona en friega, aunque no es
-    admisible porque en el caso que tenemos 5 luces encendidas con un 
-    solo movimiento acaba.
+    Siendo lo mas optimizta posible es asumir que lo que nos falta para 
+    llegar a la solucion son el numero de luces encendidas al igual que en 
+    el 8-puzzle y funciona en friega.
     """
     
     return sum(nodo.estado)
@@ -148,6 +146,12 @@ def h_2(nodo):
     """
     DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
+    
+    Sumamos el contorno de las orillas del tablero debido a que
+    es donde surgen los mayores problemas al tratar de terminar
+    el juego, entonceces al tener las orillas en 0 se podria decir 
+    que es el problema del juego ya que el centro siempre esta 
+    cambiando.
 
     """        
     n1=nodo.estado[24]+nodo.estado[23]+nodo.estado[22]+nodo.estado[21]
