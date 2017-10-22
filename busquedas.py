@@ -270,8 +270,9 @@ def busqueda_costo_uniforme(problema):
 #
 # ---------------------------------------------------------------------
 
-
 def busqueda_A_estrella(problema, heuristica):
+
+
     """
     Búsqueda A*
 
@@ -284,5 +285,19 @@ def busqueda_A_estrella(problema, heuristica):
     @return Un objeto tipo Nodo con la estructura completa
 
     """
-    raise NotImplementedError('Hay que hacerlo de tarea \
-                              (problema 2 en el archivo busquedas.py)')
+    openSet = []
+    heapq.heappush(openSet,(0,Nodo(problema.x0)))
+    closedSet = {problema.x0:0}
+    while openSet:
+        _, current = heapq.heappop(openSet)
+        if problema.es_meta(current.estado):
+            current.nodos_visitados = problema.num_nodos
+            return current
+        for neighbor in current.expande(problema.modelo):
+            if(neighbor.estado not in closedSet or closedSet[current.estado]>current.costo):
+                heapq.heappush(openSet,(neighbor.costo + heuristica(neighbor),neighbor))
+                closedSet[neighbor.estado] = neighbor.costo
+    return None
+
+    #raise NotImplementedError('Hay que hacerlo de tarea \
+    #                          (problema 2 en el archivo busquedas.py)')
