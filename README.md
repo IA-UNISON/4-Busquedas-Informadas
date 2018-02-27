@@ -1,4 +1,4 @@
-# Tarea 05: Búsquedas Informadas
+# Tarea 4: Búsquedas Informadas
 
 
 ## Objetivos
