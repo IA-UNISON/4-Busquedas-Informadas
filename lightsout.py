@@ -11,7 +11,7 @@ __author__ = 'Ivan Moreno'
 
 
 import busquedas
-
+from math import exp
 
 class LightsOut(busquedas.ModeloBusqueda):
     # --------------------------------------------------------
@@ -69,9 +69,9 @@ class LightsOut(busquedas.ModeloBusqueda):
         """
         Actualiza el estado de las luces adyacentes a la acción.
         """
-        
+
         s = list(estado)
-        
+
         # Obtenemos las coordenadas de la casilla
         # que será presionada.
         r = (accion - (accion % 5)) // 5
@@ -92,7 +92,7 @@ class LightsOut(busquedas.ModeloBusqueda):
             s[5*r + (c-1)] = (s[5*r + (c-1)] + 1) % 2
         if c < 4:
             s[5*r + (c+1)] = (s[5*r + (c+1)] + 1) % 2
-        
+
         return tuple(s)
 
     def costo_local(self, estado, accion):
@@ -155,12 +155,12 @@ def h_1(nodo):
     Esta heurística calcula el número de pasos necesarios para apagar
     todas las luces del tablero asumiendo que siempre se pueden apagar
     5 luces distintas con una acción.
-    
+
     Creo que la heurística es admisible porque no toma en cuenta los
     pasos necesarios para apagar luces que se prendan colateralmente ni
     si dos luces prendidas no son adyacentes, siendo el número de pasos
     más optimista que la realidad. Además, a veces da números menores a 1,
-    con lo que da prioridad a estados donde solo se tienen que resolver 
+    con lo que da prioridad a estados donde solo se tienen que resolver
     pocas casillas y/o esquinas.
     """
     return sum(casilla for casilla in nodo.estado) / 5
@@ -176,9 +176,11 @@ def h_2(nodo):
     DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
+    Esta heurística toma a h1 y usa el resultado como el exponente
+    de la funnción exp. Penaliza mas severamente a los estados que
+    están más alejados de la solución. Funciona mucho mejor que h1.
     """
-    return 0
-
+    return exp(sum(casilla for casilla in nodo.estado) / 5)
 
 def prueba_modelo():
     """
@@ -249,19 +251,18 @@ def compara_metodos(pos_inicial, heuristica_1, heuristica_2):
 
     """
     solucion1 = busquedas.busqueda_A_estrella(ProblemaLightsOut(pos_inicial),
-                                              heuristica_1)
-    #solucion2 = busquedas.busqueda_A_estrella(ProblemaLightsOut(pos_inicial),
-    #                                          heuristica_2)
+                                             heuristica_1)
+    solucion2 = busquedas.busqueda_A_estrella(ProblemaLightsOut(pos_inicial),
+                                              heuristica_2)
 
     print('-' * 50)
     print('Método'.center(10) + 'Costo'.center(20) + 'Nodos visitados')
     print('-' * 50 + '\n\n')
     print('A* con h1'.center(10) + str(solucion1.costo).center(20) +
           str(solucion1.nodos_visitados))
-    #print('A* con h2'.center(10) + str(solucion2.costo).center(20) +
-    #      str(solucion2.nodos_visitados))
+    print('A* con h2'.center(10) + str(solucion2.costo).center(20) +
+          str(solucion2.nodos_visitados))
     print('-' * 50 + '\n\n')
-
 
 if __name__ == "__main__":
 
