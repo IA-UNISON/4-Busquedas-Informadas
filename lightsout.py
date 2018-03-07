@@ -52,16 +52,27 @@ class LightsOut(busquedas.ModeloBusqueda):
     http://en.wikipedia.org/wiki/Lights_Out_(game)
 
     """
-    def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
 
     def acciones_legales(self, estado):
+        return range(25)
         raise NotImplementedError('Hay que hacerlo de tarea')
 
     def sucesor(self, estado, accion):
+        estadoSucesor = list(estado)
+        estadoSucesor[accion] = 1-estadoSucesor[accion]
+        if accion//5!=0:
+            estadoSucesor[accion-5]= 1-estadoSucesor[accion-5]
+        if accion%5!=0:
+            estadoSucesor[accion-1]= 1-estadoSucesor[accion-1]
+        if accion//5!=4:
+            estadoSucesor[accion+5]= 1-estadoSucesor[accion+5]
+        if accion%5!=4:
+            estadoSucesor[accion+1]= 1-estadoSucesor[accion+1]
+        return tuple(estadoSucesor)
         raise NotImplementedError('Hay que hacerlo de tarea')
 
     def costo_local(self, estado, accion):
+        return 1
         raise NotImplementedError('Hay que hacerlo de tarea')
 
     @staticmethod
@@ -93,8 +104,11 @@ class ProblemaLightsOut(busquedas.ProblemaBusqueda):
         # Completa el código
         x0 = tuple(pos_ini)
         def meta(x):
-            raise NotImplementedError("Hay que hacer de tarea")
-
+            for i in list(x):
+                if i != 0:
+                    return False
+            return True
+            #raise NotImplementedError("Hay que hacer de tarea")
         super().__init__(x0=x0, meta=meta, modelo=LightsOut())
 
 
@@ -106,10 +120,17 @@ def h_1(nodo):
     DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
+    es buscar una solucion es mas facil si se apagan los focos que estan en
+    el perimetro del lights out aqui se saca la suma del perimetro
     """
-    return 0
-
-
+    perimetro = 0
+    for i in range(5):
+        perimetro = perimetro + list(nodo.estado)[i]
+        perimetro = perimetro + list(nodo.estado)[i+20]
+        if i!=0 or i!=4:
+            perimetro = perimetro + list(nodo.estado)[i*5]
+            perimetro = perimetro + list(nodo.estado)[i*5+4]
+    return perimetro
 # ------------------------------------------------------------
 #  Problema 5: Desarrolla otra política admisible.
 #  Analiza y di porque piensas que es (o no es) dominante una
@@ -120,8 +141,11 @@ def h_2(nodo):
     DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
+    Regresa el numero de 1s que aparecen divido entre 5
+
     """
-    return 0
+    return sum(list(nodo.estado))/5
+
 
 
 def prueba_modelo():
@@ -136,11 +160,7 @@ def prueba_modelo():
                0, 0, 1, 1, 1,
                0, 0, 0, 1, 1)
 
-    pos_a0 = (1, 0, 0, 1, 0,
-              1, 0, 1, 1, 0,
-              0, 0, 0, 1, 1,
-              0, 0, 1, 1, 1,
-              0, 0, 0, 1, 1)
+    pos_a0 = (1, 0, 0, 1, 0,1, 0, 1, 1, 0,0, 0, 0, 1, 1,0, 0, 1, 1, 1,0, 0, 0, 1, 1)
 
     pos_a4 = (1, 0, 0, 0, 1,
               1, 0, 1, 1, 1,
