@@ -89,6 +89,7 @@ class ProblemaBusqueda:
         def es_meta(estado):
             self.num_nodos += 1
             return meta(estado)
+            
         self.es_meta = es_meta
 
         self.x0 = x0
@@ -284,5 +285,31 @@ def busqueda_A_estrella(problema, heuristica):
     @return Un objeto tipo Nodo con la estructura completa
 
     """
+    
+
+    abiertos=[]
+    cerrados = {problema.x0: 0}
+    f =  heuristica(Nodo(problema.x0))
+    heapq.heappush(abiertos, (f, Nodo(problema.x0)))
+        
+    i=0
+    while abiertos:
+        i+=1
+        (fi, nodo) = heapq.heappop(abiertos)
+        #print("se eligió", nodo.accion, nodo.costo)
+        
+        if problema.es_meta(nodo.estado):
+            nodo.nodos_visitados = problema.num_nodos
+            return nodo
+        for hijo in nodo.expande(problema.modelo):
+            f = hijo.costo + heuristica(hijo)
+            if (hijo.estado not in cerrados or
+                cerrados[hijo.estado] > f ):
+                #print("(accion=", hijo.accion, " f: ", f, ")", end=", ")
+                heapq.heappush(abiertos, (f, hijo))
+                cerrados[hijo.estado] = f
+       
+    return None
+    
     raise NotImplementedError('Hay que hacerlo de tarea \
                               (problema 2 en el archivo busquedas.py)')
