@@ -81,12 +81,11 @@ class Modelo8puzzle(busquedas.ModeloBusqueda):
 class Ocho_puzzle(busquedas.ProblemaBusqueda):
 
     def __init__(self, pos_ini, pos_meta=None):
+        
         if pos_meta is None:
             pos_meta = (0, 1, 2, 3, 4, 5, 6, 7, 8, 0)
 
-        super().__init__(pos_ini + (pos_ini.index(0),),
-                         lambda pos: pos == pos_meta,
-                         Modelo8puzzle())
+        super().__init__( pos_ini + ( pos_ini.index(0) , ) , lambda pos: pos == pos_meta, Modelo8puzzle() )
 
 
 def h_1(nodo):
@@ -128,39 +127,39 @@ def probando(pos_ini):
     print(Modelo8puzzle.dibuja(pos_ini))
 
     # ------- BFS -----------
-    print("---------- Utilizando BFS -------------")
-    problema = Ocho_puzzle(pos_ini)
-    solucion = busquedas.busqueda_ancho(problema)
-    print(solucion)
-    print("Explorando {} nodos\n\n".format(solucion.nodos_visitados))
+    #print("---------- Utilizando BFS -------------")
+    #problema = Ocho_puzzle(pos_ini)
+    #solucion = busquedas.busqueda_ancho(problema)
+    #print(solucion)
+    #print("Explorando {} nodos\n\n".format(solucion.nodos_visitados))
 
     # ------- DFS -----------
-    print("---------- Utilizando DFS -------------")
-    problema = Ocho_puzzle(pos_ini)
-    solucion = busquedas.busqueda_profundo(problema, 50)
-    print(solucion)
-    print("Explorando {} nodos\n\n".format(solucion.nodos_visitados))
+    #print("---------- Utilizando DFS -------------")
+    #problema = Ocho_puzzle(pos_ini)
+    #solucion = busquedas.busqueda_profundo(problema, 50)
+    #print(solucion)
+    #print("Explorando {} nodos\n\n".format(solucion.nodos_visitados))
 
     # ------- IDS -----------
-    print("---------- Utilizando IDS -------------")
-    problema = Ocho_puzzle(pos_ini)
-    solucion = busquedas.busqueda_profundidad_iterativa(problema, 50)
-    print(solucion)
-    print("Explorando {} nodos\n\n".format(solucion.nodos_visitados))
+    #print("---------- Utilizando IDS -------------")
+    #problema = Ocho_puzzle(pos_ini)
+    #solucion = busquedas.busqueda_profundidad_iterativa(problema, 50)
+    #print(solucion)
+    #print("Explorando {} nodos\n\n".format(solucion.nodos_visitados))
 
     # ------- UCS -----------
-    print("---------- Utilizando UCS -------------")
-    problema = Ocho_puzzle(pos_ini)
-    solucion = busquedas.busqueda_costo_uniforme(problema)
-    print(solucion)
-    print("Explorando {} nodos\n\n".format(solucion.nodos_visitados))
+    #print("---------- Utilizando UCS -------------")
+    #problema = Ocho_puzzle(pos_ini)
+    #solucion = busquedas.busqueda_costo_uniforme(problema)
+    #print(solucion)
+    #print("Explorando {} nodos\n\n".format(solucion.nodos_visitados))
 
-    # # ------- A* con h1 -----------
-    # print("---------- Utilizando A* con h1 -------------")
-    # problema = Ocho_puzzle(pos_ini)
-    # solucion = busquedas.busqueda_A_estrella(problema, h_1)
-    # print(solucion)
-    # print("Explorando {} nodos".format(solucion.nodos_visitados))
+    # ------- A* con h1 -----------
+    print("---------- Utilizando A* con h1 -------------")
+    problema = Ocho_puzzle(pos_ini)
+    solucion = busquedas.busqueda_A_estrella(problema, h_1)
+    print(solucion)
+    print("Explorando {} nodos".format(solucion.nodos_visitados))
 
     # # ------- A* con h2 -----------
     # print("---------- Utilizando A* con h2 -------------")
@@ -172,10 +171,10 @@ def probando(pos_ini):
 
 if __name__ == "__main__":
 
-    probando((1, 0, 2, 3, 4, 5, 6, 7, 8))
+    #probando( (1, 0, 2, 3, 4, 5, 6, 7, 8) )
 
-    print("\n\n\ny con otro problema de 8 puzzle")
+    #print("\n\n\ny con otro problema de 8 puzzle")
     probando((5, 1, 3, 4, 0, 2, 6, 7, 8))
 
-    print("\n\n\ny por último")
-    probando((1, 7, 8, 2, 3, 4, 5, 6, 0))
+    #print("\n\n\ny por último")
+    #probando((1, 7, 8, 2, 3, 4, 5, 6, 0))
