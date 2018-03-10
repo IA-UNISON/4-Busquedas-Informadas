@@ -53,16 +53,43 @@ class LightsOut(busquedas.ModeloBusqueda):
 
     """
     def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        pass
 
     def acciones_legales(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return range(25)
+
+    def puede_cambiar(self,estado,a):
+        #regresa los numeros de las casillas que va a modificar
+        #la acción a
+        reng,col = (a//5,a%5)
+        regresa = [a]
+        if(reng > 0):
+            regresa.append(a-5)
+        if(reng < 4):
+            regresa.append(a+5)
+        if(col > 0):
+            regresa.append(a-1)
+        if(col < 4):
+            regresa.append(a+1)
+        return regresa
+    
+    def costo_local(self, estado, accion):
+        #se revisan las casillas que van a cambiar
+        cambiar = self.puede_cambiar(estado,accion)
+        #cantidad de focos que van a quedar prendidos despues de realizar el movimiento
+        prendidos = 0
+        for i in cambiar:
+            if estado[i] == 0:
+                prendidos+=1 #se suma uno por cada foco que se va a prender
+        return prendidos
 
     def sucesor(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
-
-    def costo_local(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        #regresa el estado si se realiza la acción "accion"
+        s = list(estado)
+        cambiar = self.puede_cambiar(estado,accion)
+        for i in cambiar:
+            s[i] = 1 if s[i] == 0 else 0
+        return tuple(s)
 
     @staticmethod
     def bonito(estado):
@@ -93,7 +120,7 @@ class ProblemaLightsOut(busquedas.ProblemaBusqueda):
         # Completa el código
         x0 = tuple(pos_ini)
         def meta(x):
-            raise NotImplementedError("Hay que hacer de tarea")
+            return (not 1 in x)
 
         super().__init__(x0=x0, meta=meta, modelo=LightsOut())
 
@@ -103,12 +130,14 @@ class ProblemaLightsOut(busquedas.ProblemaBusqueda):
 # ------------------------------------------------------------
 def h_1(nodo):
     """
-    DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN
-    PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
-
+    En esté método me basé en el hecho de que a lo mas se pueden apagar 
+    5 focos en un movimiento, entonces cuento la cantidad de focos prendidos
+    en el estado y lo divido entre 5. De esta forma se ve que no puedes tardar
+    mas que esos pasos ya que no puedes apagar mas de 5 focos. No es admisible
+    para mi propuesta de función de costo, pero igual da la solución óptima.
     """
-    return 0
-
+    cantidad = nodo.estado.count(1)
+    return cantidad/5
 
 # ------------------------------------------------------------
 #  Problema 5: Desarrolla otra política admisible.
@@ -117,11 +146,13 @@ def h_1(nodo):
 # ------------------------------------------------------------
 def h_2(nodo):
     """
-    DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN
-    PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
-
+    Es la cantidad de luces prendidas actualmente menos el numero de pasos actuales,
+    esta heuristica se basa en el hecho de que no se necesita presionar la misma casilla
+    mas de una vez, como se menciona en el siguiente artículo: 
+    https://www.math.ksu.edu/math551/math551a.f06/lights_out.pdf
     """
-    return 0
+    cantidad = nodo.estado.count(1)
+    return cantidad - nodo.profundidad
 
 
 def prueba_modelo():
@@ -197,21 +228,18 @@ def compara_metodos(pos_inicial, heuristica_1, heuristica_2):
     solucion2 = busquedas.busqueda_A_estrella(ProblemaLightsOut(pos_inicial),
                                               heuristica_2)
 
-    print('-' * 50)
-    print('Método'.center(10) + 'Costo'.center(20) + 'Nodos visitados')
-    print('-' * 50 + '\n\n')
+    print('-' * 65)
+    print('Método'.center(10) + 'Costo'.center(20) + 'Nodos visitados'.center(20) + 'Numero de pasos')
+    print('-' * 65 + '\n\n')
     print('A* con h1'.center(10) + str(solucion1.costo).center(20) +
-          str(solucion1.nodos_visitados))
+          str(solucion1.nodos_visitados).center(20) + str(solucion1.profundidad))
+
     print('A* con h2'.center(10) + str(solucion2.costo).center(20) +
-          str(solucion2.nodos_visitados))
-    print('-' * 50 + '\n\n')
+          str(solucion2.nodos_visitados).center(20) + str(solucion2.profundidad))
+    print('-' * 65 + '\n\n')
 
 
 if __name__ == "__main__":
-
-    print("Antes de hacer otra cosa,")
-    print("vamos a verificar medianamente la clase LightsOut")
-    prueba_modelo()
 
     # Tres estados iniciales interesantes
     diagonal = (0, 0, 0, 0, 1,
@@ -219,7 +247,7 @@ if __name__ == "__main__":
                 0, 0, 1, 0, 0,
                 0, 1, 0, 0, 0,
                 1, 0, 0, 0, 0)
-
+    
     simetria = (1, 0, 1, 0, 1,
                 1, 0, 1, 0, 1,
                 0, 0, 0, 0, 0,
@@ -237,9 +265,9 @@ if __name__ == "__main__":
     compara_metodos(diagonal, h_1, h_2)
 
     print("\n\nPara el problema simétrico")
-    print("\n".format(LightsOut.bonito(simetria)))
+    print("\n{}".format(LightsOut.bonito(simetria)))
     compara_metodos(simetria, h_1, h_2)
 
     print("\n\nPara el problema Bonito")
-    print("\n".format(LightsOut.bonito(problemin)))
+    print("\n{}".format(LightsOut.bonito(problemin)))
     compara_metodos(problemin, h_1, h_2)
