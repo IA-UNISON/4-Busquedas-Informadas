@@ -11,6 +11,7 @@ __author__ = 'nombre del estudiante'
 
 
 import busquedas
+import math
 
 
 class LightsOut(busquedas.ModeloBusqueda):
@@ -52,17 +53,38 @@ class LightsOut(busquedas.ModeloBusqueda):
     http://en.wikipedia.org/wiki/Lights_Out_(game)
 
     """
-    def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
 
     def acciones_legales(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
-
+      """
+      Las acciones legales en el lights out son todas las posibles formas de seleccionar una casilla
+      """
+      return range(25)
+        
     def sucesor(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+      """
+      El estado es el tablero del lights out.
+      Accion es el indice o posicion dentro de mi tablero a cambiar
+      """
+      estadoNuevo = list(estado)
+
+      if accion//5!=0: #NO ESTA HASTA ARRIBA, tonces puedo cambiar el de arriba yey
+        estadoNuevo[accion-5]= 1-estadoNuevo[accion-5]
+      
+      if accion//5!=4: #NO ESTA HASTA ABAJO, tonces puedo cambiar el de abajo yey
+        estadoNuevo[accion+5]= 1-estadoNuevo[accion+5]
+
+      if accion%5!=0: #NO ESTA HASTA LA IZQUIERDA, tonces puedo cambiar el de la izquierda yey 
+        estadoNuevo[accion-1]= 1-estadoNuevo[accion-1]
+
+      if accion%5!=4: #NO ESTA HASTA LA DERECHA, tonces puedo cambiar el de la derecha yey
+        estadoNuevo[accion+1]= 1-estadoNuevo[accion+1]
+
+      estadoNuevo[accion]= 1-estadoNuevo[accion]
+
+      return tuple(estadoNuevo)
 
     def costo_local(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+      return 1
 
     @staticmethod
     def bonito(estado):
@@ -93,7 +115,7 @@ class ProblemaLightsOut(busquedas.ProblemaBusqueda):
         # Completa el código
         x0 = tuple(pos_ini)
         def meta(x):
-            raise NotImplementedError("Hay que hacer de tarea")
+            return(sum(x) == 0)
 
         super().__init__(x0=x0, meta=meta, modelo=LightsOut())
 
@@ -103,26 +125,122 @@ class ProblemaLightsOut(busquedas.ProblemaBusqueda):
 # ------------------------------------------------------------
 def h_1(nodo):
     """
-    DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN
-    PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
-
+    Suma todas las luces prendidas en el tablero.
+    Es admisible porque el maximo de luces que puedes apagar  dentro del tablero con un movimiento es 5.
     """
-    return 0
 
-
+    return (math.ceil(sum(nodo.estado)/5))
+    
 # ------------------------------------------------------------
 #  Problema 5: Desarrolla otra política admisible.
 #  Analiza y di porque piensas que es (o no es) dominante una
 #  respecto otra política
 # ------------------------------------------------------------
 def h_2(nodo):
-    """
-    DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN
-    PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
+    """   
+    La heuristica utiliza la siguiente forma:
 
-    """
-    return 0
+    |   |   | x |   |
+    |   | x |   | x |
+    |   |   | x |   |
+    | x |   |   |   |
+    |   | x |   |   |
 
+    Es admisible porque cuando una o mas de las casillas en la esquina esta enciendida significa que minimo 
+    se ocupara un movimiento para alguna de estas. Al checar tambien la cruz, posibilita checar mas casos donde ninguno
+    se empalme con los casos de la esquina y asi explorar mas casos en tablero.
+    """ 
+    #---------------------------------------------------------------------------------------------------
+    costo = 0
+
+    #CHECO MI ESQUINA INFERIOR IZQUIERDAY MI CRUZ 
+    if nodo.estado[20] != 0 or nodo.estado[15] != 0 or nodo.estado[21] == 0:
+      costo +=1 
+    
+    #se suman todas las casillas encencidas en la cruz
+    aux1 = (nodo.estado[3] + nodo.estado[7] + nodo.estado[8] + nodo.estado[9] + nodo.estado[13])
+    #se checa si solo se necesitaria un movimiento para resolver el numero de casillas encendidas
+    #como es el caso en que todas esten encendidas(aux1=5) o que solo esten prendidas 1 o 2
+    if aux1 == 1 or aux1 == 2 or aux1 == 5:
+      costo+=1
+    #se checa si se necesitarian hacer mas de un movimiento para resolver el numero de casillas encendias
+    #como es el caso en que tres o cuatro casillas esten encendidas
+    if aux1 == 3 or aux1 == 4: 
+      costo+=2
+   
+    return costo
+
+def h_3(nodo):
+    """   
+    NOTA: Esta heuristica fue hecha solo para probar el h_2 en todos sus casos y conocer cuantos nodos visitaria este.
+    La heuristica utiliza la forma del h_2 pero checando cada esquina con su cruz correspondiente.
+    Es admisible pero revisa un poco mas de nodos que h_2 (al rededor de la cifra de nodo mas la mitad de este).
+
+    """ 
+  #---------------------------------------------------------------------------------------------------
+    costo = 0
+
+    #CHECO MI ESQUINA INFERIOR IZQUIERDAY MI CRUZ 
+    if nodo.estado[20] != 0 or nodo.estado[15] != 0 or nodo.estado[21] == 0:
+      costo +=1 
+    
+    #se suman todas las casillas encencidas en la cruz
+    aux1 = (nodo.estado[3] + nodo.estado[7] + nodo.estado[8] + nodo.estado[9] + nodo.estado[13])
+    #se checa si solo se necesitaria un movimiento para resolver el numero de casillas encendidas
+    #como es el caso en que todas esten encendidas(aux1=5) o que solo esten prendidas 1 o 2
+    if aux1 == 1 or aux1 == 2 or aux1 == 5:
+      costo+=1
+    #se checa si se necesitarian hacer mas de un movimiento para resolver el numero de casillas encendias
+    #como es el caso en que tres o cuatro casillas esten encendidas
+    if aux1 == 3 or aux1 == 4: 
+      costo+=2
+    #---------------------------------------------------------------------------------------------------
+
+    costo2 = 0
+
+    #CHECO MI ESQUINA INFERIOR DERECHA MI CRUZ 
+    if nodo.estado[24] != 0 or nodo.estado[19] != 0 or nodo.estado[23] == 0:
+      costo2 +=1 
+    
+    #aux1 es la suma de las casillas encendidas en la cruz
+    aux1 = (nodo.estado[1] + nodo.estado[6] + nodo.estado[11] + nodo.estado[5] + nodo.estado[7])
+
+    if aux1 == 1 or aux1 == 2 or aux1 == 5:
+      costo2+=1
+
+    if aux1 == 3 or aux1 == 4: 
+      costo2+=2
+    #---------------------------------------------------------------------------------------------------
+
+    costo3 = 0
+
+    #CHECO MI ESQUINA SUPERIOR IZQUIERDA MI CRUZ 
+    if nodo.estado[0] != 0 or nodo.estado[5] != 0 or nodo.estado[1] == 0:
+      costo3 +=1 
+    
+    #aux1 es la suma de las casillas encendidas en la cruz
+    aux1 = (nodo.estado[13] + nodo.estado[17] + nodo.estado[18] + nodo.estado[19] + nodo.estado[23])
+    if aux1 == 1 or aux1 == 2 or aux1 == 5:
+      costo3+=1
+
+    if aux1 == 3 or aux1 == 4: 
+      costo3+=2
+    #---------------------------------------------------------------------------------------------------
+    costo4 = 0
+
+    #CHECO MI ESQUINA SUPERIOR DERECHA MI CRUZ 
+    if nodo.estado[3] != 0 or nodo.estado[4] != 0 or nodo.estado[9] == 0:
+      costo4 +=1 
+    
+    #aux1 es la suma de las casillas encendidas en la cruz
+    aux1 = (nodo.estado[11] + nodo.estado[15] + nodo.estado[16] + nodo.estado[17] + nodo.estado[21])
+    if aux1 == 1 or aux1 == 2 or aux1 == 5:
+      costo4+=1
+
+    if aux1 == 3 or aux1 == 4: 
+      costo4+=2
+
+    return (min(costo,costo2,costo3,costo4))
 
 def prueba_modelo():
     """
