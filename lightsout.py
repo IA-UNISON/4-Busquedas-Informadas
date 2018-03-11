@@ -53,16 +53,36 @@ class LightsOut(busquedas.ModeloBusqueda):
 
     """
     def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        
+        self.acciones = [i for i in range(25)]
+        
 
     def acciones_legales(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return range(25)
 
     def sucesor(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
-
+        
+        s = list(estado)
+        fila = accion // 5
+        columna = accion % 5
+        
+        s[accion] = 0 if s[accion]==1 else 1
+        
+        if fila < 4:
+            s[accion + 5] = 0 if s[accion + 5]==1 else 1
+        if fila > 0:
+            s[accion - 5] = 0 if s[accion - 5]==1 else 1
+        if columna > 0 :
+            s[accion - 1] = 0 if s[accion - 1]==1 else 1
+        if columna < 4 :
+            s[accion + 1] = 0 if s[accion + 1]==1 else 1
+            
+        return tuple(s)
+        
+        
+        
     def costo_local(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return 1
 
     @staticmethod
     def bonito(estado):
@@ -85,6 +105,7 @@ class LightsOut(busquedas.ModeloBusqueda):
 #  Problema 3: Completa el problema de LightsOut
 # ------------------------------------------------------------
 class ProblemaLightsOut(busquedas.ProblemaBusqueda):
+    
     def __init__(self, pos_ini):
         """
         Utiliza la superclase para hacer el problema
@@ -92,9 +113,12 @@ class ProblemaLightsOut(busquedas.ProblemaBusqueda):
         """
         # Completa el código
         x0 = tuple(pos_ini)
+        
         def meta(x):
-            raise NotImplementedError("Hay que hacer de tarea")
-
+            if all([v==1 for v in x]) or all([v==0 for v in x]):
+                return 1
+            return 0
+        
         super().__init__(x0=x0, meta=meta, modelo=LightsOut())
 
 
@@ -105,9 +129,16 @@ def h_1(nodo):
     """
     DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
-
+    
+    
+    Dado que nuestro objetivo es apagar o prender todo pues el checar cuantos 
+    nos faltan por apagar o prender no acerca mas a la meta checando las dos 
+    opciones de apagar o prender todo obtuve que checar cuantas me faltan por
+    apagar resulto mucho mas rapido que regresar el numero que me faltan por 
+    prender
     """
-    return 0
+    
+    return sum(nodo.estado)
 
 
 # ------------------------------------------------------------
@@ -119,9 +150,19 @@ def h_2(nodo):
     """
     DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
+    
+    por alguna razon tratar de prender todos da unos resultados bastante malos
+    y al jugar un poco he tenido problemas con la primer y ultima fila asi que 
+    apagar estas filas nos acerca un poco mas a la solucion
+    dado los resultados h_1 domina h_2 porque una checa todo el tablero 
+    y la segunda solo la primera y ultima fila
+    
+     mi duda es porque prender el tablero todo es mucho mas lento que apagar?
 
     """
-    return 0
+    fil1 = nodo.estado[0]+nodo.estado[1]+nodo.estado[2]+nodo.estado[3]+nodo.estado[4]
+    fil2 = nodo.estado[20]+nodo.estado[21]+nodo.estado[22]+nodo.estado[23]+nodo.estado[24]
+    return fil1 + fil2
 
 
 def prueba_modelo():
@@ -167,7 +208,6 @@ def prueba_modelo():
                1, 0, 0, 0, 0)
 
     modelo = LightsOut()
-
     assert modelo.acciones_legales(pos_ini) == range(25)
     assert modelo.sucesor(pos_ini, 0) == pos_a0
     assert modelo.sucesor(pos_a0, 4) == pos_a4
@@ -237,9 +277,9 @@ if __name__ == "__main__":
     compara_metodos(diagonal, h_1, h_2)
 
     print("\n\nPara el problema simétrico")
-    print("\n".format(LightsOut.bonito(simetria)))
+    print("\n{}".format(LightsOut.bonito(simetria)))
     compara_metodos(simetria, h_1, h_2)
 
     print("\n\nPara el problema Bonito")
-    print("\n".format(LightsOut.bonito(problemin)))
+    print("\n{}".format(LightsOut.bonito(problemin)))
     compara_metodos(problemin, h_1, h_2)
