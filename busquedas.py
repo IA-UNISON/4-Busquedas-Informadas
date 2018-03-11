@@ -15,7 +15,6 @@ __author__ = 'juliowaissman'
 from collections import deque
 import heapq
 
-
 class ModeloBusqueda:
     """
     Clase genérica de un modelo de búsqueda.
@@ -90,7 +89,6 @@ class ProblemaBusqueda:
             self.num_nodos += 1
             return meta(estado)
         self.es_meta = es_meta
-
         self.x0 = x0
         self.modelo = modelo
         self.num_nodos = 0  # Solo para efectos medición
@@ -109,7 +107,9 @@ class Nodo:
         self.estado = estado
         self.accion = accion
         self.padre = padre
+        #0 si no tiene padre si no la suma de los costos anteriores y el actual
         self.costo = 0 if not padre else padre.costo + costo_local
+        #0 si es la raiz si no sumamos toda la profundidad
         self.profundidad = 0 if not padre else padre.profundidad + 1
         self.nodos_visitados = 0
 
@@ -139,6 +139,7 @@ class Nodo:
                  el estado inicial x0 hasta el testado final xT
 
         """
+        #recursivo el show hasta llegar al padre
         return ([self.estado] if not self.padre else
                 self.padre.genera_plan() + [self.accion, self.estado])
 
@@ -284,5 +285,26 @@ def busqueda_A_estrella(problema, heuristica):
     @return Un objeto tipo Nodo con la estructura completa
 
     """
+    
+    frontera = []
+    # La ventaja de usar el heap es que heappop regresa siempre el menor elemento.
+    
+    heapq.heappush(frontera, (0, Nodo(problema.x0)))#heap inicial
+    visitados={problema.x0:0}#nodos vicitados
+    #en frontera se van guardando el costo+heuristica, y el nodo
+              
+    while frontera:
+        (x,nodo) = heapq.heappop(frontera)
+        
+        if problema.es_meta(nodo.estado):
+            nodo.nodos_visitados = problema.num_nodos
+            return nodo
+        for hijo in nodo.expande(problema.modelo):
+            
+            if hijo.estado not in visitados or hijo.costo < visitados[hijo.estado]:
+                heapq.heappush(frontera, (hijo.costo+heuristica(hijo), hijo))
+                visitados[hijo.estado]=hijo.costo
+    
+        
     raise NotImplementedError('Hay que hacerlo de tarea \
                               (problema 2 en el archivo busquedas.py)')

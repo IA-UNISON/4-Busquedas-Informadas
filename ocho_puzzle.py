@@ -23,7 +23,7 @@ class Modelo8puzzle(busquedas.ModeloBusqueda):
     el espacio vacío. Por ejemplo el estado:
 
            (1, 0, 2, 3, 4, 5, 6, 7, 8, 1)
-
+           #el ultimo valor es la ultima accion
     representa la situación:
        -------------
        | 1 |   | 2 |
@@ -48,6 +48,7 @@ class Modelo8puzzle(busquedas.ModeloBusqueda):
                          8: ['N', 'O']}
 
     def acciones_legales(self, estado):
+        #regresa las acciones del ultimo estado
         return self.acciones[estado[-1]]
 
     def sucesor(self, estado, accion):
@@ -57,6 +58,7 @@ class Modelo8puzzle(busquedas.ModeloBusqueda):
                 3 if accion is 'S' else
                 -1 if accion is 'O' else
                 1)
+        #hace el intercambio de las piezas del puzzle segun la acción
         s[ind], s[ind + bias] = s[ind + bias], s[ind]
         s[-1] += bias
         return tuple(s)
@@ -83,11 +85,10 @@ class Ocho_puzzle(busquedas.ProblemaBusqueda):
     def __init__(self, pos_ini, pos_meta=None):
         if pos_meta is None:
             pos_meta = (0, 1, 2, 3, 4, 5, 6, 7, 8, 0)
-
+            #inicializa el problema de busqueda (en busquedad.py)
         super().__init__(pos_ini + (pos_ini.index(0),),
                          lambda pos: pos == pos_meta,
                          Modelo8puzzle())
-
 
 def h_1(nodo):
     """
@@ -126,7 +127,7 @@ def probando(pos_ini):
 
     """
     print(Modelo8puzzle.dibuja(pos_ini))
-
+    """
     # ------- BFS -----------
     print("---------- Utilizando BFS -------------")
     problema = Ocho_puzzle(pos_ini)
@@ -147,29 +148,32 @@ def probando(pos_ini):
     solucion = busquedas.busqueda_profundidad_iterativa(problema, 50)
     print(solucion)
     print("Explorando {} nodos\n\n".format(solucion.nodos_visitados))
-
+    
     # ------- UCS -----------
     print("---------- Utilizando UCS -------------")
     problema = Ocho_puzzle(pos_ini)
     solucion = busquedas.busqueda_costo_uniforme(problema)
     print(solucion)
     print("Explorando {} nodos\n\n".format(solucion.nodos_visitados))
-
+    """
     # # ------- A* con h1 -----------
-    # print("---------- Utilizando A* con h1 -------------")
-    # problema = Ocho_puzzle(pos_ini)
-    # solucion = busquedas.busqueda_A_estrella(problema, h_1)
-    # print(solucion)
-    # print("Explorando {} nodos".format(solucion.nodos_visitados))
-
+    print("---------- Utilizando A* con h1 -------------")
+    problema = Ocho_puzzle(pos_ini)
+    solucion = busquedas.busqueda_A_estrella(problema, h_1)
+    print(solucion)
+    print("Explorando {} nodos".format(solucion.nodos_visitados))
+    
     # # ------- A* con h2 -----------
-    # print("---------- Utilizando A* con h2 -------------")
-    # problema = Ocho_puzzle(pos_ini)
-    # solucion = busquedas.busqueda_A_estrella(problema, h_2)
-    # print(solucion)
-    # print("Explorando {} nodos".format(solucion.nodos_visitados))
+    print("---------- Utilizando A* con h2 -------------")
+    problema = Ocho_puzzle(pos_ini)
+    solucion = busquedas.busqueda_A_estrella(problema, h_2)
+    print(solucion)
+    print("Explorando {} nodos".format(solucion.nodos_visitados))
 
-
+    """
+    Aqui podemos ver que con la heuristica 2 que explora menos nodos
+    que la h1 y por lo tanto es dominante.
+    """
 if __name__ == "__main__":
 
     probando((1, 0, 2, 3, 4, 5, 6, 7, 8))
