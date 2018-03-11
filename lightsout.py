@@ -52,17 +52,34 @@ class LightsOut(busquedas.ModeloBusqueda):
     http://en.wikipedia.org/wiki/Lights_Out_(game)
 
     """
-    def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
-
     def acciones_legales(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return range(25)    #cualquiera de los lugares siempre es legal
 
     def sucesor(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        listado = list(estado)
+        n = accion - 5
+        o = accion + 1
+        s = accion + 5
+        e = accion - 1
+        afectados = [a, n, o , s , e]
+
+        cambia x: 1 if x == 0 else 0
+
+        if accion < 5: #si esta en el primer renglon
+             afectados.remove(n)
+        elif accion >= 20: #si esta en el ultimo renglon
+             afectados.remove(s)
+
+        if accion % 5 == 0: #si esta en la primer columna
+            afectados.remove(e)
+        elif accion % 5 == 4: #si esta en la ultima columna
+
+        suc = tuple([cambia(x) for x in afectados])
+
+        return suc
 
     def costo_local(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return 1
 
     @staticmethod
     def bonito(estado):
