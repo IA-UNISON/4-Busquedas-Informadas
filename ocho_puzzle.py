@@ -131,51 +131,143 @@ def probando(pos_ini):
     print("---------- Utilizando BFS -------------")
     problema = Ocho_puzzle(pos_ini)
     solucion = busquedas.busqueda_ancho(problema)
-    print(solucion)
     print("Explorando {} nodos\n\n".format(solucion.nodos_visitados))
 
+    
     # ------- DFS -----------
     print("---------- Utilizando DFS -------------")
     problema = Ocho_puzzle(pos_ini)
     solucion = busquedas.busqueda_profundo(problema, 50)
-    print(solucion)
     print("Explorando {} nodos\n\n".format(solucion.nodos_visitados))
 
     # ------- IDS -----------
     print("---------- Utilizando IDS -------------")
     problema = Ocho_puzzle(pos_ini)
     solucion = busquedas.busqueda_profundidad_iterativa(problema, 50)
-    print(solucion)
     print("Explorando {} nodos\n\n".format(solucion.nodos_visitados))
 
     # ------- UCS -----------
     print("---------- Utilizando UCS -------------")
     problema = Ocho_puzzle(pos_ini)
     solucion = busquedas.busqueda_costo_uniforme(problema)
-    print(solucion)
     print("Explorando {} nodos\n\n".format(solucion.nodos_visitados))
 
     # # ------- A* con h1 -----------
-    # print("---------- Utilizando A* con h1 -------------")
-    # problema = Ocho_puzzle(pos_ini)
-    # solucion = busquedas.busqueda_A_estrella(problema, h_1)
-    # print(solucion)
-    # print("Explorando {} nodos".format(solucion.nodos_visitados))
+    print("---------- Utilizando A* con h1 -------------")
+    problema = Ocho_puzzle(pos_ini)
+    solucion = busquedas.busqueda_A_estrella(problema, h_1)
+    print("Explorando {} nodos".format(solucion.nodos_visitados))
+    print(Modelo8puzzle.dibuja(solucion.estado))
 
     # # ------- A* con h2 -----------
-    # print("---------- Utilizando A* con h2 -------------")
-    # problema = Ocho_puzzle(pos_ini)
-    # solucion = busquedas.busqueda_A_estrella(problema, h_2)
-    # print(solucion)
-    # print("Explorando {} nodos".format(solucion.nodos_visitados))
-
+    print("---------- Utilizando A* con h2 -------------")
+    problema = Ocho_puzzle(pos_ini)
+    solucion = busquedas.busqueda_A_estrella(problema, h_2)
+    print("Explorando {} nodos".format(solucion.nodos_visitados))
+    
+    
+  
 
 if __name__ == "__main__":
 
     probando((1, 0, 2, 3, 4, 5, 6, 7, 8))
+    """
+    Resolviendo 8 puzzle con BFS:
+        Costo: 1
+        Profundidad: 1
+        Nodos Explorados: 4
+        
+    Resolviendo 8 puzzle con DFS:
+        Costo: 1
+        Profundidad: 1
+        Nodos Explorados: 2
+        
+    Resolviendo 8 puzzle con IDS:
+        Costo: 1
+        Profundidad: 1
+        Nodos Explorados: 3
+        
+    Resolviendo 8 puzzle con UCS:
+        Costo: 1
+        Profundidad: 1
+        Nodos Explorados: 4
+        
+    Resolviendo 8 puzzle con A* y h_1:
+        Costo: 1
+        Profundidad: 1
+        Nodos Explorados: 2
+        
+    Resolviendo 8 puzzle con A* y h_2:
+        Costo: 1
+        Profundidad: 1
+        Nodos Explorados: 2
+    """
 
     print("\n\n\ny con otro problema de 8 puzzle")
     probando((5, 1, 3, 4, 0, 2, 6, 7, 8))
+    """
+    Resolviendo 8 puzzle con BFS:
+        Costo: 14
+        Profundidad: 14
+        Nodos Explorados: 4158
+        
+    Resolviendo 8 puzzle con DFS:
+        Costo: 50
+        Profundidad: 50
+        Nodos Explorados: 64951
+        
+    Resolviendo 8 puzzle con IDS:
+        Costo: 14
+        Profundidad: 14
+        Nodos Explorados: 17026
+        
+    Resolviendo 8 puzzle con UCS:
+        Costo: 14
+        Profundidad: 14
+        Nodos Explorados: 5240
+        
+    Resolviendo 8 puzzle con A* y h_1:
+        Costo: 14
+        Profundidad: 14
+        Nodos Explorados: 298
+        
+    Resolviendo 8 puzzle con A* y h_2:
+        Costo: 14
+        Profundidad: 14
+        Nodos Explorados: 97
+        
+    """
 
     print("\n\n\ny por último")
     probando((1, 7, 8, 2, 3, 4, 5, 6, 0))
+    """
+    Resolviendo 8 puzzle con BFS:
+        Costo: 24
+        Profundidad: 24
+        Nodos Explorados: 133152
+        
+    Resolviendo 8 puzzle con DFS:
+        Costo: 50
+        Profundidad: 50
+        Nodos Explorados: 162865
+        
+    Resolviendo 8 puzzle con IDS:
+        Costo: 24
+        Profundidad: 24
+        Nodos Explorados: 883191
+        
+    Resolviendo 8 puzzle con UCS:
+        Costo: 24
+        Profundidad: 24
+        Nodos Explorados: 129515
+        
+    Resolviendo 8 puzzle con A* y h_1:
+        Costo: 24
+        Profundidad: 24
+        Nodos Explorados: 17622
+        
+    Resolviendo 8 puzzle con A* y h_2:
+        Costo: 24
+        Profundidad: 24
+        Nodos Explorados: 1677
+    """
