@@ -55,6 +55,12 @@ class LightsOut(busquedas.ModeloBusqueda):
     def acciones_legales(self, estado):
         return range(25)    #cualquiera de los lugares siempre es legal
 
+    """
+    Cambia la variable x de 0 a 1 o de 1 a 0
+    """
+    def cambia(x):
+        return 1 if x == 0 else 0
+
     def sucesor(self, estado, accion):
         listado = list(estado)
         n = accion - 5
@@ -63,16 +69,15 @@ class LightsOut(busquedas.ModeloBusqueda):
         e = accion - 1
         afectados = [a, n, o , s , e]
 
-        cambia x: 1 if x == 0 else 0
-
-        if accion < 5: #si esta en el primer renglon
+        if accion < 5:          #si esta en el primer renglon
              afectados.remove(n)
-        elif accion >= 20: #si esta en el ultimo renglon
+        elif accion >= 20:      #si esta en el ultimo renglon
              afectados.remove(s)
 
-        if accion % 5 == 0: #si esta en la primer columna
+        if accion % 5 == 0:     #si esta en la primer columna
             afectados.remove(e)
-        elif accion % 5 == 4: #si esta en la ultima columna
+        elif accion % 5 == 4:   #si esta en la ultima columna
+            afectados.remove(o)
 
         suc = tuple([cambia(x) for x in afectados])
 
