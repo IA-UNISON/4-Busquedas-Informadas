@@ -110,7 +110,7 @@ class ProblemaLightsOut(busquedas.ProblemaBusqueda):
         # Completa el código
         x0 = tuple(pos_ini)
         def meta(x):
-            raise NotImplementedError("Hay que hacer de tarea")
+            return all(luz == 0 for luz in x)
 
         super().__init__(x0=x0, meta=meta, modelo=LightsOut())
 
