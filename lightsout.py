@@ -55,19 +55,13 @@ class LightsOut(busquedas.ModeloBusqueda):
     def acciones_legales(self, estado):
         return range(25)    #cualquiera de los lugares siempre es legal
 
-    """
-    Cambia la variable x de 0 a 1 o de 1 a 0
-    """
-    def cambia(x):
-        return 1 if x == 0 else 0
-
     def sucesor(self, estado, accion):
         listado = list(estado)
         n = accion - 5
         o = accion + 1
         s = accion + 5
         e = accion - 1
-        afectados = [a, n, o , s , e]
+        afectados = [accion, n, o , s , e]
 
         if accion < 5:          #si esta en el primer renglon
              afectados.remove(n)
@@ -79,9 +73,10 @@ class LightsOut(busquedas.ModeloBusqueda):
         elif accion % 5 == 4:   #si esta en la ultima columna
             afectados.remove(o)
 
-        suc = tuple([cambia(x) for x in afectados])
+        for afectado in afectados:
+            listado[afectado] = 1 if listado[afectado] == 0 else 0
 
-        return suc
+        return tuple(listado)
 
     def costo_local(self, estado, accion):
         return 1
@@ -127,9 +122,16 @@ def h_1(nodo):
     """
     DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
-
     """
-    return 0
+    """
+    Esta heuristica se basa en el numero de casillas faltantes,
+    pero, por si mismo no es admisible (el caso de que falte una
+    cruz faltan 5 casillas pero con un solo movimiento se puede
+    solucionar el juego). Para evitar esto se divide el numero de
+    casillas faltantes entre 5 y asi este caso (el peor) se
+    resuelve y hace que la heuristica sea admisible.
+    """
+    return sum([1 for casilla in list(nodo.estado) if casilla == 1]) / 5
 
 
 # ------------------------------------------------------------
@@ -231,9 +233,9 @@ def compara_metodos(pos_inicial, heuristica_1, heuristica_2):
 
 if __name__ == "__main__":
 
-    print("Antes de hacer otra cosa,")
-    print("vamos a verificar medianamente la clase LightsOut")
-    prueba_modelo()
+    #print("Antes de hacer otra cosa,")
+    #print("vamos a verificar medianamente la clase LightsOut")
+    #prueba_modelo()
 
     # Tres estados iniciales interesantes
     diagonal = (0, 0, 0, 0, 1,
