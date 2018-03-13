@@ -267,3 +267,4 @@ if __name__ == "__main__":
     print("\n\nPara el problema Bonito")
     print("\n".format(LightsOut.bonito(problemin)))
     compara_metodos(problemin, h_1, h_2)
+
