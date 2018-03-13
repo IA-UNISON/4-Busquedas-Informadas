@@ -261,10 +261,10 @@ if __name__ == "__main__":
     compara_metodos(diagonal, h_1, h_2)
 
     print("\n\nPara el problema simétrico")
-    print("\n".format(LightsOut.bonito(simetria)))
+    print("\n{}".format(LightsOut.bonito(simetria)))
     compara_metodos(simetria, h_1, h_2)
 
     print("\n\nPara el problema Bonito")
-    print("\n".format(LightsOut.bonito(problemin)))
+    print("\n{}".format(LightsOut.bonito(problemin)))
     compara_metodos(problemin, h_1, h_2)
 
