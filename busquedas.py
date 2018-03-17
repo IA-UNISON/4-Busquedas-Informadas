@@ -211,7 +211,7 @@ def busqueda_profundo(problema, max_profundidad=None):
             continue
         for hijo in nodo.expande(problema.modelo):
             # or visitados[hijo.estado] > hijo.profundidad:
-            if (hijo.estado not in visitados or
+            if (hijo.estado not in visitados or 
                 visitados[hijo.estado] > hijo.profundidad):
                 frontera.append(hijo)
                 visitados[hijo.estado] = hijo.profundidad
@@ -284,5 +284,19 @@ def busqueda_A_estrella(problema, heuristica):
     @return Un objeto tipo Nodo con la estructura completa
 
     """
-    raise NotImplementedError('Hay que hacerlo de tarea \
-                              (problema 2 en el archivo busquedas.py)')
+    frontera = []
+    heapq.heappush(frontera, (0, Nodo(problema.x0)))
+    visitados = {problema.x0: 0}
+
+    while frontera:
+        (_, nodo) = heapq.heappop(frontera)
+        if problema.es_meta(nodo.estado):
+            nodo.nodos_visitados = problema.num_nodos
+            return nodo
+        for hijo in nodo.expande(problema.modelo):
+            # visitados[hijo.estado] > hijo.costo + heuristica(hijo)
+            if (hijo.estado not in visitados or
+                visitados[hijo.estado] > hijo.costo + heuristica(hijo)):
+                heapq.heappush(frontera, (hijo.costo + heuristica(hijo), hijo))
+                visitados[hijo.estado] = hijo.costo + heuristica(hijo)
+    return None
