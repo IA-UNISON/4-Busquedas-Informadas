@@ -53,16 +53,35 @@ class LightsOut(busquedas.ModeloBusqueda):
 
     """
     def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        # Las acciones son las casillas de la cuadricula de 5x5 (visto como un
+        # solo arreglo)
+        self.acciones = range(25)
 
     def acciones_legales(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return self.acciones
 
     def sucesor(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        listaEstado = list(estado)
+
+        # Se obtienen las coordenadas de la accion (c = columna, r = renglon)
+        c = accion%5
+        r = accion//5
+
+        # Se cambian los valores de las casillas adyacentes
+        if c != 0:
+            listaEstado[c-1] = 1 if listaEstado[c-1] == 0 else 0
+        if c != 4:
+            listaEstado[c+1] = 1 if listaEstado[c+1] == 0 else 0
+        if r != 0:
+            listaEstado[r-5] = 1 if listaEstado[r-5] == 0 else 0
+        if r!= 4:
+            listaEstado[r+5] = 1 if listaEstado[r+5] == 0 else 0
+
+            return tuple(listaEstado)
 
     def costo_local(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        # El costo por tocar una casilla es 1
+        return 1
 
     @staticmethod
     def bonito(estado):
