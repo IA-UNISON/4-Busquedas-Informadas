@@ -13,7 +13,7 @@ __author__ = 'juliowaissman'
 
 
 import busquedas
-
+from time import time
 
 class Modelo8puzzle(busquedas.ModeloBusqueda):
     """
@@ -112,70 +112,75 @@ def h_2(nodo):
                 for i in range(9) if nodo.estado[i] != 0])
 
 
-def probando(pos_ini):
+def probando(pos_ini, tipo):
     """
     Muestra el resultado de aplicar un tipo de búsqeda
     al problema del 8 puzzle con una posición inicial
     determinada.
 
-    Por el momento muy manuel, solamente descomentar
+    Por el momento muy manual, solamente descomentar
     las búsquedas que se deseen realizar.
 
     Recuerda que las búsquedas no informadas pueden ser
     muy lentas.
 
+    Tipo:
+        0: busqueda_ancho,
+        1: busqueda_profundo,
+        2: busqueda_profundidad_iterativa,
+        3: busqueda_costo_uniforme,
+        4: busqueda_A_estrella con heuristica h1,
+        5: busqueda_A_estrella con heuristica h2
     """
     print(Modelo8puzzle.dibuja(pos_ini))
-
-    # ------- BFS -----------
-    print("---------- Utilizando BFS -------------")
+    tipos = ["BFS", "DFS", "IDS", "UCS", "A* con h1", "A* con h2"]
+    print("---------- Utilizando {} -------------".format(tipos[tipo]))
     problema = Ocho_puzzle(pos_ini)
-    solucion = busquedas.busqueda_ancho(problema)
+    t_inicial = time()
+    solucion = (busquedas.busqueda_ancho(problema) if tipo is 0 else
+                busquedas.busqueda_profundo(problema, 50) if tipo is 1 else
+                busquedas.busqueda_profundidad_iterativa(problema, 50) if tipo is 2 else
+                busquedas.busqueda_costo_uniforme(problema) if tipo is 3 else
+                busquedas.busqueda_A_estrella(problema, h_1) if tipo is 4 else
+                busquedas.busqueda_A_estrella(problema, h_2))
+    t_final = time()
     print(solucion)
-    print("Explorando {} nodos\n\n".format(solucion.nodos_visitados))
-
-    # ------- DFS -----------
-    print("---------- Utilizando DFS -------------")
-    problema = Ocho_puzzle(pos_ini)
-    solucion = busquedas.busqueda_profundo(problema, 50)
-    print(solucion)
-    print("Explorando {} nodos\n\n".format(solucion.nodos_visitados))
-
-    # ------- IDS -----------
-    print("---------- Utilizando IDS -------------")
-    problema = Ocho_puzzle(pos_ini)
-    solucion = busquedas.busqueda_profundidad_iterativa(problema, 50)
-    print(solucion)
-    print("Explorando {} nodos\n\n".format(solucion.nodos_visitados))
-
-    # ------- UCS -----------
-    print("---------- Utilizando UCS -------------")
-    problema = Ocho_puzzle(pos_ini)
-    solucion = busquedas.busqueda_costo_uniforme(problema)
-    print(solucion)
-    print("Explorando {} nodos\n\n".format(solucion.nodos_visitados))
-
-    # # ------- A* con h1 -----------
-    # print("---------- Utilizando A* con h1 -------------")
-    # problema = Ocho_puzzle(pos_ini)
-    # solucion = busquedas.busqueda_A_estrella(problema, h_1)
-    # print(solucion)
-    # print("Explorando {} nodos".format(solucion.nodos_visitados))
-
-    # # ------- A* con h2 -----------
-    # print("---------- Utilizando A* con h2 -------------")
-    # problema = Ocho_puzzle(pos_ini)
-    # solucion = busquedas.busqueda_A_estrella(problema, h_2)
-    # print(solucion)
-    # print("Explorando {} nodos".format(solucion.nodos_visitados))
-
+    print("Explorando {} nodos".format(solucion.nodos_visitados))
+    print("Tiempo: {} segundos".format(t_final-t_inicial))
 
 if __name__ == "__main__":
 
-    probando((1, 0, 2, 3, 4, 5, 6, 7, 8))
+    #probando((1, 0, 2, 3, 4, 5, 6, 7, 8), tipo=0)
 
     print("\n\n\ny con otro problema de 8 puzzle")
-    probando((5, 1, 3, 4, 0, 2, 6, 7, 8))
+    probando((5, 1, 3, 4, 0, 2, 6, 7, 8), tipo=5)
 
     print("\n\n\ny por último")
-    probando((1, 7, 8, 2, 3, 4, 5, 6, 0))
+    probando((1, 7, 8, 2, 3, 4, 5, 6, 0), tipo=5)
+
+
+"""
+
+    Estado inicial:  (5, 1, 3, 4, 0, 2, 6, 7, 8)
+
+    |       Busqueda                |  Costo  |  Profundidad  |  Nodos Explorados  |   Tiempo   |
+
+              Ancho                     14           14               4158             0.10 seg
+            Profundo                    50           50              64951             1.80 seg
+       Profundidad iterativa            14           14              17026             0.37 seg      
+          Costo Uniforme                14           14               5240             0.31 seg
+              A* h1                     14           14                298             0.02 seg
+              A* h2                     14           14                 97             0.01 seg
+
+    Estado inicial :  (1, 7, 8, 2, 3, 4, 5, 6, 0)            
+
+    |       Busqueda                |  Costo  |  Profundidad  |  Nodos Explorados  |   Tiempo   |
+    
+              Ancho                     24           24             133152             4.28 seg
+            Profundo                    50           50             162865             4.94 seg             
+       Profundidad iterativa            24           24             883191            22.90 seg    
+          Costo Uniforme                24           24             129515             9.62 seg
+              A* h1                     24           24              17622             1.92 seg
+              A* h2                     24           24               1677             0.25 seg
+
+"""
