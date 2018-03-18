@@ -9,7 +9,7 @@ con diferentes métodos de búsqueda
 
 """
 
-__author__ = 'juliowaissman'
+__author__ = 'Adrian Emilio Vazquez Icedo'
 
 
 import busquedas
@@ -156,20 +156,53 @@ def probando(pos_ini):
     print("Explorando {} nodos\n\n".format(solucion.nodos_visitados))
 
     # # ------- A* con h1 -----------
-    # print("---------- Utilizando A* con h1 -------------")
-    # problema = Ocho_puzzle(pos_ini)
-    # solucion = busquedas.busqueda_A_estrella(problema, h_1)
-    # print(solucion)
-    # print("Explorando {} nodos".format(solucion.nodos_visitados))
+    print("---------- Utilizando A* con h1 -------------")
+    problema = Ocho_puzzle(pos_ini)
+    solucion = busquedas.busqueda_A_estrella(problema, h_1)
+    print(solucion)
+    print("Explorando {} nodos".format(solucion.nodos_visitados))
 
     # # ------- A* con h2 -----------
-    # print("---------- Utilizando A* con h2 -------------")
-    # problema = Ocho_puzzle(pos_ini)
-    # solucion = busquedas.busqueda_A_estrella(problema, h_2)
-    # print(solucion)
-    # print("Explorando {} nodos".format(solucion.nodos_visitados))
-
-
+    print("---------- Utilizando A* con h2 -------------")
+    problema = Ocho_puzzle(pos_ini)
+    solucion = busquedas.busqueda_A_estrella(problema, h_2)
+    print(solucion)
+    print("Explorando {} nodos".format(solucion.nodos_visitados))
+    """
+    Prueba y concucliones
+    BFS:Exploro 4 nodos
+    DFS:Exploro 2 nodos
+    IDS:Exploro 3 nodos
+    UCS:Exploro 4 nodos
+    A* con h1:Exploro 2 nodos
+    A* con h2:Exploro 2 nodos
+    
+    
+    BFS:Exploro 4158 nodos
+    DFS:Exploro 64951 nodos
+    IDS:Exploro 17023 nodos
+    UCS:Exploro 5240 nodos
+    A* con h1:Exploro 298 nodos
+    A* con h2:Exploro 97 nodos
+    
+    
+    BFS:Exploro 133152 nodos
+    DFS:Exploro 162865 nodos
+    IDS:Exploro 883191 nodos
+    UCS:Exploro 129515 nodos
+    A* con h1:Exploro 17622 nodos
+    A* con h2:Exploro 1677 nodos
+    
+    Con el primer puzzle no se notarian las diferencias ya que no representa un gran problema
+    para ninguno de los algoritmos.
+    
+    En elsegundo puzzle se empieza a notar un cambio al tener un metodo mejor apoyado de una
+    heurística que nos permite un mejor metodo.
+    
+    En el tercer puzzle al ser el mas complicado los primeros metodos explorar demasiado
+    y se nota una gran diferencia al compararlo con el A*, ademas aqui se puede observar de mejor 
+    manera que una mejor heurística nos permitira tener mejores rendimientos.
+    """
 if __name__ == "__main__":
 
     probando((1, 0, 2, 3, 4, 5, 6, 7, 8))
