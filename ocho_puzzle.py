@@ -120,10 +120,10 @@ def probando(pos_ini, tipo):
 
     Por el momento muy manual, solamente descomentar
     las búsquedas que se deseen realizar.
-
+    
     Recuerda que las búsquedas no informadas pueden ser
     muy lentas.
-
+    
     Tipo:
         0: busqueda_ancho,
         1: busqueda_profundo,
