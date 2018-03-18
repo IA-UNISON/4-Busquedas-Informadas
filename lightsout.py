@@ -118,10 +118,15 @@ class ProblemaLightsOut(busquedas.ProblemaBusqueda):
         # Completa el código
         x0 = tuple(pos_ini)
         def meta(x):
-            raise NotImplementedError("Hay que hacer de tarea")
+            """
+            Todas apagadas
+            """
+            for luz in x:
+                if luz == 1:
+                    return False
+            return True
 
         super().__init__(x0=x0, meta=meta, modelo=LightsOut())
-
 
 # ------------------------------------------------------------
 #  Problema 4: Desarrolla una política admisible.
