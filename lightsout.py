@@ -165,11 +165,14 @@ def h_2(nodo):
     encuentre a una luz prendida, en caso de encontrarse con una luz
     centro (al pulsar tal luz se apagen todas la adyacentes), enconces se
     restan las dos sumados por esas luces y se suma un paso.
-    Realmente no estoy seguro si es admisible o no, pero da muy buenos resultados.
-    El mejor valor de 'pasos' fue 2
+    El valor de 'pasos' con mejores resultados fue 2 pero con ese valor
+    la heuristica no es admisible, pero da muy buenos resultados 
+    a comparacion de la primera heuristica.
+    Con un valor de 'pasos' mas pequeño, por ejemplo, con valor de 1
+    se tiene un costo menor al real (en las pruebas de abajo) pero se tienen peores resultados.
 
-    Esta Heuristica es dominantes sobre la primera por mucho, ya que la primera solo
-    da el minimo posible, en cambio la segunda da un costo mucho mas cercano al real
+    La primera heuristica es admisible, pero la segunda tiene mejores resultados por mucho, 
+    por lo tanto, diria que la segunda es la dominante a pesar de no ser admisible.
     """
     s = nodo.estado
     # Se pudiera cambiar, son los pasos de una luz que no esta en el centro
@@ -311,10 +314,10 @@ def compara_metodos(pos_inicial, heuristica_1, heuristica_2):
     de la función
 
     """
-    t_inicial_h1 = time()
-    solucion1 = busquedas.busqueda_A_estrella(ProblemaLightsOut(pos_inicial),
-                                              heuristica_1)
-    t_final_h1 = time()
+    #t_inicial_h1 = time()
+    #solucion1 = busquedas.busqueda_A_estrella(ProblemaLightsOut(pos_inicial),
+    #                                          heuristica_1)
+    #t_final_h1 = time()
     t_inicial_h2 = time()
     solucion2 = busquedas.busqueda_A_estrella(ProblemaLightsOut(pos_inicial),
                                               heuristica_2)
@@ -322,8 +325,8 @@ def compara_metodos(pos_inicial, heuristica_1, heuristica_2):
     print('-' * 80)
     print('Método'.center(10) + 'Costo'.center(20) + 'Nodos visitados'.center(20) + 'Tiempo'.center(20))
     print('-' * 80 + '\n')
-    print('A* con h1'.center(10) + str(solucion1.costo).center(20) +
-          str(solucion1.nodos_visitados).center(20) + str(t_final_h1-t_inicial_h1).center(20))
+    #print('A* con h1'.center(10) + str(solucion1.costo).center(20) +
+    #      str(solucion1.nodos_visitados).center(20) + str(t_final_h1-t_inicial_h1).center(20))
     print('A* con h2'.center(10) + str(solucion2.costo).center(20) +
           str(solucion2.nodos_visitados).center(20) + str(t_final_h2-t_inicial_h2).center(20))
     print('-' * 80 + '\n')
