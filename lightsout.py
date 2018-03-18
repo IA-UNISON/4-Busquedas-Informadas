@@ -53,16 +53,41 @@ class LightsOut(busquedas.ModeloBusqueda):
 
     """
     def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        self.acciones = range(25)
 
     def acciones_legales(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        '''
+        Realmente no hay restricciones en cuanto a las acciones
+        '''
+        return self.acciones
 
     def sucesor(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        '''
+        Es facil ver que el problema puede ser tratado como una suma de matrices
+        sobre el campo de Galois. o F2
+        Fuente: http://codingthematrix.com/ de Philip N. Klein
+        '''
+        
+        estado_nuevo=list(estado)
+        
+        r = accion % 5
+        c = accion // 5
+        
+        
+        estado_nuevo[accion]=1-estado_nuevo[accion]  
+        if r < 4:
+            estado_nuevo[accion+1]=1-estado_nuevo[accion+1]
+        if r > 0:
+            estado_nuevo[accion-1]=1-estado_nuevo[accion-1]
+        if c >0:
+            estado_nuevo[accion-5]=1-estado_nuevo[accion-5]
+        if c < 4:
+            estado_nuevo[accion+5]=1-estado_nuevo[accion+5]
+        
+        return tuple(estado_nuevo)
 
     def costo_local(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return 1
 
     @staticmethod
     def bonito(estado):
