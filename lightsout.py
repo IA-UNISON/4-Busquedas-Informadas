@@ -67,17 +67,20 @@ class LightsOut(busquedas.ModeloBusqueda):
         c = accion%5
         r = accion//5
 
-        # Se cambian los valores de las casillas adyacentes
-        if c != 0:
-            listaEstado[c-1] = 1 if listaEstado[c-1] == 0 else 0
-        if c != 4:
-            listaEstado[c+1] = 1 if listaEstado[c+1] == 0 else 0
-        if r != 0:
-            listaEstado[r-5] = 1 if listaEstado[r-5] == 0 else 0
-        if r!= 4:
-            listaEstado[r+5] = 1 if listaEstado[r+5] == 0 else 0
+        # Se cambia el valor de la casilla que se esta presionando
+        listaEstado[accion] = 1 if listaEstado[accion] == 0 else 0
 
-            return tuple(listaEstado)
+        # Se cambian los valores de las casillas adyacentes
+        if r != 0:
+            listaEstado[(r-1)*5 + c] = 1 if listaEstado[(r-1)*5 + c] == 0 else 0
+        if r != 4:
+            listaEstado[(r+1)*5 + c] = 1 if listaEstado[(r+1)*5 + c] == 0 else 0
+        if c != 0:
+            listaEstado[r*5 + c-1] = 1 if listaEstado[r*5 + c-1] == 0 else 0
+        if c != 4:
+            listaEstado[r*5 + c+1] = 1 if listaEstado[r*5 + c+1] == 0 else 0
+
+        return tuple(listaEstado)
 
     def costo_local(self, estado, accion):
         # El costo por tocar una casilla es 1
@@ -112,7 +115,7 @@ class ProblemaLightsOut(busquedas.ProblemaBusqueda):
         # Completa el código
         x0 = tuple(pos_ini)
         def meta(x):
-            raise NotImplementedError("Hay que hacer de tarea")
+                return all(casilla == 1 for casilla in x)
 
         super().__init__(x0=x0, meta=meta, modelo=LightsOut())
 
