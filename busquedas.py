@@ -282,7 +282,26 @@ def busqueda_A_estrella(problema, heuristica):
                        un nodo cuyo estado final sea méta.
 
     @return Un objeto tipo Nodo con la estructura completa
-
     """
-    raise NotImplementedError('Hay que hacerlo de tarea \
-                              (problema 2 en el archivo busquedas.py)')
+
+    #parece ser casi identico a una busqueda uniforme, la unica diferencia es que al meter
+    #los costos a la frontera se toma en cuenta tambien la heuristica
+    frontera = []
+    heapq.heappush(frontera, (0, Nodo(problema.x0)))
+    visitados = {problema.x0: 0}
+
+    while frontera:
+        (_, nodo) = heapq.heappop(frontera)
+        if problema.es_meta(nodo.estado):
+            nodo.nodos_visitados = problema.num_nodos
+            return nodo
+
+        for hijo in nodo.expande(problema.modelo):
+            if (hijo.estado in visitados and hijo.costo >= visitados[hijo.estado]):
+                continue
+
+            visitados[hijo.estado] = hijo.costo
+            heapq.heappush(frontera, (hijo.costo + heuristica(hijo), hijo))
+
+    return None
+

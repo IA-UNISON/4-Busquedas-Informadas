@@ -52,17 +52,34 @@ class LightsOut(busquedas.ModeloBusqueda):
     http://en.wikipedia.org/wiki/Lights_Out_(game)
 
     """
-    def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
-
     def acciones_legales(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return range(25)    #cualquiera de los lugares siempre es legal
 
     def sucesor(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        listado = list(estado)
+        n = accion - 5
+        o = accion + 1
+        s = accion + 5
+        e = accion - 1
+        afectados = [accion, n, o , s , e]
+
+        if accion < 5:          #si esta en el primer renglon
+             afectados.remove(n)
+        elif accion >= 20:      #si esta en el ultimo renglon
+             afectados.remove(s)
+
+        if accion % 5 == 0:     #si esta en la primer columna
+            afectados.remove(e)
+        elif accion % 5 == 4:   #si esta en la ultima columna
+            afectados.remove(o)
+
+        for afectado in afectados:
+            listado[afectado] = 1 if listado[afectado] == 0 else 0
+
+        return tuple(listado)
 
     def costo_local(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return 1
 
     @staticmethod
     def bonito(estado):
@@ -93,7 +110,7 @@ class ProblemaLightsOut(busquedas.ProblemaBusqueda):
         # Completa el código
         x0 = tuple(pos_ini)
         def meta(x):
-            raise NotImplementedError("Hay que hacer de tarea")
+            return all(luz == 0 for luz in x)
 
         super().__init__(x0=x0, meta=meta, modelo=LightsOut())
 
@@ -105,10 +122,16 @@ def h_1(nodo):
     """
     DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
-
     """
-    return 0
-
+    """
+    Esta heuristica se basa en el numero de casillas faltantes,
+    pero, por si mismo no es admisible (el caso de que falte una
+    cruz: faltan 5 casillas pero con un solo movimiento se puede
+    solucionar el juego). Para evitar esto se divide el numero de
+    casillas faltantes entre 5 y asi este caso (el peor) no hace
+    sobreestimacion y hace que la heuristica sea admisible.
+    """
+    return h_2(nodo) / 5
 
 # ------------------------------------------------------------
 #  Problema 5: Desarrolla otra política admisible.
@@ -119,9 +142,24 @@ def h_2(nodo):
     """
     DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
-
     """
-    return 0
+    """
+    Esta heuristica es el numero de casillas faltantes.
+    No es admisible por las razones que justifique en h_1 pero
+    si es rapida y en los juegos de prueba hace muy pocas
+    busquedas.
+    """
+    """
+    Algo curioso es que hice varias pruebas moviendo los valores
+    del numero de casillas faltantes. Por ejemplo elevando el
+    resultado al cuadrado, calculando 10^resultado y e^resultado,
+    sacando raiz y logaritmo, y me di cuenta que la raiz y logaritmo
+    son pesimos y hacen que se tengan que buscar muchos mas nodos.
+    Por otro lado las potencias dieron resultados muy similares
+    al mismo resultado sin potencia asi que decidi tomar la opcion
+    que hace menos operaciones.
+    """
+    return sum([1 for casilla in list(nodo.estado) if casilla == 1])
 
 
 def prueba_modelo():
@@ -209,9 +247,9 @@ def compara_metodos(pos_inicial, heuristica_1, heuristica_2):
 
 if __name__ == "__main__":
 
-    print("Antes de hacer otra cosa,")
-    print("vamos a verificar medianamente la clase LightsOut")
-    prueba_modelo()
+    #print("Antes de hacer otra cosa,")
+    #print("vamos a verificar medianamente la clase LightsOut")
+    #prueba_modelo()
 
     # Tres estados iniciales interesantes
     diagonal = (0, 0, 0, 0, 1,
@@ -237,9 +275,10 @@ if __name__ == "__main__":
     compara_metodos(diagonal, h_1, h_2)
 
     print("\n\nPara el problema simétrico")
-    print("\n".format(LightsOut.bonito(simetria)))
+    print("\n{}".format(LightsOut.bonito(simetria)))
     compara_metodos(simetria, h_1, h_2)
 
     print("\n\nPara el problema Bonito")
-    print("\n".format(LightsOut.bonito(problemin)))
+    print("\n{}".format(LightsOut.bonito(problemin)))
     compara_metodos(problemin, h_1, h_2)
+
