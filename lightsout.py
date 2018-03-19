@@ -134,8 +134,10 @@ class ProblemaLightsOut(busquedas.ProblemaBusqueda):
         """
         # Completa el código
         x0 = tuple(pos_ini)
+        # Verifica que todos los valores sean 0 (apagados) y regresa 'True'
+        # En caso de que algun elemento este prendido regresa 'False'
         def meta(x):
-            raise NotImplementedError("Hay que hacer de tarea")
+            return all(xi == 0 for xi in x)
         super().__init__(x0=x0, meta=meta, modelo=LightsOut())
 
 
@@ -162,7 +164,6 @@ def h_2(nodo):
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
     """
-    return 0
 
 
 def prueba_modelo():
