@@ -138,6 +138,14 @@ def h_1(nodo):
     
     Imitando al 8-puzzle, esta heuristica calcula la cantidad de luces que 
     necesitan apagar.
+    
+    En cuanto a admisibilidad es facil confundirse y decir que si lo es puesto 
+    que la comparacion que hacemos con el 8-puzzle, pero en este caso no medimos
+    distancia, y un movimiento afecta a varias luces, asi una heuristica admisible 
+    tendia en consideracion la cantidad de luces que se deben presionar para llegar
+    al estado meta, como se ve en la sig imagen
+    
+    https://goo.gl/yoXth7
 
     """
     return sum(luz for luz in nodo.estado)
@@ -158,8 +166,16 @@ def h_2(nodo):
     las luces de todas las filas con exepcion de la ultima
     es decir
     (0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,X,X,X,X,X)
+    
     Es facil ver que es una variante de la heuristica 1, por lo que esta es dominada
     por ella.
+    Despues de las pruebas podermos observar que el costo es el mismo pero la 
+    cantidad de nodos visitados en mayor cuando de usa h_2
+    
+    En esta funcion podemos usar el mismo argumeto usada en la funcion h_1,
+    estas son una observacion del estado actual mas que un indicador de los pasos
+    a seguir
+    
     """
         
     return sum(nodo.estado[i] for i in range(20))
@@ -272,7 +288,7 @@ if __name__ == "__main__":
                  0, 0, 0, 1, 1,
                  0, 0, 1, 1, 1,
                  0, 0, 0, 1, 1)
-    
+    '''  
     solucion1= busquedas.busqueda_A_estrella(ProblemaLightsOut(diagonal),h_2)
     solucion2= busquedas.busqueda_A_estrella(ProblemaLightsOut(simetria),h_2)
     solucion3= busquedas.busqueda_A_estrella(ProblemaLightsOut(problemin),h_2)
@@ -281,7 +297,7 @@ if __name__ == "__main__":
     print("1: ",solucion1)
     print("2: ",solucion2)
     print("3: ",solucion3)
-'''
+    '''
     print("\n\nPara el problema en diagonal")
     print("\n{}".format(LightsOut.bonito(diagonal)))
     compara_metodos(diagonal, h_1, h_2)
@@ -293,4 +309,3 @@ if __name__ == "__main__":
     print("\n\nPara el problema Bonito")
     print("\n".format(LightsOut.bonito(problemin)))
     compara_metodos(problemin, h_1, h_2)
-'''
