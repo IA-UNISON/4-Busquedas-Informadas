@@ -10,7 +10,7 @@ completamente observables
 
 """
 
-__author__ = 'juliowaissman'
+__author__ = 'Adrian Emilio Vazquez Icedo'
 
 from collections import deque
 import heapq
@@ -284,5 +284,22 @@ def busqueda_A_estrella(problema, heuristica):
     @return Un objeto tipo Nodo con la estructura completa
 
     """
-    raise NotImplementedError('Hay que hacerlo de tarea \
-                              (problema 2 en el archivo busquedas.py)')
+    frontera = []#Contiene los nodos que se van recorriendo
+    heapq.heappush(frontera, (0, Nodo(problema.x0)))#Guarda el nodo y el costo
+    visitados={problema.x0:0}
+    
+    while frontera:#recorre los nodos de la frontera
+        (_, nodo) = heapq.heappop(frontera)#saca un nodo de la frontera 
+        
+        if problema.es_meta(nodo.estado):#revisa si se llego al estado meta
+            nodo.nodos_visitados=problema.num_nodos
+            return nodo
+        
+        for hijo in nodo.expande(problema.modelo):#recorre los hijos del problema
+            if hijo.estado not in visitados or visitados[hijo.estado]>hijo.costo:#se revisa si el hijo no fue visitado o si se tiene un costo menor
+                heapq.heappush(frontera, (hijo.costo+heuristica(hijo), hijo))
+                visitados[hijo.estado]=hijo.costo
+            
+    return None
+    #raise NotImplementedError('Hay que hacerlo de tarea \
+    #                         (problema 2 en el archivo busquedas.py)')
