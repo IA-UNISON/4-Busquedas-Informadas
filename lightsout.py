@@ -7,7 +7,7 @@ lightsout.py
 Tarea sobre búsquedas, donde lo que es importante es crear nuevas heurísticas
 
 """
-__author__ = 'nombre del estudiante'
+__author__ = 'Adrian Emilio Vazquez Icedo'
 
 
 import busquedas
@@ -53,16 +53,40 @@ class LightsOut(busquedas.ModeloBusqueda):
 
     """
     def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        
+        self.acciones=range(25)
+        #raise NotImplementedError('Hay que hacerlo de tarea')
 
     def acciones_legales(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        
+        return self.acciones
+        #raise NotImplementedError('Hay que hacerlo de tarea')
 
     def sucesor(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        
+        nuevoEstado=list(estado)
+        r=accion//5 #Se calcula el renglon de donde se realizara la accion
+        c=accion%5 #Se calcula la columna de donde se realizara la accion
+        
+        nuevoEstado[accion]=1-nuevoEstado[accion]#Se genera la accion en la casilla
+        
+        #Se revisa si existen las casillas a la izquierda, derecha, arriba y abajo. Si existen el valor de se cambia el valor de su luz. 
+        if r is not 0:#Se revisa que exista un renglon anterior
+            nuevoEstado[accion-5]=1-nuevoEstado[accion-5]
+        if r is not 4:#Se revisa que exista un renglon siguiente
+            nuevoEstado[accion+5]=1-nuevoEstado[accion+5]   
+        if c is not 0:#Se revisa que exista una columna anterior
+            nuevoEstado[accion-1]=1-nuevoEstado[accion-1]
+        if c is not 4:#Se revisa que exista una columna siguiente
+            nuevoEstado[accion+1]=1-nuevoEstado[accion+1]    
+            
+        return tuple(nuevoEstado)
+        #raise NotImplementedError('Hay que hacerlo de tarea')
 
     def costo_local(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        
+        return 1#El costo de pulsar una casilla   
+        #raise NotImplementedError('Hay que hacerlo de tarea')
 
     @staticmethod
     def bonito(estado):
@@ -93,7 +117,11 @@ class ProblemaLightsOut(busquedas.ProblemaBusqueda):
         # Completa el código
         x0 = tuple(pos_ini)
         def meta(x):
-            raise NotImplementedError("Hay que hacer de tarea")
+            for apagado in x:#Revisa todas las luces esten apagadas
+                if apagado==1:
+                    return False
+            return True
+            #raise NotImplementedError("Hay que hacer de tarea")
 
         super().__init__(x0=x0, meta=meta, modelo=LightsOut())
 
