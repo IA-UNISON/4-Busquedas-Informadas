@@ -120,19 +120,14 @@ def h_1(nodo):
     DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
-    Como es más facil si se apagan los focos que están en el perimetro
-    del lights out aqui se saca la suma del perimetro
+    Nuestro objetivo es apagar o prender todo pues el checar cuantos
+    nos faltan por apagar o prender nos acerca mas a la meta checando las dos
+    opciones de apagar o prender todo obtuve que checar cuantas me faltan por
+    apagar resulto más rapido que regresar el número que me faltan por
+    prender
 
     """
-
-    perimetro = 0
-    for i in range(5):
-        perimetro = perimetro + list(nodo.estado)[i]
-        perimetro = perimetro + list(nodo.estado)[i+20]
-        if i!=0 or i!=4:
-            perimetro = perimetro + list(nodo.estado)[i*5]
-            perimetro = perimetro + list(nodo.estado)[i*5+4]
-    return perimetro
+    return sum(nodo.estado)
 
 # ------------------------------------------------------------
 #  Problema 5: Desarrolla otra política admisible.
@@ -140,12 +135,20 @@ def h_1(nodo):
 #  respecto otra política
 # ------------------------------------------------------------
 def h_2(nodo):
+
     """
     DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
+    En esté método me basé en el hecho de que a lo mas se pueden apagar
+    5 focos en un movimiento, entonces cuento la cantidad de focos prendidos
+    en el estado y lo divido entre 5. De esta forma se ve que no puedes tardar
+    mas que esos pasos ya que no puedes apagar mas de 5 focos. No es admisible
+    para mi propuesta de función de costo, pero igual da la solución óptima.
     """
-    return 0
+
+    cantidad = nodo.estado.count(1)
+    return cantidad/5
 
 
 def prueba_modelo():
