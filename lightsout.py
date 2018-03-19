@@ -52,8 +52,8 @@ class LightsOut(busquedas.ModeloBusqueda):
     http://en.wikipedia.org/wiki/Lights_Out_(game)
 
     """
-    def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+    # def __init__(self):
+    #     raise NotImplementedError('Hay que hacerlo de tarea')
 
     def acciones_legales(self, estado):
         return range(0,25)
