@@ -147,7 +147,7 @@ def h_2(nodo):
      de arriba hacia abajo, al llegar a abajo, no sabia como apagar la linea de abajo, luego lo 
      que hacia era encender una al azar y volver a repetir apagando de arriba hacia abajo hasta que diera
      resultado.
-    -Tome esto como ejemplo y decidi poner esto como heuristica, si una casilla tenia la casilla de arriba
+    -Tome esto como ejemplo y decidi uponer esto como heuristica, si una casilla tenia la casilla de arriba
      encendida, aumento en 1 el costo.
     -Creo que no seria admisible porque una cruz en el centro, con esta heuristica seria 5, pero en un
      movimiento estaria solucionado, pero el resultado fue muy bueno
@@ -292,16 +292,15 @@ if __name__ == "__main__":
 
 
     """
-    RESULTADOS
-
+    *al corregir el A* mejoraron los tiempos
     Para el problema en diagonal
     ----------------------------------------------------------------------
     Método         Costo        Nodos visitados       Tiempo
     ----------------------------------------------------------------------
 
 
-    A* con h1          5                  1535         0.7321209907531738
-    A* con h2          5                   47         0.03286910057067871
+    A* con h1          5                  1535         0.7568445205688477
+    A* con h2          5                   47         0.02659440040588379
     ----------------------------------------------------------------------
 
 
@@ -313,8 +312,8 @@ if __name__ == "__main__":
     ----------------------------------------------------------------------
 
 
-    A* con h1          6                  4162          1.99613356590271
-    A* con h2          6                   11         0.007374286651611328
+    A* con h1          6                  4162         1.9519867897033691
+    A* con h2          6                   11         0.0057392120361328125
     ----------------------------------------------------------------------
 
 
@@ -326,7 +325,7 @@ if __name__ == "__main__":
     ----------------------------------------------------------------------
 
 
-    A* con h1          9                 328870        165.9785807132721
-    A* con h2          9                  3126         2.354170322418213
+    A* con h1          9                 328870        139.14729261398315
+    A* con h2          9                  3126         1.6946332454681396
     ----------------------------------------------------------------------
     """

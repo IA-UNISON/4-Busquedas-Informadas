@@ -294,8 +294,9 @@ def busqueda_A_estrella(problema, heuristica):
             nodo.nodos_visitados = problema.num_nodos
             return nodo
         for hijo in nodo.expande(problema.modelo):
-            if (hijo.estado not in visitados or visitados[hijo.estado] > hijo.costo+heuristica(hijo)):
+            #correccion en la comparación y en el costo en visitados
+            if (hijo.estado not in visitados or visitados[hijo.estado] > hijo.costo):
                 heapq.heappush(frontera, (hijo.costo+heuristica(hijo), hijo))
-                visitados[hijo.estado] = hijo.costo+heuristica(hijo)
+                visitados[hijo.estado] = hijo.costo
     return None
     
