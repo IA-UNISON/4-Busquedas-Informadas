@@ -126,13 +126,12 @@ def h_1(nodo):
     """
     Esta heuristica se basa en el numero de casillas faltantes,
     pero, por si mismo no es admisible (el caso de que falte una
-    cruz faltan 5 casillas pero con un solo movimiento se puede
+    cruz: faltan 5 casillas pero con un solo movimiento se puede
     solucionar el juego). Para evitar esto se divide el numero de
-    casillas faltantes entre 5 y asi este caso (el peor) se
-    resuelve y hace que la heuristica sea admisible.
+    casillas faltantes entre 5 y asi este caso (el peor) no hace
+    sobreestimacion y hace que la heuristica sea admisible.
     """
-    return sum([1 for casilla in list(nodo.estado) if casilla == 1]) / 5
-
+    return h_2(nodo) / 5
 
 # ------------------------------------------------------------
 #  Problema 5: Desarrolla otra política admisible.
@@ -143,9 +142,24 @@ def h_2(nodo):
     """
     DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
-
     """
-    return 0
+    """
+    Esta heuristica es el numero de casillas faltantes.
+    No es admisible por las razones que justifique en h_1 pero
+    si es rapida y en los juegos de prueba hace muy pocas
+    busquedas.
+    """
+    """
+    Algo curioso es que hice varias pruebas moviendo los valores
+    del numero de casillas faltantes. Por ejemplo elevando el
+    resultado al cuadrado, calculando 10^resultado y e^resultado,
+    sacando raiz y logaritmo, y me di cuenta que la raiz y logaritmo
+    son pesimos y hacen que se tengan que buscar muchos mas nodos.
+    Por otro lado las potencias dieron resultados muy similares
+    al mismo resultado sin potencia asi que decidi tomar la opcion
+    que hace menos operaciones.
+    """
+    return sum([1 for casilla in list(nodo.estado) if casilla == 1])
 
 
 def prueba_modelo():
