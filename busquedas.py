@@ -287,6 +287,8 @@ def busqueda_A_estrella(problema, heuristica):
                               (problema 2 en el archivo busquedas.')
     """
 
+    ##########################
+
     """
     Para demostrar la admisibilidad de A *, la ruta de la solución devuelta por el algoritmo se utiliza de la siguiente manera:
 
@@ -297,8 +299,11 @@ def busqueda_A_estrella(problema, heuristica):
     Algo que saque de wikipedia.
 
     """
+    frontera = [] #nodos que vas recorriendo o generando
+    heapq.heappush(frontera, (0, Nodo(problema.x0))) #un heap para guardar el costo y el nodo x0
+    visitados = {problema.x0: 0} #noodos visitados (x0 ya fue visitado)
 
-     while frontera:
+    while frontera:
         (_, nodo) = heapq.heappop(frontera) # "_" para ignorar el costo
         if problema.es_meta(nodo.estado): #que encuentre la solucion
             nodo.nodos_visitados = problema.num_nodos #si es meta se mete a nodos ya visitados
