@@ -7,10 +7,11 @@ lightsout.py
 Tarea sobre búsquedas, donde lo que es importante es crear nuevas heurísticas
 
 """
-__author__ = 'nombre del estudiante'
+__author__ = 'Fco Javier Vicente Tequida'
 
 
 import busquedas
+from collections import Counter
 
 
 class LightsOut(busquedas.ModeloBusqueda):
@@ -23,7 +24,7 @@ class LightsOut(busquedas.ModeloBusqueda):
 
     La idea del juego es el apagar o prender todas las luces.
     Al seleccionar una casilla, la casilla y sus casillas
-    adjacentes cambian (si estan prendidas se apagan y viceversa).
+    adyacentes cambian (si estan prendidas se apagan y viceversa).
 
     El juego consiste en una matriz de 5 X 5, cuyo estado puede
     ser apagado 0 o prendido 1. Por ejemplo el estado
@@ -45,7 +46,7 @@ class LightsOut(busquedas.ModeloBusqueda):
     ---------------------
 
     Las acciones posibles son de elegir cambiar una luz y sus casillas
-    adjacentes, por lo que la accion es un número entre 0 y 24.
+    adyacentes, por lo que la accion es un número entre 0 y 24.
 
     Para mas información sobre el juego, se puede consultar
 
@@ -53,16 +54,34 @@ class LightsOut(busquedas.ModeloBusqueda):
 
     """
     def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        # Acciones legales
+        self.acciones = range(25)
 
     def acciones_legales(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        # Se obtienen las acciones legales
+        return self.acciones
 
     def sucesor(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        estado = list(estado)
+        estado[accion] = 0 if estado[accion] == 1 else 1
+
+        columna = accion % 5  # Encontrar la columna del elemento
+        renglon = accion // 5  # Encontrar el renglon del elemento
+
+        if columna != 4:  # Es posible agregar a la derecha
+            estado[accion + 1] = 0 if estado[accion + 1] == 1 else 1
+        if columna != 0:  # Es posible agregar a la izquierda
+            estado[accion - 1] = 0 if estado[accion - 1] == 1 else 1
+
+        if renglon != 4:  # Es posible agregar abajo
+            estado[accion + 5] = 0 if estado[accion + 5] == 1 else 1
+        if renglon != 0:  # Es posible agregar arriba
+            estado[accion - 5] = 0 if estado[accion - 5] == 1 else 1
+
+        return tuple(estado)
 
     def costo_local(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return 1
 
     @staticmethod
     def bonito(estado):
@@ -92,8 +111,10 @@ class ProblemaLightsOut(busquedas.ProblemaBusqueda):
         """
         # Completa el código
         x0 = tuple(pos_ini)
+
         def meta(x):
-            raise NotImplementedError("Hay que hacer de tarea")
+            # Ver si el estado es meta o no
+            return sum(list(x)) == 0
 
         super().__init__(x0=x0, meta=meta, modelo=LightsOut())
 
@@ -231,7 +252,7 @@ if __name__ == "__main__":
                  0, 0, 0, 1, 1,
                  0, 0, 1, 1, 1,
                  0, 0, 0, 1, 1)
-
+    """
     print("\n\nPara el problema en diagonal")
     print("\n{}".format(LightsOut.bonito(diagonal)))
     compara_metodos(diagonal, h_1, h_2)
@@ -243,3 +264,4 @@ if __name__ == "__main__":
     print("\n\nPara el problema Bonito")
     print("\n".format(LightsOut.bonito(problemin)))
     compara_metodos(problemin, h_1, h_2)
+    """
