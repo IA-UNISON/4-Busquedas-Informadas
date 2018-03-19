@@ -156,18 +156,18 @@ def probando(pos_ini):
     print("Explorando {} nodos\n\n".format(solucion.nodos_visitados))
 
     # # ------- A* con h1 -----------
-    # print("---------- Utilizando A* con h1 -------------")
-    # problema = Ocho_puzzle(pos_ini)
-    # solucion = busquedas.busqueda_A_estrella(problema, h_1)
-    # print(solucion)
-    # print("Explorando {} nodos".format(solucion.nodos_visitados))
+    print("---------- Utilizando A* con h1 -------------")
+    problema = Ocho_puzzle(pos_ini)
+    solucion = busquedas.busqueda_A_estrella(problema, h_1)
+    print(solucion)
+    print("Explorando {} nodos".format(solucion.nodos_visitados))
 
     # # ------- A* con h2 -----------
-    # print("---------- Utilizando A* con h2 -------------")
-    # problema = Ocho_puzzle(pos_ini)
-    # solucion = busquedas.busqueda_A_estrella(problema, h_2)
-    # print(solucion)
-    # print("Explorando {} nodos".format(solucion.nodos_visitados))
+    print("---------- Utilizando A* con h2 -------------")
+    problema = Ocho_puzzle(pos_ini)
+    solucion = busquedas.busqueda_A_estrella(problema, h_2)
+    print(solucion)
+    print("Explorando {} nodos".format(solucion.nodos_visitados))
 
 
 if __name__ == "__main__":
@@ -179,3 +179,6 @@ if __name__ == "__main__":
 
     print("\n\n\ny por último")
     probando((1, 7, 8, 2, 3, 4, 5, 6, 0))
+
+    print("\n\n\nla ultima pues")
+    probando((1, 2, 3, 4, 5, 6, 7, 8, 0))
