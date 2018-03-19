@@ -11,7 +11,7 @@ __author__ = 'nombre del estudiante'
 
 
 import busquedas
-
+import math
 
 class LightsOut(busquedas.ModeloBusqueda):
     # --------------------------------------------------------
@@ -173,12 +173,85 @@ def h_2(nodo):
     cantidad de nodos visitados en mayor cuando de usa h_2
     
     En esta funcion podemos usar el mismo argumeto usada en la funcion h_1,
-    estas son una observacion del estado actual mas que un indicador de los pasos
-    a seguir
+    estas son una observacion del estado/tablero actual mas que un indicador 
+    de los pasos a seguir
     
     """
         
     return sum(nodo.estado[i] for i in range(20))
+
+##EXTRA
+    """
+    PREMISA: Tratemos de encontrar una heuristica admisible mejor a la propuesta
+    clasica de lugares erroneos.
+    
+    CONCLUSION: La no admisible provoca que se visiten menos nodos, aunque no 
+    asegura encontrar una solucion optima, parece tener un desempeño mejor.
+    """
+def h_3(nodo):
+    """
+    Esta es la buena de belen.
+    Cantidad de pasos optimista
+    """
+    return sum(luz for luz in nodo.estado)//5    
+
+def h_4(nodo):
+    '''
+    Esta es la chila de ivan
+    Cantidad de pasos optimista con distibucion de peso.
+    '''
+    return math.exp(sum(casilla for casilla in nodo.estado) / 5)
+
+def h_5(nodo):
+    """
+    La chila de belen.
+    Grupos de 5 en el tablero.
+    """    
+    vecindad ={}
+
+    for i in range(25):
+        flag = False
+        if nodo.estado[i] == 1:
+            for x in vecindad.keys():
+                if len(vecindad[x])<5:
+                    for xi in vecindad[x]:
+                        if abs(xi-i)==5 or (xi%5==0 and i-xi==1) or (xi%5==4 and xi-i==1) or abs(xi-i)==1:
+                            flag=True
+                            vecindad[x].append(i)
+                            break
+                    if flag==True:
+                        break
+                
+            if flag == False:
+                vecindad[i] = [i]
+    
+    return len(vecindad)
+
+def h_6(nodo):
+    """   
+    chila de la patty
+    
+    Busca en esquinas y sus cruces
+    """ 
+    #---------------------------------------------------------------------------------------------------
+    costo = 0
+
+    #CHECO MI ESQUINA INFERIOR IZQUIERDAY MI CRUZ 
+    if nodo.estado[20] != 0 or nodo.estado[15] != 0 or nodo.estado[21] == 0:
+      costo +=1 
+    
+    #se suman todas las casillas encencidas en la cruz
+    aux1 = (nodo.estado[3] + nodo.estado[7] + nodo.estado[8] + nodo.estado[9] + nodo.estado[13])
+    #se checa si solo se necesitaria un movimiento para resolver el numero de casillas encendidas
+    #como es el caso en que todas esten encendidas(aux1=5) o que solo esten prendidas 1 o 2
+    if aux1 == 1 or aux1 == 2 or aux1 == 5:
+      costo+=1
+    #se checa si se necesitarian hacer mas de un movimiento para resolver el numero de casillas encendias
+    #como es el caso en que tres o cuatro casillas esten encendidas
+    if aux1 == 3 or aux1 == 4: 
+      costo+=2
+   
+    return costo
 
 
 def prueba_modelo():
@@ -300,12 +373,12 @@ if __name__ == "__main__":
     '''
     print("\n\nPara el problema en diagonal")
     print("\n{}".format(LightsOut.bonito(diagonal)))
-    compara_metodos(diagonal, h_1, h_2)
+    compara_metodos(diagonal, h_1, h_6)
 
     print("\n\nPara el problema simétrico")
     print("\n".format(LightsOut.bonito(simetria)))
-    compara_metodos(simetria, h_1, h_2)
+    compara_metodos(simetria, h_1, h_6)
 
     print("\n\nPara el problema Bonito")
     print("\n".format(LightsOut.bonito(problemin)))
-    compara_metodos(problemin, h_1, h_2)
+    compara_metodos(problemin, h_1, h_6)
