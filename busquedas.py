@@ -283,6 +283,31 @@ def busqueda_A_estrella(problema, heuristica):
 
     @return Un objeto tipo Nodo con la estructura completa
 
-    """
     raise NotImplementedError('Hay que hacerlo de tarea \
-                              (problema 2 en el archivo busquedas.py)')
+                              (problema 2 en el archivo busquedas.')
+    """
+
+    """
+    Para demostrar la admisibilidad de A *, la ruta de la solución devuelta por el algoritmo se utiliza de la siguiente manera:
+
+    Cuando A * finaliza su búsqueda, ha encontrado una ruta cuyo costo real es menor que el costo estimado de cualquier ruta a través de cualquier nodo abierto. Pero dado que esas estimaciones son optimistas, A * puede ignorar de manera segura esos nodos. En otras palabras, A * nunca pasará por alto la posibilidad de una ruta de menor costo y, por lo tanto, es admisible.
+
+    Supongamos ahora que algún otro algoritmo de búsqueda B termina su búsqueda con una ruta cuyo costo real no es menor que el costo estimado de una ruta a través de un nodo abierto. En función de la información heurística que posee, el Algoritmo B no puede descartar la posibilidad de que una ruta a través de ese nodo tenga un costo menor. Entonces, aunque B podría considerar menos nodos que A *, no puede ser admisible. En consecuencia, A * considera el menor número de nodos de cualquier algoritmo de búsqueda admisible.
+
+    Algo que saque de wikipedia.
+
+    """
+
+     while frontera:
+        (_, nodo) = heapq.heappop(frontera) # "_" para ignorar el costo
+        if problema.es_meta(nodo.estado): #que encuentre la solucion
+            nodo.nodos_visitados = problema.num_nodos #si es meta se mete a nodos ya visitados
+            return nodo #se devuelve el nodo
+        for hijo in nodo.expande(problema.modelo):  #recorre todos los hijos del problema
+            #hijo.estado = tupla de las posiciones en problema
+            if (hijo.estado not in visitados or visitados[hijo.estado] > hijo.costo): #si el hijo no esta en la lista de visitados o si ya fue visitado se compara el valor del hijo dentro del estado
+               #si pasa esto metemos al hijo a la frontera y se le suma la heuristica al costo del hijo
+                heapq.heappush(frontera, (hijo.costo+heuristica(hijo), hijo))
+                #metemos el estado y su costo a los nodos visitados
+                visitados[hijo.estado] = hijo.costo
+    return None
