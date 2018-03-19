@@ -53,16 +53,26 @@ class LightsOut(busquedas.ModeloBusqueda):
 
     """
     def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        self.acciones = [i for i in range(25)]
 
     def acciones_legales(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return range(25)
 
     def sucesor(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        estadoSucesor = list(estado)
+        estadoSucesor[accion] = 1-estadoSucesor[accion]
+        if accion//5!=0:
+            estadoSucesor[accion-5]= 1-estadoSucesor[accion-5]
+        if accion%5!=0:
+            estadoSucesor[accion-1]= 1-estadoSucesor[accion-1]
+        if accion//5!=4:
+            estadoSucesor[accion+5]= 1-estadoSucesor[accion+5]
+        if accion%5!=4:
+            estadoSucesor[accion+1]= 1-estadoSucesor[accion+1]
+        return tuple(estadoSucesor)
 
     def costo_local(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return 1;
 
     @staticmethod
     def bonito(estado):
@@ -93,7 +103,11 @@ class ProblemaLightsOut(busquedas.ProblemaBusqueda):
         # Completa el código
         x0 = tuple(pos_ini)
         def meta(x):
-            raise NotImplementedError("Hay que hacer de tarea")
+            for i in list(x):
+                if i != 0:
+                    return False
+            return True
+            #raise NotImplementedError("Hay que hacer de tarea")
 
         super().__init__(x0=x0, meta=meta, modelo=LightsOut())
 
@@ -106,9 +120,19 @@ def h_1(nodo):
     DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
-    """
-    return 0
+    Como es más facil si se apagan los focos que están en el perimetro
+    del lights out aqui se saca la suma del perimetro
 
+    """
+
+    perimetro = 0
+    for i in range(5):
+        perimetro = perimetro + list(nodo.estado)[i]
+        perimetro = perimetro + list(nodo.estado)[i+20]
+        if i!=0 or i!=4:
+            perimetro = perimetro + list(nodo.estado)[i*5]
+            perimetro = perimetro + list(nodo.estado)[i*5+4]
+    return perimetro
 
 # ------------------------------------------------------------
 #  Problema 5: Desarrolla otra política admisible.
