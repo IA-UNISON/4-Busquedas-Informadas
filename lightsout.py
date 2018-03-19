@@ -135,9 +135,12 @@ def h_1(nodo):
     """
     DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
+    
+    Imitando al 8-puzzle, esta heuristica calcula la cantidad de luces que 
+    necesitan apagar.
 
     """
-    return 0
+    return sum(luz for luz in nodo.estado)
 
 
 # ------------------------------------------------------------
@@ -261,7 +264,16 @@ if __name__ == "__main__":
                  0, 0, 0, 1, 1,
                  0, 0, 1, 1, 1,
                  0, 0, 0, 1, 1)
+    
+    solucion1= busquedas.busqueda_A_estrella(ProblemaLightsOut(diagonal),h_1)
+    solucion2= busquedas.busqueda_A_estrella(ProblemaLightsOut(simetria),h_1)
+    solucion3= busquedas.busqueda_A_estrella(ProblemaLightsOut(problemin),h_1)
 
+    
+    print("1: ",solucion1)
+    print("2: ",solucion2)
+    print("3: ",solucion3)
+'''
     print("\n\nPara el problema en diagonal")
     print("\n{}".format(LightsOut.bonito(diagonal)))
     compara_metodos(diagonal, h_1, h_2)
@@ -273,3 +285,4 @@ if __name__ == "__main__":
     print("\n\nPara el problema Bonito")
     print("\n".format(LightsOut.bonito(problemin)))
     compara_metodos(problemin, h_1, h_2)
+'''
