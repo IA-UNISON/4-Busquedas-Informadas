@@ -13,7 +13,7 @@ __author__ = 'juliowaissman'
 
 
 import busquedas
-
+from time import time
 
 class Modelo8puzzle(busquedas.ModeloBusqueda):
     """
@@ -91,7 +91,7 @@ class Ocho_puzzle(busquedas.ProblemaBusqueda):
 
 def h_1(nodo):
     """
-    Primer heurística para el 8-puzzle:
+    Primera heurística para el 8-puzzle:
 
     Regresa el número de piezas mal colocadas.
 
@@ -114,7 +114,7 @@ def h_2(nodo):
 
 def probando(pos_ini):
     """
-    Muestra el resultado de aplicar un tipo de búsqeda
+    Muestra el resultado de aplicar un tipo de búsqueda
     al problema del 8 puzzle con una posición inicial
     determinada.
 
@@ -128,46 +128,72 @@ def probando(pos_ini):
     print(Modelo8puzzle.dibuja(pos_ini))
 
     # ------- BFS -----------
-    print("---------- Utilizando BFS -------------")
     problema = Ocho_puzzle(pos_ini)
+    tiB = time()
     solucion = busquedas.busqueda_ancho(problema)
-    print(solucion)
-    print("Explorando {} nodos\n\n".format(solucion.nodos_visitados))
+    tfB = time()
+    nBFS = solucion.nodos_visitados
+    tB = tfB - tiB
 
     # ------- DFS -----------
-    print("---------- Utilizando DFS -------------")
     problema = Ocho_puzzle(pos_ini)
+    tiD = time()
     solucion = busquedas.busqueda_profundo(problema, 50)
-    print(solucion)
-    print("Explorando {} nodos\n\n".format(solucion.nodos_visitados))
+    tfD = time()
+    nDFS = solucion.nodos_visitados
+    tD = tfD - tiD
 
     # ------- IDS -----------
-    print("---------- Utilizando IDS -------------")
     problema = Ocho_puzzle(pos_ini)
+    tiI = time()
     solucion = busquedas.busqueda_profundidad_iterativa(problema, 50)
-    print(solucion)
-    print("Explorando {} nodos\n\n".format(solucion.nodos_visitados))
+    tfI = time()
+    nIDS = solucion.nodos_visitados
+    tI = tfI - tiI
 
     # ------- UCS -----------
-    print("---------- Utilizando UCS -------------")
     problema = Ocho_puzzle(pos_ini)
+    tiU = time()
     solucion = busquedas.busqueda_costo_uniforme(problema)
-    print(solucion)
-    print("Explorando {} nodos\n\n".format(solucion.nodos_visitados))
+    tfU = time()
+    nUCS = solucion.nodos_visitados
+    tU = tfU - tiU
 
     # # ------- A* con h1 -----------
-    # print("---------- Utilizando A* con h1 -------------")
-    # problema = Ocho_puzzle(pos_ini)
-    # solucion = busquedas.busqueda_A_estrella(problema, h_1)
-    # print(solucion)
-    # print("Explorando {} nodos".format(solucion.nodos_visitados))
+    problema = Ocho_puzzle(pos_ini)
+    tiA1 = time()
+    solucion = busquedas.busqueda_A_estrella(problema, h_1)
+    tfA1 = time()
+    nA1 = solucion.nodos_visitados
+    tA1 = tfA1 - tiA1
 
     # # ------- A* con h2 -----------
-    # print("---------- Utilizando A* con h2 -------------")
-    # problema = Ocho_puzzle(pos_ini)
-    # solucion = busquedas.busqueda_A_estrella(problema, h_2)
-    # print(solucion)
-    # print("Explorando {} nodos".format(solucion.nodos_visitados))
+    problema = Ocho_puzzle(pos_ini)
+    tiA2 = time()
+    solucion = busquedas.busqueda_A_estrella(problema, h_2)
+    tfA2 = time()
+    nA2 = solucion.nodos_visitados
+    tA2 = tfA2 - tiA2
+
+    genera_tabla(nBFS, nDFS, nIDS, nUCS, nA1, nA2, tB, tD, tI, tU, tA1, tA2)
+
+
+def genera_tabla(nBFS, nDFS, nIDS, nUCS, nA1, nA2, tB, tD, tI, tU, tA1, tA2):
+    print('-' * 167)
+    print('-' * 20, "BFS".center(20), "DFS".center(20), "IDS".center(20),
+          "UCS".center(20), "H1".center(20), "H2".center(20), '-'*20)
+    print()
+    print('Nodos exp'.center(20), str(nBFS).center(20), str(nDFS).center(20),
+          str(nIDS).center(20), str(nUCS).center(20), str(nA1).center(20),
+          str(nA2).center(20))
+    print()
+    print('tiempo(s)'.center(20), str(format(tB, '.10f')).center(20),
+          str(format(tD, '.10f')).center(20),
+          str(format(tI, '.10f')).center(20),
+          str(format(tU, '.10f')).center(20),
+          str(format(tA1, '.10f')).center(20),
+          str(format(tA2, '.10f')).center(20))
+    print('-' * 167)
 
 
 if __name__ == "__main__":
