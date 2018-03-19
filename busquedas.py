@@ -22,7 +22,7 @@ class ModeloBusqueda:
 
     Todo modelo de búsqueda debe de tener:
         1) Un método que obtenga las acciones legales en cada estado
-        2) Un método que calcule cual es es siguiente estado
+        2) Un método que calcule cual es el siguiente estado
         3) Una función de costo local
 
     """
