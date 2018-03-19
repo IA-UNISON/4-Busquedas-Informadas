@@ -11,7 +11,7 @@ __author__ = 'Rolando Velez'
 
 
 import busquedas
-
+import math
 
 class LightsOut(busquedas.ModeloBusqueda):
     # --------------------------------------------------------
@@ -149,9 +149,16 @@ def h_1(nodo):
     DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
+    Regresa la suma de las luces encendidas utilizando la distancia euclidiana al cuadrado.
     """
-    return 0
+    #return sum(list(nodo.estado)) / 5
+    return sum([abs(i % 5 - nodo.estado[i] % 5) *
+                        abs(i % 5 - nodo.estado[i] % 5) + 
+                        abs(i // 5 - nodo.estado[i] // 5) *
+                        abs(i // 5 - nodo.estado[i] // 5)
+                        for i in range(25) if nodo.estado[i] != 0])
 
+    
 
 # ------------------------------------------------------------
 #  Problema 5: Desarrolla otra política admisible.
@@ -163,8 +170,18 @@ def h_2(nodo):
     DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
-    """
+    Regresa la suma de las luces encendidas utilizando la distancia euclidiana.
 
+    En el mayor de los casos h_2 va a dominar a h_1 ya que los nodos 
+        expandidos son menores que si utilizaramos h_1 (en su mayoria).
+    Se puede ver claramente en el caso de que todas las luces esten
+        encendidas como es que h_2 es superior que h_1
+    """
+    return sum([math.sqrt(abs(i % 5 - nodo.estado[i] % 5) *
+                        abs(i % 5 - nodo.estado[i] % 5) + 
+                        abs(i // 5 - nodo.estado[i] // 5) *
+                        abs(i // 5 - nodo.estado[i] // 5))
+                        for i in range(25) if nodo.estado[i] != 0])
 
 def prueba_modelo():
     """
@@ -274,6 +291,12 @@ if __name__ == "__main__":
                  0, 0, 1, 1, 1,
                  0, 0, 0, 1, 1)
 
+    problemon = (1, 1, 1, 1, 1,
+                 1, 1, 1, 1, 1,
+                 1, 1, 1, 1, 1,
+                 1, 1, 1, 1, 1,
+                 1, 1, 1, 1, 1)
+
     print("\n\nPara el problema en diagonal")
     print("\n{}".format(LightsOut.bonito(diagonal)))
     compara_metodos(diagonal, h_1, h_2)
@@ -286,3 +309,6 @@ if __name__ == "__main__":
     print("\n{}".format(LightsOut.bonito(problemin)))
     compara_metodos(problemin, h_1, h_2)
     
+    print("\n\nPara el problema con todas las luces encendidas")
+    print("\n{}".format(LightsOut.bonito(problemon)))
+    compara_metodos(problemon, h_1, h_2)
