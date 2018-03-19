@@ -170,7 +170,7 @@ if __name__ == "__main__":
        Profundidad iterativa            14           14              17026             0.37 seg      
           Costo Uniforme                14           14               5240             0.31 seg
               A* h1                     14           14                298             0.02 seg
-              A* h2                     14           14                 97             0.01 seg
+              A* h2                     14           14                 97             0.007 seg
 
     Estado inicial :  (1, 7, 8, 2, 3, 4, 5, 6, 0)            
 
@@ -180,7 +180,7 @@ if __name__ == "__main__":
             Profundo                    50           50             162865             4.94 seg             
        Profundidad iterativa            24           24             883191            22.90 seg    
           Costo Uniforme                24           24             129515             9.62 seg
-              A* h1                     24           24              17622             1.92 seg
-              A* h2                     24           24               1677             0.25 seg
+              A* h1                     24           24              17622             1.51 seg
+              A* h2                     24           24               1677             0.14 seg
 
 """

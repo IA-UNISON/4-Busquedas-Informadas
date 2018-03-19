@@ -176,7 +176,7 @@ def h_2(nodo):
     """
     s = nodo.estado
     # Se pudiera cambiar, son los pasos de una luz que no esta en el centro
-    pasos = 2 
+    pasos = 2
     prendidos = []
     heuristica = 0
     # guardo las posiciones donde esta prendido
@@ -295,10 +295,10 @@ def compara_metodos(pos_inicial, heuristica_1, heuristica_2):
     de la función
 
     """
-    #t_inicial_h1 = time()
-    #solucion1 = busquedas.busqueda_A_estrella(ProblemaLightsOut(pos_inicial),
-    #                                          heuristica_1)
-    #t_final_h1 = time()
+    t_inicial_h1 = time()
+    solucion1 = busquedas.busqueda_A_estrella(ProblemaLightsOut(pos_inicial),
+                                              heuristica_1)
+    t_final_h1 = time()
     t_inicial_h2 = time()
     solucion2 = busquedas.busqueda_A_estrella(ProblemaLightsOut(pos_inicial),
                                               heuristica_2)
@@ -306,8 +306,8 @@ def compara_metodos(pos_inicial, heuristica_1, heuristica_2):
     print('-' * 80)
     print('Método'.center(10) + 'Costo'.center(20) + 'Nodos visitados'.center(20) + 'Tiempo'.center(20))
     print('-' * 80 + '\n')
-    #print('A* con h1'.center(10) + str(solucion1.costo).center(20) +
-    #      str(solucion1.nodos_visitados).center(20) + str(t_final_h1-t_inicial_h1).center(20))
+    print('A* con h1'.center(10) + str(solucion1.costo).center(20) +
+          str(solucion1.nodos_visitados).center(20) + str(t_final_h1-t_inicial_h1).center(20))
     print('A* con h2'.center(10) + str(solucion2.costo).center(20) +
           str(solucion2.nodos_visitados).center(20) + str(t_final_h2-t_inicial_h2).center(20))
     print('-' * 80 + '\n')
@@ -360,8 +360,8 @@ Para el problema en diagonal
   Método         Costo          Nodos visitados          Tiempo
 --------------------------------------------------------------------------------
 
-A* con h1          5                  5262               3.83 seg
-A* con h2          5                   24                0.04 seg
+A* con h1          5                  5262               2.43 seg
+A* con h2          5                   24                0.026 seg
 --------------------------------------------------------------------------------
 
 Para el problema simétrico
@@ -370,8 +370,8 @@ Para el problema simétrico
   Método         Costo          Nodos visitados          Tiempo
 --------------------------------------------------------------------------------
 
-A* con h1          6                 16859              12.93 seg
-A* con h2          6                   18               0.03  seg
+A* con h1          6                 16859              7.62 seg
+A* con h2          6                   18               0.02 seg
 --------------------------------------------------------------------------------
 
 Para el problema Bonito
@@ -381,8 +381,8 @@ Para el problema Bonito
   Método         Costo          Nodos visitados          Tiempo
 --------------------------------------------------------------------------------
 
-A* con h1          9                 728052             561.24 seg ~ 9.34 min 
-A* con h2          9                  542               1.28   seg
+A* con h1          9                 728052             318.29 seg
+A* con h2          9                  542                 0.67 seg
 --------------------------------------------------------------------------------
 
 """
