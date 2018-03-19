@@ -13,7 +13,7 @@ __author__ = 'juliowaissman'
 
 
 import busquedas
-
+from time import time
 
 class Modelo8puzzle(busquedas.ModeloBusqueda):
     """
@@ -129,44 +129,56 @@ def probando(pos_ini):
     # ------- BFS -----------
     print("---------- Utilizando BFS -------------")
     problema = Ocho_puzzle(pos_ini)
+    t_inicial = time()
     solucion = busquedas.busqueda_ancho(problema)
+    t_final = time()
     #print(solucion)
-    print("Explorando {} nodos\n\n".format(solucion.nodos_visitados))
+    print("Explorando {} nodos en {} segundos.\n".format(solucion.nodos_visitados,t_final-t_inicial))
 
     # ------- DFS -----------
     print("---------- Utilizando DFS -------------")
     problema = Ocho_puzzle(pos_ini)
+    t_inicial = time()
     solucion = busquedas.busqueda_profundo(problema, 50)
+    t_final = time()
     #print(solucion)
-    print("Explorando {} nodos\n\n".format(solucion.nodos_visitados))
+    print("Explorando {} nodos en {} segundos.\n".format(solucion.nodos_visitados,t_final-t_inicial))
 
     # ------- IDS -----------
     print("---------- Utilizando IDS -------------")
     problema = Ocho_puzzle(pos_ini)
+    t_inicial = time()
     solucion = busquedas.busqueda_profundidad_iterativa(problema, 50)
+    t_final = time()
     #print(solucion)
-    print("Explorando {} nodos\n\n".format(solucion.nodos_visitados))
+    print("Explorando {} nodos en {} segundos.\n".format(solucion.nodos_visitados,t_final-t_inicial))
 
     # ------- UCS -----------
     print("---------- Utilizando UCS -------------")
     problema = Ocho_puzzle(pos_ini)
+    t_inicial = time()
     solucion = busquedas.busqueda_costo_uniforme(problema)
+    t_final = time()
     #print(solucion)
-    print("Explorando {} nodos\n\n".format(solucion.nodos_visitados))
+    print("Explorando {} nodos en {} segundos.\n".format(solucion.nodos_visitados,t_final-t_inicial))
+
     # # ------- A* con h1 -----------
     print("---------- Utilizando A* con h1 -------------")
     problema = Ocho_puzzle(pos_ini)
+    t_inicial = time()
     solucion = busquedas.busqueda_A_estrella(problema, h_1)
+    t_final = time()
     #print(solucion)
-    print("Explorando {} nodos".format(solucion.nodos_visitados))
+    print("Explorando {} nodos en {} segundos.\n".format(solucion.nodos_visitados,t_final-t_inicial))
 
      # ------- A* con h2 -----------
     print("---------- Utilizando A* con h2 -------------")
     problema = Ocho_puzzle(pos_ini)
+    t_inicial = time()
     solucion = busquedas.busqueda_A_estrella(problema, h_2)
+    t_final = time()
     #print(solucion)
-    print("Explorando {} nodos".format(solucion.nodos_visitados))
-
+    print("Explorando {} nodos en {} segundos.\n".format(solucion.nodos_visitados,t_final-t_inicial))
 
 if __name__ == "__main__":
 
