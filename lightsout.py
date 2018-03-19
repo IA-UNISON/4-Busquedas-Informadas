@@ -152,9 +152,17 @@ def h_2(nodo):
     """
     DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
-
+    
+    Cuando armamos un cubo de rubick, generalmente la clave o primer paso
+    es acomodar la cara blanca, de manera analoga en el ligths out se apagan 
+    las luces de todas las filas con exepcion de la ultima
+    es decir
+    (0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,X,X,X,X,X)
+    Es facil ver que es una variante de la heuristica 1, por lo que esta es dominada
+    por ella.
     """
-    return 0
+        
+    return sum(nodo.estado[i] for i in range(20))
 
 
 def prueba_modelo():
@@ -265,9 +273,9 @@ if __name__ == "__main__":
                  0, 0, 1, 1, 1,
                  0, 0, 0, 1, 1)
     
-    solucion1= busquedas.busqueda_A_estrella(ProblemaLightsOut(diagonal),h_1)
-    solucion2= busquedas.busqueda_A_estrella(ProblemaLightsOut(simetria),h_1)
-    solucion3= busquedas.busqueda_A_estrella(ProblemaLightsOut(problemin),h_1)
+    solucion1= busquedas.busqueda_A_estrella(ProblemaLightsOut(diagonal),h_2)
+    solucion2= busquedas.busqueda_A_estrella(ProblemaLightsOut(simetria),h_2)
+    solucion3= busquedas.busqueda_A_estrella(ProblemaLightsOut(problemin),h_2)
 
     
     print("1: ",solucion1)
