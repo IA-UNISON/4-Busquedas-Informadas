@@ -11,6 +11,8 @@ __author__ = 'nombre del estudiante'
 
 
 import busquedas
+import math
+import time
 
 
 class LightsOut(busquedas.ModeloBusqueda):
@@ -53,16 +55,43 @@ class LightsOut(busquedas.ModeloBusqueda):
 
     """
     def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        # Las acciones son las casillas de la cuadricula de 5x5 (visto como un
+        # solo arreglo)
+        self.acciones = range(25)
 
     def acciones_legales(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return self.acciones
 
     def sucesor(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        listaEstado = list(estado)
+        #print(listaEstado)
+        #wait = input("PRESS ENTER TO CONTINUE.")
+
+        # Se obtienen las coordenadas de la accion (c = columna, r = renglon)
+        c = accion%5
+        r = accion//5
+        #print(listaEstado)
+
+        # Se cambia el valor de la casilla que se esta presionando
+        listaEstado[accion] = 1 if listaEstado[accion] == 0 else 0
+
+        # Se cambian los valores de las casillas adyacentes
+        if r != 0:
+            listaEstado[(r-1)*5 + c] = 1 if listaEstado[(r-1)*5 + c] == 0 else 0
+        if r != 4:
+            listaEstado[(r+1)*5 + c] = 1 if listaEstado[(r+1)*5 + c] == 0 else 0
+        if c != 0:
+            listaEstado[r*5 + c-1] = 1 if listaEstado[r*5 + c-1] == 0 else 0
+        if c != 4:
+            listaEstado[r*5 + c+1] = 1 if listaEstado[r*5 + c+1] == 0 else 0
+
+        #print(listaEstado)
+        #wait = input("PRESS ENTER TO CONTINUE.")
+        return tuple(listaEstado)
 
     def costo_local(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        # El costo por tocar una casilla es 1
+        return 1
 
     @staticmethod
     def bonito(estado):
@@ -93,7 +122,7 @@ class ProblemaLightsOut(busquedas.ProblemaBusqueda):
         # Completa el código
         x0 = tuple(pos_ini)
         def meta(x):
-            raise NotImplementedError("Hay que hacer de tarea")
+            return all(casilla ==0 for casilla in x)
 
         super().__init__(x0=x0, meta=meta, modelo=LightsOut())
 
@@ -106,8 +135,16 @@ def h_1(nodo):
     DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
+    Esta heuristica esta hecha para poder aceptar tambien el caso en donde
+    solo hay 5 luces encendidas y estas sean adyacentes, entonces en dicho
+    caso si no se divide el costo en 5 se estaria mintiendo que estas a un
+    paso de terminar el juego, entonces para eso se divide entre 5, siendo
+    el 5 las 5 luces que estuvieran encendidas, y de esta manera considero
+    que esta heuristica es admisible:
+        -La heuristica no sobreestima el el costo para llegar a la meta.
+        -El costo es 0 cuando el estado llego a un estado meta.
     """
-    return 0
+    return sum([1 for x in range(25) if nodo.estado[x] == 1])/5
 
 
 # ------------------------------------------------------------
@@ -120,9 +157,14 @@ def h_2(nodo):
     DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
+    Esta heuristica es basicamente como la heuristica 1, excepto que en esta
+    se castiga más cuando hay más luces encendidas. Y viendo por las pruebas
+    esta heuristica es dominante respecto a la otra, pues pasa por muchos menos
+    nodos y tarda mucho menos.
     """
-    return 0
-
+    suma = math.exp(sum([1 for x in range(25) if nodo.estado[x] == 1]) / 5)
+    return suma if suma!=1 else 0
+    #return math.exp(sum([1 for x in range(25) if nodo.estado[x] == 1]) / 5)
 
 def prueba_modelo():
     """
@@ -192,11 +234,17 @@ def compara_metodos(pos_inicial, heuristica_1, heuristica_2):
     de la función
 
     """
+    x = time.clock()
     solucion1 = busquedas.busqueda_A_estrella(ProblemaLightsOut(pos_inicial),
                                               heuristica_1)
+    y = time.clock()
+    print(y-x)
+    x = time.clock()
     solucion2 = busquedas.busqueda_A_estrella(ProblemaLightsOut(pos_inicial),
                                               heuristica_2)
 
+    y = time.clock()
+    print(y-x)
     print('-' * 50)
     print('Método'.center(10) + 'Costo'.center(20) + 'Nodos visitados')
     print('-' * 50 + '\n\n')
