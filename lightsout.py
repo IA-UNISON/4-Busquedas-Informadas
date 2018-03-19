@@ -12,7 +12,6 @@ __author__ = 'Adrian Emilio Vazquez Icedo'
 
 import busquedas
 
-
 class LightsOut(busquedas.ModeloBusqueda):
     # --------------------------------------------------------
     # Problema 2:  Completa la clase
@@ -134,8 +133,20 @@ def h_1(nodo):
     DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
+    En esta reviso cuantos renglones no estan completos, esto considerando
+    que para ir resolviendo el puzle se puede ir resolviendo por renglones hasta
+    que solo utilices 2 para resolver el problema, se divide entre 3 devido a que
+    al mover una luz se puede afectar 3 renglones. Creo que es admisible pero 
+    no muy eficiente.
     """
-    return 0
+    suma=0
+    for r in range(0,5) :
+        for c in range(0,5) :
+            if nodo.estado[r*5+c] ==1:
+                suma+=1
+                break
+            
+    return suma/3
 
 
 # ------------------------------------------------------------
@@ -148,9 +159,13 @@ def h_2(nodo):
     DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
+    En esta reviso cuantas luces estan prendidas y se divide entre 5 ya que es lo maximo
+    que puede afectarse al mover una luz. Creo que es admisible pero no tan eficiente
+    aunque es dominante respecto a h_1 y ofrece menos nodos visitados aunque el costo es
+    igual.
     """
-    return 0
-
+    
+    return sum(encendido for encendido in nodo.estado)/5
 
 def prueba_modelo():
     """
