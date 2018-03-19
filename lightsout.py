@@ -59,7 +59,7 @@ class LightsOut(busquedas.ModeloBusqueda):
 
     def acciones_legales(self, estado):
         """
-        Devuelve todas las acciones una tupla del 0 - 24
+        Devuelve todas las acciones
         """
         return self.acciones
 
@@ -208,41 +208,22 @@ def h_2(nodo):
         if ( (fila in [0,4] and columna in [0,4])) and (contador is 2):
             heuristica += (1-pasos*(contador+1)) # quita las sumas anteriores y le suma 1 paso
             # dependiendo de la esquina guardo los checados
-            checados.append(pos_prendido)
-            if pos_prendido is 0:
-                checados.append(1)
-                checados.append(5)
-            elif pos_prendido is 4:
-                checados.append(3)
-                checados.append(9)
-            elif pos_prendido is 20:
-                checados.append(15)
-                checados.append(21)
-            else:
-                checados.append(19)
-                checados.append(23)
+            checados += ( [pos_prendido,1,5] if pos_prendido is 0 else
+                [pos_prendido,3,9] if pos_prendido is 4 else
+                [pos_prendido,15, 21] if pos_prendido is 20 else
+                [pos_prendido,19, 23])
         # caso 2: en los bordes de izquierda y derecha
         elif (columna in [0,4] and fila in [1,2,3]) and contador is 3: 
             heuristica += (1-pasos*(contador+1)) # quita las sumas anteriores y le suma 1 paso
-            checados.append(pos_prendido)
-            checados.append(pos_prendido+1)
-            checados.append(pos_prendido+5)
-            checados.append(pos_prendido-5)
+            checados += [pos_prendido,pos_prendido+1,pos_prendido+5,pos_prendido-5]
         # caso 3: en los bordes de arriba y abajo
         elif (fila in [0,4] and columna in [1,2,3]) and contador is 3: 
             heuristica += (1-pasos*(contador+1)) # quita las sumas anteriores y le suma 1 paso
-            checados.append(pos_prendido)
-            checados.append(pos_prendido-1)
-            checados.append(pos_prendido+5)
-            checados.append(pos_prendido-5)
+            checados += [pos_prendido,pos_prendido-1,pos_prendido+5,pos_prendido-5]
         # caso 4: en el centro
         elif (fila in [1,2,3] and columna in [1,2,3]) and contador is 4:
             heuristica += (1-pasos*(contador+1)) # quita las sumas anteriores y le suma 1 paso
-            checados.append(pos_prendido)
-            checados.append(pos_prendido+1)
-            checados.append(pos_prendido-1)
-            checados.append(pos_prendido+5)
-            checados.append(pos_prendido-5)
+            checados += [pos_prendido,pos_prendido+1,pos_prendido-1,pos_prendido+5,pos_prendido-5]
         
     return heuristica
 
@@ -380,7 +361,7 @@ Para el problema en diagonal
 --------------------------------------------------------------------------------
 
 A* con h1          5                  5262               3.83 seg
-A* con h2          5                   24                0.05 seg
+A* con h2          5                   24                0.04 seg
 --------------------------------------------------------------------------------
 
 Para el problema simétrico
@@ -390,7 +371,7 @@ Para el problema simétrico
 --------------------------------------------------------------------------------
 
 A* con h1          6                 16859              12.93 seg
-A* con h2          6                   18               0.05  seg
+A* con h2          6                   18               0.03  seg
 --------------------------------------------------------------------------------
 
 Para el problema Bonito
@@ -401,7 +382,7 @@ Para el problema Bonito
 --------------------------------------------------------------------------------
 
 A* con h1          9                 728052             561.24 seg ~ 9.34 min 
-A* con h2          9                  542               1.38   seg
+A* con h2          9                  542               1.28   seg
 --------------------------------------------------------------------------------
 
 """
