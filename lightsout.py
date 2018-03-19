@@ -7,7 +7,7 @@ lightsout.py
 Tarea sobre búsquedas, donde lo que es importante es crear nuevas heurísticas
 
 """
-__author__ = 'nombre del estudiante'
+__author__ = 'Rolando Velez'
 
 
 import busquedas
@@ -53,16 +53,58 @@ class LightsOut(busquedas.ModeloBusqueda):
 
     """
     def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        self.acciones = range(25)
 
     def acciones_legales(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return self.acciones
 
     def sucesor(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        """
+            Voltea los valores para obtener el estado sucesor.
+            Para simplificar el ejemplo en un cuadrado 3x3  y
+                utilizando [1,1] como el que se presiono.
+            Los elementos 'x' no cambian de valor.
+
+               0  1  2                 0  1  2
+              —————————               ————————
+            0 |x, 1, x,             0 |x, 0, x
+            1 |1, 0, 0,     ->      1 |0, 1, 1,
+            2 |x, 0, x              2 |x, 1, x
+
+            Voltea primero el valor de la casilla que se presiono.
+            Despues realiza una serie de chequeos para ver si 
+                es valido voltear el valor de la casilla.
+
+            Para terminar regresa el nuevo estado con los nuevos
+                valores en las casillas.
+        """
+
+        n = 5
+        succ = list(estado)
+
+        col = accion % n
+        row = accion // n
+
+        # Valor que se presiono
+        succ[accion] = not succ[accion]
+       
+        # Valor a la izquierda
+        if col > 0:
+           succ[accion - 1] = not succ[accion - 1]
+        # Valor a la derecha
+        if col < 4:
+            succ[accion + 1] = not succ[accion + 1]
+
+        # Valor de arriba
+        if row > 0:
+            succ[accion - n] = not succ[accion - n]
+        # Valor de abajo
+        if row < 4:
+            succ[accion + n] = not succ[accion + n]
+        return tuple(succ)
 
     def costo_local(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return 1
 
     @staticmethod
     def bonito(estado):
@@ -94,7 +136,6 @@ class ProblemaLightsOut(busquedas.ProblemaBusqueda):
         x0 = tuple(pos_ini)
         def meta(x):
             raise NotImplementedError("Hay que hacer de tarea")
-
         super().__init__(x0=x0, meta=meta, modelo=LightsOut())
 
 
@@ -214,7 +255,7 @@ if __name__ == "__main__":
     prueba_modelo()
 
     # Tres estados iniciales interesantes
-    diagonal = (0, 0, 0, 0, 1,
+    diagonal = (0, 0, 0, 0, 1, 
                 0, 0, 0, 1, 0,
                 0, 0, 1, 0, 0,
                 0, 1, 0, 0, 0,
@@ -237,9 +278,10 @@ if __name__ == "__main__":
     compara_metodos(diagonal, h_1, h_2)
 
     print("\n\nPara el problema simétrico")
-    print("\n".format(LightsOut.bonito(simetria)))
+    print("\n{}".format(LightsOut.bonito(simetria)))
     compara_metodos(simetria, h_1, h_2)
 
     print("\n\nPara el problema Bonito")
-    print("\n".format(LightsOut.bonito(problemin)))
+    print("\n{}".format(LightsOut.bonito(problemin)))
     compara_metodos(problemin, h_1, h_2)
+    
