@@ -127,8 +127,18 @@ def h_1(nodo):
     DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
+    Dado un numero n de luces encendidas y suponiendo que cada
+    movimiento consige modificar 5 luces, la heuristica se
+    define como la cantidad de grupos de 5 luces necesarios a pulsar
+    para llegar al estado objetivo.
+
+    Considero la heuristica como admisible ya que para 5 luces o menos
+    se requeriria de un paso. Son hasta cantidades multiplos de 5 donde
+    los costos se elevan.
     """
-    return 0
+    estado = list(nodo.estado)
+    a = Counter(estado)
+    return a[1]//5
 
 
 # ------------------------------------------------------------
@@ -141,8 +151,27 @@ def h_2(nodo):
     DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
+    Heuristica similar a la anterior pero genera un costo mayor
+    debido a que ahora no se consideran meramente a los grupos
+    posibles a formar mediante 5 elementos sino que tambien se
+    incluye el grupo de luces menor a 5 que en la heuristica
+    anterior da un costo de 0.
+    Por ahora da mejores resultados que la heuristica 1.
     """
-    return 0
+    estado = list(nodo.estado)
+    a = Counter(estado)
+    n = a[1]
+    veces = 0
+    while n > 0:
+        n -= 5
+        veces += 1
+    return veces
+
+# Dominancia de heuristicas
+# dado que la segunda heuristica no discrimina a los grupos pequenios
+# de luces (menores a 5), genera un costo mas elevado a lo que viene a
+# ser dominante sobre la heuristica 1, ello se nota con una cantidad de
+# nodos expandidos menor.
 
 
 def prueba_modelo():
@@ -252,7 +281,7 @@ if __name__ == "__main__":
                  0, 0, 0, 1, 1,
                  0, 0, 1, 1, 1,
                  0, 0, 0, 1, 1)
-    """
+
     print("\n\nPara el problema en diagonal")
     print("\n{}".format(LightsOut.bonito(diagonal)))
     compara_metodos(diagonal, h_1, h_2)
@@ -264,4 +293,3 @@ if __name__ == "__main__":
     print("\n\nPara el problema Bonito")
     print("\n".format(LightsOut.bonito(problemin)))
     compara_metodos(problemin, h_1, h_2)
-    """
