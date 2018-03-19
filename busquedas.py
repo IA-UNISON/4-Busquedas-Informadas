@@ -260,7 +260,7 @@ def busqueda_costo_uniforme(problema):
                 visitados[hijo.estado] = hijo.costo
     return None
 
-# ---------------------------------------------------------------------
+# --------------------------------------------------------------------
 #
 # Problema 1: Desarrolla el método de búsqueda de A* siguiendo las
 # especificaciones de la función pruebalo con el 8 puzzle
@@ -268,7 +268,7 @@ def busqueda_costo_uniforme(problema):
 # dificl (en el archivo se incluyen las heurísticas del 8 puzzle y el
 # resultado esperado)
 #
-# ---------------------------------------------------------------------
+# --------------------------------------------------------------------
 
 
 def busqueda_A_estrella(problema, heuristica):
@@ -284,5 +284,25 @@ def busqueda_A_estrella(problema, heuristica):
     @return Un objeto tipo Nodo con la estructura completa
 
     """
+    frontera = []
+    # La ventaja de usar el heap es que heappop regresa siempre el menor elemento.
+    
+    heapq.heappush(frontera, (0, Nodo(problema.x0)))#heap inicial
+    visitados={problema.x0:0}#nodos vicitados
+    #en frontera se van guardando el costo+heuristica, y el nodo
+              
+    while frontera:
+        (x,nodo) = heapq.heappop(frontera)
+        
+        if problema.es_meta(nodo.estado):
+            nodo.nodos_visitados = problema.num_nodos
+            return nodo
+        for hijo in nodo.expande(problema.modelo):
+            
+            if hijo.estado not in visitados or hijo.costo < visitados[hijo.estado]:
+                heapq.heappush(frontera, (hijo.costo+heuristica(hijo), hijo))
+                visitados[hijo.estado]=hijo.costo
+    
+        
     raise NotImplementedError('Hay que hacerlo de tarea \
                               (problema 2 en el archivo busquedas.py)')
