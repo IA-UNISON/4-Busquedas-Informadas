@@ -1,5 +1,8 @@
-# Tarea 4: Búsquedas Informadas
+![](ia.png)
 
+# Búsquedas informadas (A*)
+
+**Evaluación de competencias 4**
 
 ## Objetivos
 1. Desarrollar el algoritmo de búsqueda A*
