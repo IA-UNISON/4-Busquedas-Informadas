@@ -76,19 +76,10 @@ class LightsOut(busquedas.ModeloBusqueda):
                 return 0
 
         # accion es la casilla que queremos cambiar
-        """
-            -dim
-        -1   0   +1
-            +dim
-        5 en este caso, por que es la dimension de la cuadricula
-
-        Vamos a asignar los vecinos que se modifican, segun la accion pertenzca a
-            centro, esquinas, bordes
-        """
-        #           -5                  5
         # centro de cuadricula
         vecinos = []
-        vecinos.append(0) # de ley se apaga o se prendre la casilla acciones
+        vecinos.append(0) # de ley se apaga o se prendre la casilla de accion
+        # vericamos si esta en un borde, para definir la vecindad
         if accion // 5 is not 4: vecinos.append(self.dim)    #NUMERO_MAGICO
         if accion // 5 is not 0: vecinos.append(-self.dim)   #NUMERO_MAGICO
         if accion % 5 is not 4: vecinos.append(+1)    #NUMERO_MAGICO
@@ -142,6 +133,8 @@ class ProblemaLightsOut(busquedas.ProblemaBusqueda):
         # Completa el código
         x0 = tuple(pos_ini)
         def meta(x):
+            if 1 not in x:
+                print(x)
             return 1 not in x # si hay un solo 1 sigue sin ser meta
             raise NotImplementedError("Hay que hacer de tarea")
 
@@ -156,6 +149,9 @@ def h_1(nodo):
     DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
+    La heuristica no es admisible pues si tuvieramos una cruz aislada,
+    la heuristica regresa 5, pero el costo real a la solucion es 1
+    Aun asi esta heuristica encuentra solucion
     """
     return sum(nodo.estado)
     return 0
@@ -171,9 +167,67 @@ def h_2(nodo):
     DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
-    """
-    return 0
+    CRUZ AISLADA
+    Estas cruces solo pueden aparecer en las casillas del centro de la cuadricula,
+    no en bordes ni esquinas, debe ser una cruz completa.
+    En la casilla 6, apreciamos una cruz aislada, notese que las casillas
+    vecinas alrededor estan apagadas, especificamente, para ser aislada debe
+    tener apagadas [-2*dim, -2, 2, 2*dim] segun correponda.
+    Cada que veamos una de estas nuestra heuristica sumara 1
+    Esta heuristca regresa maximo 2, es decir, existen cruces aisladas en [6,18] o [8, 16],
+    por lo cual nunca sobreestima, pues si solo estan encendidas estas cruces, bastan
+    dos movimientos (los centros de las cruces) para apagar todas estas.
 
+    ---------------------
+    |   | X |   |   |   |
+    ---------------------
+    | X | X | X |   | X |
+    ---------------------
+    |   | X |   | X |   |
+    ---------------------
+    | X |   | X |   | X |
+    ---------------------
+    |   |   |   |   |   |
+    ---------------------
+    """
+    def cruz_aislada(nodo):
+        """
+            estado: tupla con el estado de la cuadricula
+            accion: casilla a verificar si es una cruz aisladas
+        """
+
+        # centro de la cuadricula 5x5
+        if nodo.accion not in [6,7,8, 11,12,13, 16,17,18]: #NUMERO_MAGICO
+            return 0 # False # si no es una de estas no puede ser cruz aislada
+
+        # verificamos que la cruz exista
+        dim = 5 #NUMERO_MAGICO
+        vecinos = [-dim, -1, 0, 1, dim] # vecinos que hacen la cruz
+
+        for i in range(0,len(vecinos)):
+            if nodo.estado[nodo.accion + vecinos[i]] == 0: #Si algun vecino es 0, no hay cruz
+                return 0 #False
+
+
+        # agregamos los vecinos para verificar si esta aislada
+        vecinos = []
+        #revisamos de que extremo del cuatro central estan, agregamos vecino
+        if nodo.accion // 5 is not 3: vecinos.append(2*dim)    #NUMERO_MAGICO
+        if nodo.accion // 5 is not 1: vecinos.append(-2*dim)   #NUMERO_MAGICO
+        if nodo.accion % 5 is not 3: vecinos.append(+2)           #NUMERO_MAGICO
+        if nodo.accion % 5 is not 1: vecinos.append(-2)           #NUMERO_MAGICO
+
+        for i in range(0,len(vecinos)):
+            if nodo.estado[nodo.accion + vecinos[i]] == 1: #Si algun 2-vecino es 1, no esta aislada
+                return 0 #False
+
+        return 1 # True # Existe una cruz aislada
+
+    h_2 = 0
+
+    h_2 += cruz_aislada(nodo)
+
+    return h_2
 
 def prueba_modelo():
     """
