@@ -13,8 +13,7 @@ completamente observables
 __author__ = 'juliowaissman'
 
 from collections import deque
-import heapq
-
+from queue import PriorityQueue
 
 class ModeloBusqueda:
     """
@@ -268,9 +267,91 @@ def busqueda_costo_uniforme(problema):
 # dificl (en el archivo se incluyen las heurísticas del 8 puzzle y el
 # resultado esperado)
 #
+# Referencia: https://github.com/DumbBrain/AI_modern_approach/blob/master/search.py
+#
 # ---------------------------------------------------------------------
+def best_first_graph_search(problem, f):
+    """Search the nodes with the lowest f scores first.
+    You specify the function f(node) that you want to minimize; for example,
+    if f is a heuristic estimate to the goal, then we have greedy best
+    first search; if f is node.depth then we have breadth-first search.
+    There is a subtlety: the line "f = memoize(f, 'f')" means that the f
+    values will be cached on the nodes as they are computed. So after doing
+    a best first search you can examine the f values of the path returned."""
+    f = memoize(f, 'f')
+    node = Node(problem.initial)
+    frontier = PriorityQueue('min', f)
+    frontier.append(node)
+    explored = set()
+    while frontier:
+        node = frontier.pop()
+        if problem.goal_test(node.state):
+            return node
+        explored.add(node.state)
+        for child in node.expand(problem):
+            if child.state not in explored and child not in frontier:
+                frontier.append(child)
+            elif child in frontier:
+                incumbent = frontier[child]
+                if f(child) < f(incumbent):
+                    del frontier[incumbent]
+                    frontier.append(child)
+return None
 
 
+# Metodo memoize - https://www.python-course.eu/python3_memoization.php
+def memoize(fun):
+	fun.cache = {}
+	def _fun(x):
+		if x in fun.cache:
+			return fun.cache[x]
+		y = fun(x)
+		fun.cache[x] = y
+		return y
+	return _fun
+
+
+def busqueda_primero_mejor(problema, f):
+    """
+        Busca los nodos con la mejor heuristica, la menor
+        Se especifica la funcion que se quiere minimizar (f).
+
+        Si f es una heuristica estamada a la meta, tenemos
+            busqueda primero el mejor greedy
+        Si f es la profundidad del nodo, tenemos
+            busqueda primero a lo ancho
+
+        memoize significa que los valores seran guardados en un cache, como son computados. Entonces despues de hacer busqueda podemos recuperar el camino.
+    """
+    f = memoize(f)
+    nodo = Nodo(problema.x0)
+    # Hacemos que la frontera ordene los nodos, partiendo del min, de la funcion f - https://dbader.org/blog/priority-queues-in-python
+    frontera = PriorityQueue(f)
+    frontera.put(nodo)
+    explorados = set()
+
+    while frontera:
+        nodo = frontera.get()
+        if problema.es_meta(nodo.estado):
+            return nodo
+        explorados.add(nodo.estado)
+        for hijo in nodo.expande(problema):
+            if hijo.estado not in explorados and hijo not in frontera:
+                frontera.put(hijo)
+            # dos caminos para un mismo nodo
+            elif hijo in frontera:
+                # nodo ya encontrado con el mismo hijo.estado
+                aux = frontera[hijo]
+                # comparamos heurista -
+                if f(hijo) < f(aux):
+                    # borramos al aux si tiene peor heuristica https://stackoverflow.com/questions/11520492/difference-between-del-remove-and-pop-on-lists/11520540
+                    del frontera[aux]
+                    frontera.put(hijo)
+    # No salimos hasta que hay solucion,,,,
+return None
+
+
+# ---------------------------------------------------------------------
 def busqueda_A_estrella(problema, heuristica):
     """
     Búsqueda A*
@@ -284,5 +365,7 @@ def busqueda_A_estrella(problema, heuristica):
     @return Un objeto tipo Nodo con la estructura completa
 
     """
+    frontera = []
+
     raise NotImplementedError('Hay que hacerlo de tarea \
                               (problema 2 en el archivo busquedas.py)')
