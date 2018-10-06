@@ -7,7 +7,7 @@ lightsout.py
 Tarea sobre búsquedas, donde lo que es importante es crear nuevas heurísticas
 
 """
-__author__ = 'nombre del estudiante'
+__author__ = 'Gilberto Espinoza'
 
 
 import busquedas
@@ -53,15 +53,64 @@ class LightsOut(busquedas.ModeloBusqueda):
 
     """
     def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        # Para evitar numeros magicos en medio de las implementaciones
+        # los valores que se definan aqui son las caracteristicas del juego
+        # definimo un self.estado = (0..0) ???
+        self.dim = 5 # dimension del tablero
+        #raise NotImplementedError('Hay que hacerlo de tarea')
 
     def acciones_legales(self, estado):
+        return range(0, len(estado)) # siempre es valido dar click a algun cuadrito
         raise NotImplementedError('Hay que hacerlo de tarea')
 
     def sucesor(self, estado, accion):
+        # los socesores de cada accion son los estados opuestos
+        # la cruz cuya casilla es accion
+        # dado que el tablero es de 5 x 5 se utiliza
+        nuevo_estado = list(estado)
+
+        def switch(foco): # Apagador
+            if foco == 0:
+                return 1
+            else:
+                return 0
+
+        # accion es la casilla que queremos cambiar
+        """
+            -dim
+        -1   0   +1
+            +dim
+        5 en este caso, por que es la dimension de la cuadricula
+
+        Vamos a asignar los vecinos que se modifican, segun la accion pertenzca a
+            centro, esquinas, bordes
+        """
+        #           -5                  5
+        # centro de cuadricula
+        vecinos = []
+        vecinos.append(0) # de ley se apaga o se prendre la casilla acciones
+        if accion // 5 is not 4: vecinos.append(self.dim)    #NUMERO_MAGICO
+        if accion // 5 is not 0: vecinos.append(-self.dim)   #NUMERO_MAGICO
+        if accion % 5 is not 4: vecinos.append(+1)    #NUMERO_MAGICO
+        if accion % 5 is not 0: vecinos.append(-1)    #NUMERO_MAGICO
+
+        #if accion is 15:
+        #    print(vecinos)
+        #    print(self.bonito(estado))
+
+        for i in range(0, len(vecinos)):
+            # cambios los vecinos afectados
+            nuevo_estado[accion + vecinos[i]] = switch(nuevo_estado[accion + vecinos[i]]) # 0 o 1
+
+        #if accion is 15:
+            #print(self.bonito(tuple(nuevo_estado)))
+
+        return tuple(nuevo_estado)
+
         raise NotImplementedError('Hay que hacerlo de tarea')
 
     def costo_local(self, estado, accion):
+        return 1 # asignamos un costo uniforme para ir empezando
         raise NotImplementedError('Hay que hacerlo de tarea')
 
     @staticmethod
@@ -93,6 +142,7 @@ class ProblemaLightsOut(busquedas.ProblemaBusqueda):
         # Completa el código
         x0 = tuple(pos_ini)
         def meta(x):
+            return 1 not in x # si hay un solo 1 sigue sin ser meta
             raise NotImplementedError("Hay que hacer de tarea")
 
         super().__init__(x0=x0, meta=meta, modelo=LightsOut())
@@ -107,6 +157,7 @@ def h_1(nodo):
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
     """
+    return sum(nodo.estado)
     return 0
 
 
