@@ -82,7 +82,7 @@ def el_problema_mas_largo(max_cubo):
     def costo_solucion(x):
         sol = busquedas.busqueda_ancho(PblDosBotes(x[0], x[1], x[2]))
         return 0 if sol is None else sol.costo
-            
+
     return max(((i, j, x) for i in range(2, max_cubo + 1)
                 for j in range(1, i) for x in range(1, i)),
                key=costo_solucion)
@@ -98,7 +98,7 @@ def el_problema_mas_antiecologico(max_cubo):
                key=costo_solucion)
 
 
-if __name__ is "__main__":
+if __name__ == "__main__":
 
     print("Vamos a ver como se resuleve el problema")
     print("de un bote de 7, otro de 5, si queremos tener 3 litros al final")
