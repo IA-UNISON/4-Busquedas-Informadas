@@ -315,7 +315,7 @@ def busqueda_primero_mejor(problema, f):
         for hijo in nodo.expande(problema.modelo):
             if hijo.estado not in visitados:
                 #pusheamos su f() y el nodo
-                heapq.heappush(frontera, ( f(hijo), hijo) ) # funcion solo marca la formula que recibimos. para A* enviamos una funcion lambda que incluye el costo del camino y la heuristica.
+                heapq.heappush(frontera, ( f(hijo), hijo) ) # funcion solo marca la f que recibimos. para A* enviamos una funcion lambda que incluye el costo del camino y la heuristica. AIMA - repositorio
                 visitados[hijo.estado] = hijo.costo
             elif hijo.costo < visitados[hijo.estado]: # si el hijo ya esta en vistidaos hay que verificar f y si es menor, pushearlo
                 heapq.heappush(frontera, ( f(hijo), hijo) )
