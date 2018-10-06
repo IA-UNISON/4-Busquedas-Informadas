@@ -53,16 +53,49 @@ class LightsOut(busquedas.ModeloBusqueda):
 
     """
     def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        #es una lista de 24, inicializados en 0; costo 0
+        self.x = tuple([0 for x in range(25)])
+        self.costo = 0
 
     def acciones_legales(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return range(25)
 
     def sucesor(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+
+        estado = list(estado)
+        #Si puedo apagar/prender el de arriba
+        if accion in range(5,25):
+            estado[accion-5] = 1 - estado[accion-5]
+        #si puedo apagar/prender el de abajo
+        if accion in range(20):
+            estado[accion+5] = 1-estado[accion+5]
+        #si puedo apagar/prender el de izq
+        if accion not in [0,5,10,15,20]: #5*x in range(5)
+            estado[accion-1] = 1-estado[accion-1]
+        if accion not in [4,9,14,19,24]:
+            estado[accion+1] = 1-estado[accion+1]
+        estado[accion] = 1 - estado[accion]
+        return tuple(estado)
+
 
     def costo_local(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        # una accion tiene un costo local 1 + n donde n es el numero de focos
+        # que apago (n va desde 0 hasta 5)
+        costo_local = 0
+        if accion in range(5,25) and estado[accion-5] == 1:
+            costo_local+=1
+        #si puedo apagar/prender el de abajo
+        if accion in range(20) and estado[accion+5] == 1:
+            costo_local+=1
+        #si puedo apagar/prender el de izq
+        if accion not in [0,5,10,15,20] and estado[accion-1] == 1:
+            costo_local+=1
+        if accion not in [4,9,14,19,24] and estado[accion+1] ==1:
+            costo_local+=1
+
+        return (self.costo + costo_local + 1 if estado[accion] == 1 else
+                self.costo + costo_local)
+
 
     @staticmethod
     def bonito(estado):
