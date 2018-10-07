@@ -384,7 +384,7 @@ def compara_metodos(pos_inicial, heuristica_1, heuristica_2, heuristica_3):
 
 
 if __name__ == "__main__":
-"""
+    """
     h_3 es dominante respecto a h_2, pues h_3, toma en cuenta la exitensia de las cruces
     aisladas o no y le da una heuristica de 1, lo mismo que h_2
 
@@ -392,11 +392,11 @@ if __name__ == "__main__":
     Agrego distintas salidas de mi tarea
     Algunas secciones del codigo pueden ser codificadas de forma mas limpia
     luego de ver su implementacion mas burda y tosca. Preferi dejarla asi por motivos
-    de tiempo, ejemplo, como encuentro a los vecinos, #NUMERO_MAGICO por mencionar algunas 
+    de tiempo, ejemplo, como encuentro a los vecinos, #NUMERO_MAGICO por mencionar algunas
 
-    En la corrida del script, podemos observar que a pesar h_1 no es admisible, es la mejor
-    y que h_3 tiene menos nodos que h_2, casi siempre
-"""
+    En la corrida del script, podemos observar que a pesar h_1 no es admisible, es la mejor y que h_3 tiene menos nodos que h_2, casi siempre
+    """
+
     print("Antes de hacer otra cosa,")
     print("vamos a verificar medianamente la clase LightsOut")
     prueba_modelo()
