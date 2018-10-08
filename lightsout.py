@@ -54,7 +54,7 @@ class LightsOut(busquedas.ModeloBusqueda):
     """
     def __init__(self):
         #es una lista de 24, inicializados en 0; costo 0
-        self.x = tuple([0 for x in range(25)])
+        self.x = tuple([1 for x in range(25)])
         self.costo = 0
 
     def acciones_legales(self, estado):
@@ -79,22 +79,7 @@ class LightsOut(busquedas.ModeloBusqueda):
 
 
     def costo_local(self, estado, accion):
-        # una accion tiene un costo local 1 + n donde n es el numero de focos
-        # que apago (n va desde 0 hasta 5)
-        costo_local = 0
-        if accion in range(5,25) and estado[accion-5] == 1:
-            costo_local+=1
-        #si puedo apagar/prender el de abajo
-        if accion in range(20) and estado[accion+5] == 1:
-            costo_local+=1
-        #si puedo apagar/prender el de izq
-        if accion not in [0,5,10,15,20] and estado[accion-1] == 1:
-            costo_local+=1
-        if accion not in [4,9,14,19,24] and estado[accion+1] ==1:
-            costo_local+=1
-
-        return (costo_local + 1 if estado[accion] == 1 else
-                costo_local)
+        return 1
 
 
     @staticmethod
@@ -126,7 +111,7 @@ class ProblemaLightsOut(busquedas.ProblemaBusqueda):
         # Completa el código
         x0 = tuple(pos_ini)
         def meta(x):
-            return all(encendido == 1 for encendido in x)
+            return all(encendido == 0 for encendido in x)
 
         super().__init__(x0=x0, meta=meta, modelo=LightsOut())
 
@@ -135,7 +120,27 @@ class ProblemaLightsOut(busquedas.ProblemaBusqueda):
 #  Problema 4: Desarrolla una política admisible.
 # ------------------------------------------------------------
 def adyacentes(i,lista):
-    return []
+    ady = []
+    if i in range(5,25):
+        ady.append(lista[i-5])
+    if i in range(20):
+        ady.append(lista[i+5])
+    if i not in [0,5,10,15,20]:
+        ady.append(lista[i-1])
+    if i not in [4,9,14,19,24]:
+        ady.append(lista[i+1])
+    return ady
+
+def marcar_adyacentes(i,lista):
+    if i in range(5,25):
+        lista[i-5] = 0
+    if i in range(20):
+        lista[i+5] = 0
+    if i not in [0,5,10,15,20]:
+        lista[i-1] = 0
+    if i not in [4,9,14,19,24]:
+        lista[i+1] = 0
+
 def h_1(nodo):
     """
     DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN
@@ -147,11 +152,11 @@ def h_1(nodo):
     De los no-creadores de "distancias de Manhattan en un laberinto" llega
     "mira como ignoro las demas casillas, papá". La idea de la heuristica es
     muy simple: buscar el minimo de veces que hay que aplastar para encender
-    todas las luces, ignorando aquellas que se vayan a prender.
+    todas las luces, ignorando aquellas que se vayan a apagar.
 
     Sin embargo es una heuristica complicada, pues implica resolver otro
     problema, que es encontrar el minimo numero de cruces que hay que meter
-    para dar con un tablero lleno, el cual es un problema de optimizacion.
+    para dar con un tablero lleno, el cual es un problema de optimizacion/csp.
 
     Vamos a resolverlo de esta manera:
 
@@ -169,31 +174,41 @@ def h_1(nodo):
         si no tiene vecinos, la enciendo
         sumar 1 al contador
     es una manera muy pobre de resolverlo, pero tampoco voy a
-    matar moscas a cañonazos. Lo ideal seria usar algo de optimizacion
-    para encontrar la heuristica, pero si no son cañonazos son balazos.
+    matar moscas a cañonazos. Lo ideal seria usar algo de optimizacion o csp
+    para encontrar la heuristica, pero si no son cañonazos son balazos. En este
+    caso es mas bien una combinacion de csp 1-consistencia y desmadres arcanos.
+
+    Yo pienso que si es muy admisible ya que en general el ignorar que
+    otras luces se enciendan es muy perro optimista. Ademas, de ser admisible
+    es una heuristica muy dominante sobre casi cualquier otra que se me ocurra
+    (manhatan, piezas encendidas/5, etc). Y aparte es rapidisma.
     """
     cont = 0
-    lista = list(nodo.estado)
-    marcas_vecinas = [0 for x in range(4)]
-    marcas = [0 for x in range(25)]
+    lista = list(nodo.estado[:])
+    marcas_vecinas = [1 for x in range(4)]
+    marcas = [1 for x in range(25)]
     for i in range(len(lista)):
-        if lista[i] == 0
-            marcas[i] = sum(1 for x in adyacentes(i,lista) if x == 0)
-            if marcas[i] == 0:
-                lista[i] = 1
+        if lista[i] == 1:
+            marcas[i] = sum(1 for x in adyacentes(i,lista) if x == 1)
+            if marcas[i] == 1:
+                lista[i] = 0
                 cont+=1
                 continue
+            #Busco el adyacente que enciende mas luces
+            mayor = 0
             for j,a in enumerate(adyacentes(i,lista)):
-                marcas_vecinas[j] = adyacentes(a,lista)
-                arreglo = marcas_vecinas[:]
-                arreglo = sort(arreglo)
-                temp = arreglo[-1]
-            if marcas[i] >= marcas_vecinas[-1]:
-                marcar_adyacentes(i, lista)
-            else:
-                cont+=marcar_adyacentes()
+                temp = adyacentes(a,lista)
+                marcas_vecinas[j] = sum(1 for x in temp if x ==1)
+                if marcas_vecinas[j] > mayor:
+                    mayor = marcas_vecinas[j]
 
-    return 0
+            if marcas[i] >= mayor:
+                marcar_adyacentes(i,lista)
+            else:
+                marcar_adyacentes(mayor,lista)
+            cont+=1
+
+    return cont
 
 
 # ------------------------------------------------------------
@@ -218,11 +233,16 @@ def h_2(nodo):
     no-éxito, sumo 1 a mi heuristica.
     """
 
-    for x in nodo.estado:
+    return sum(1 for x in nodo.estado if x == 1)/5
+    """
+    cont = 0
+    lista = list(nodo.estado[:])
+    marcas_vecinas = [0 for x in range(4)]
+    marcas = [0 for x in range(25)]
+    for i in range(len(lista)):
 
 
-
-    return 0
+    return 0"""
 
 
 def prueba_modelo():
