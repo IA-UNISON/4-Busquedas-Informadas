@@ -93,8 +93,8 @@ class LightsOut(busquedas.ModeloBusqueda):
         if accion not in [4,9,14,19,24] and estado[accion+1] ==1:
             costo_local+=1
 
-        return (self.costo + costo_local + 1 if estado[accion] == 1 else
-                self.costo + costo_local)
+        return (costo_local + 1 if estado[accion] == 1 else
+                costo_local)
 
 
     @staticmethod
@@ -126,7 +126,7 @@ class ProblemaLightsOut(busquedas.ProblemaBusqueda):
         # Completa el código
         x0 = tuple(pos_ini)
         def meta(x):
-            raise NotImplementedError("Hay que hacer de tarea")
+            return all(encendido == 1 for encendido in x)
 
         super().__init__(x0=x0, meta=meta, modelo=LightsOut())
 
@@ -134,12 +134,65 @@ class ProblemaLightsOut(busquedas.ProblemaBusqueda):
 # ------------------------------------------------------------
 #  Problema 4: Desarrolla una política admisible.
 # ------------------------------------------------------------
+def adyacentes(i,lista):
+    return []
 def h_1(nodo):
     """
     DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
     """
+    """
+    La heuristica "ignorante":
+    De los no-creadores de "distancias de Manhattan en un laberinto" llega
+    "mira como ignoro las demas casillas, papá". La idea de la heuristica es
+    muy simple: buscar el minimo de veces que hay que aplastar para encender
+    todas las luces, ignorando aquellas que se vayan a prender.
+
+    Sin embargo es una heuristica complicada, pues implica resolver otro
+    problema, que es encontrar el minimo numero de cruces que hay que meter
+    para dar con un tablero lleno, el cual es un problema de optimizacion.
+
+    Vamos a resolverlo de esta manera:
+
+    Por cada luz del tablero no-prendida:
+        si luz tiene vecinos no-prendidos:
+            cuantos enciendo?
+            guardar el numero de encendidos
+            para vecinos en luz.vecinos:
+                cuantos enciendo?
+                guardar arreglo de vecinos
+            encender los adyacentes al vecino que mas enciende (puede ser
+            incluso este.)
+            sumar 1 al contador de la heuristica (recordemos que
+            la heuristica es el numero de veces que enciendo estas madres)
+        si no tiene vecinos, la enciendo
+        sumar 1 al contador
+    es una manera muy pobre de resolverlo, pero tampoco voy a
+    matar moscas a cañonazos. Lo ideal seria usar algo de optimizacion
+    para encontrar la heuristica, pero si no son cañonazos son balazos.
+    """
+    cont = 0
+    lista = list(nodo.estado)
+    marcas_vecinas = [0 for x in range(4)]
+    marcas = [0 for x in range(25)]
+    for i in range(len(lista)):
+        if lista[i] == 0
+            marcas[i] = sum(1 for x in adyacentes(i,lista) if x == 0)
+            if marcas[i] == 0:
+                lista[i] = 1
+                cont+=1
+                continue
+            for j,a in enumerate(adyacentes(i,lista)):
+                marcas_vecinas[j] = adyacentes(a,lista)
+                arreglo = marcas_vecinas[:]
+                arreglo = sort(arreglo)
+                temp = arreglo[-1]
+            if marcas[i] >= marcas_vecinas[-1]:
+                marcar_adyacentes(i, lista)
+            else:
+                cont+=marcar_adyacentes()
+
     return 0
 
 
@@ -153,7 +206,22 @@ def h_2(nodo):
     DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
+
+    Segunda heuristica: fichas consecutivas rodeadas de exito.
+
+    ¿Alguna vez te has sentido excluido por el exito de los que estan a tu
+    alrededor? Quizá este sea tu heuristica.
+
+    esta heuristica trata de encontrar una cadena de espacios apagados
+    es decir, que yo pueda llegar de uno apagado hacia otro apagado
+    agarrando el maximo numero de espacios apagados. Por cada patron de
+    no-éxito, sumo 1 a mi heuristica.
     """
+
+    for x in nodo.estado:
+
+
+
     return 0
 
 
