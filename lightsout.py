@@ -7,11 +7,11 @@ lightsout.py
 Tarea sobre búsquedas, donde lo que es importante es crear nuevas heurísticas
 
 """
-__author__ = 'nombre del estudiante'
+__author__ = 'Victor Noriega'
 
 
 import busquedas
-
+import random
 
 class LightsOut(busquedas.ModeloBusqueda):
     # --------------------------------------------------------
@@ -216,6 +216,18 @@ def h_1(nodo):
 #  Analiza y di porque piensas que es (o no es) dominante una
 #  respecto otra política
 # ------------------------------------------------------------
+def casillas_adyacentes(i,lista):
+    ady = []
+    if i in range(5,25) and lista[i-5] == 1:
+        ady.append(i-5)
+    if i in range(20) and lista[i+5] == 1:
+        ady.append(i+5)
+    if i not in [0,5,10,15,20] and lista[i-1] == 1:
+        ady.append(i-1)
+    if i not in [4,9,14,19,24] and lista[i+1] == 1:
+        ady.append(i+1)
+    return ady
+
 def h_2(nodo):
     """
     DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN
@@ -231,18 +243,53 @@ def h_2(nodo):
     es decir, que yo pueda llegar de uno apagado hacia otro apagado
     agarrando el maximo numero de espacios apagados. Por cada patron de
     no-éxito, sumo 1 a mi heuristica.
-    """
 
-    return sum(1 for x in nodo.estado if x == 1)/5
+    Resultados: La neta esta heuristica esta medio culerona. Si es
+    admisible, pero si genera un chingo de nodos (mas de 100 veces mas que h1)
+    Y en todo momento, h1 es dominante sobre h2. Y es todavia mucho mas rapida.
+    Claro, esta heuristica puede ser calculada recursivamente y quiza
+    obtenga mejores resultados (profesor: no lo hice porque no sabia que tanto
+    podiamos cambiar codigo no-tarea como parametros etc. Estudiante que me
+    va a copiar: preguntale al profe si puedes hacerlo recursivo).
+
+    Si bien pude escoger otra heuristica mas perra, como manhattan o luces/5,
+    hice esta para un mayor repertorio y "ejercitar" o poner a prueba
+    la creatividad. 
     """
     cont = 0
     lista = list(nodo.estado[:])
-    marcas_vecinas = [0 for x in range(4)]
-    marcas = [0 for x in range(25)]
-    for i in range(len(lista)):
 
-
-    return 0"""
+    ady = [-1]
+    i = 0
+    esta_lleno = False
+    for _ in range(len(lista)):
+        if esta_lleno:
+            break
+        if lista[i] == 1:
+            while 1 in adyacentes(i,lista):
+                del ady[0]
+                lista[i] =0
+                x = casillas_adyacentes(i,lista)
+                for a in x:
+                    ady.append(a)
+                #ady.append(casillas_adyacentes(i,lista))
+                if len(ady)>0:
+                    i = ady[0]
+                else:
+                    ady = [-1]
+                    z = [x for x in range(25) if lista[x] == 1]
+                    if len(z) != 0:
+                        i = random.choice(z)
+                    else:
+                        esta_lleno = True
+            cont+=1
+        else:
+            z = [x for x in range(25) if lista[x] == 1]
+            if len(z) != 0:
+                i = random.choice(z)
+            else:
+                esta_lleno = True
+    return cont
 
 
 def prueba_modelo():
