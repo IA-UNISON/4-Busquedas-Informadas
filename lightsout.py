@@ -52,17 +52,27 @@ class LightsOut(busquedas.ModeloBusqueda):
     http://en.wikipedia.org/wiki/Lights_Out_(game)
 
     """
-    def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
 
     def acciones_legales(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return range(25)
 
     def sucesor(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        s = list(estado)
+        
+        s[accion] = 1-estado[accion]
+        
+        if accion%5 > 0:
+            s[accion-1] = 1-estado[accion-1]
+        if accion%5 < 4:
+            s[accion+1] = 1-estado[accion+1]
+        if accion//5 > 0:
+            s[accion-5] = 1-estado[accion-5]
+        if accion//5 < 4:
+            s[accion+5] = 1-estado[accion+5]
+        return tuple(s)
 
     def costo_local(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return 1
 
     @staticmethod
     def bonito(estado):
@@ -93,7 +103,7 @@ class ProblemaLightsOut(busquedas.ProblemaBusqueda):
         # Completa el código
         x0 = tuple(pos_ini)
         def meta(x):
-            raise NotImplementedError("Hay que hacer de tarea")
+            return all(xi == 0 for xi in x)
 
         super().__init__(x0=x0, meta=meta, modelo=LightsOut())
 
@@ -105,9 +115,10 @@ def h_1(nodo):
     """
     DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
-
+    El numero de casillas faltantes que aunque no es admisible
+    es bastante rapida para los casos dados.
     """
-    return 0
+    return sum([1 for x in range(25) if nodo.estado[x] == 1])
 
 
 # ------------------------------------------------------------
@@ -119,9 +130,11 @@ def h_2(nodo):
     """
     DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
-
+    Misma que el h_1 pero dividido por 5 para el caso de la cruz
+    el problema como se puede ver en la comparacion es el numero de 
+    nodos visitados,
     """
-    return 0
+    return h_1(nodo)/5
 
 
 def prueba_modelo():
