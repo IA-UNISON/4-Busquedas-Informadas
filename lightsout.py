@@ -15,7 +15,7 @@ import busquedas
 
 class LightsOut(busquedas.ModeloBusqueda):
     # --------------------------------------------------------
-    # Problema 2:  Completa la clase
+    # Completa la clase
     # para el modelo de lights out
     # --------------------------------------------------------
     """
@@ -82,7 +82,7 @@ class LightsOut(busquedas.ModeloBusqueda):
 
 
 # ------------------------------------------------------------
-#  Problema 3: Completa el problema de LightsOut
+#  Completa el problema de LightsOut
 # ------------------------------------------------------------
 class ProblemaLightsOut(busquedas.ProblemaBusqueda):
     def __init__(self, pos_ini):
@@ -99,7 +99,7 @@ class ProblemaLightsOut(busquedas.ProblemaBusqueda):
 
 
 # ------------------------------------------------------------
-#  Problema 4: Desarrolla una política admisible.
+#  Desarrolla una política admisible.
 # ------------------------------------------------------------
 def h_1(nodo):
     """
@@ -111,7 +111,7 @@ def h_1(nodo):
 
 
 # ------------------------------------------------------------
-#  Problema 5: Desarrolla otra política admisible.
+#  Desarrolla otra política admisible.
 #  Analiza y di porque piensas que es (o no es) dominante una
 #  respecto otra política
 # ------------------------------------------------------------

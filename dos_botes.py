@@ -32,7 +32,6 @@ class ModeloDosBotes(busquedas.ModeloBusqueda):
         self.maximos = (x0_max, x1_max)
 
     def acciones_legales(self, estado):
-
         return [(op, cubo)
                 for op in ['vaciar', 'llenar', 'pasar'] for cubo in [0, 1]
                 if (op is 'vaciar' and estado[cubo] > 0) or
@@ -41,7 +40,6 @@ class ModeloDosBotes(busquedas.ModeloBusqueda):
                  estado[1 - cubo] < self.maximos[1 - cubo])]
 
     def sucesor(self, estado, accion):
-
         x = list(estado)
         verbo, cubo = accion
         if verbo is 'vaciar':
@@ -82,7 +80,7 @@ def el_problema_mas_largo(max_cubo):
     def costo_solucion(x):
         sol = busquedas.busqueda_ancho(PblDosBotes(x[0], x[1], x[2]))
         return 0 if sol is None else sol.costo
-            
+
     return max(((i, j, x) for i in range(2, max_cubo + 1)
                 for j in range(1, i) for x in range(1, i)),
                key=costo_solucion)

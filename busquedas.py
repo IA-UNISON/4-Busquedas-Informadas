@@ -122,11 +122,13 @@ class Nodo:
         @return: Una lista de posibles nodos sucesores
 
         """
-        return (Nodo(modelo.sucesor(self.estado, a),
-                     a,
-                     self,
-                     modelo.costo_local(self.estado, a))
-                for a in modelo.acciones_legales(self.estado))
+        return (
+            Nodo(
+                modelo.sucesor(self.estado, a),
+                a,
+                self,
+                modelo.costo_local(self.estado, a))
+            for a in modelo.acciones_legales(self.estado))
 
     def genera_plan(self):
         """
