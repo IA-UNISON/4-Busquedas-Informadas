@@ -52,17 +52,29 @@ class LightsOut(busquedas.ModeloBusqueda):
     http://en.wikipedia.org/wiki/Lights_Out_(game)
 
     """
-    def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
 
     def acciones_legales(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return range(0, 25)
 
     def sucesor(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        def permuta_estado(estado, accion):
+            estado[accion] = 1 - estado[accion]
+
+        st = list(estado)
+        permuta_estado(st, accion)
+        if accion % 5 > 0:
+            permuta_estado(st, accion-1)
+        if accion % 5 < 4:
+            permuta_estado(st, accion+1)
+        if accion > 4:
+            permuta_estado(st, accion-5)
+        if accion < 20:
+            permuta_estado(st, accion+5)
+        
+        return tuple(st)
 
     def costo_local(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return sum(estado)
 
     @staticmethod
     def bonito(estado):
@@ -93,7 +105,7 @@ class ProblemaLightsOut(busquedas.ProblemaBusqueda):
         # Completa el código
         x0 = tuple(pos_ini)
         def meta(x):
-            raise NotImplementedError("Hay que hacer de tarea")
+            return sum(x0) == 0
 
         super().__init__(x0=x0, meta=meta, modelo=LightsOut())
 
@@ -232,14 +244,14 @@ if __name__ == "__main__":
                  0, 0, 1, 1, 1,
                  0, 0, 0, 1, 1)
 
-    print("\n\nPara el problema en diagonal")
-    print("\n{}".format(LightsOut.bonito(diagonal)))
-    compara_metodos(diagonal, h_1, h_2)
+    #print("\n\nPara el problema en diagonal")
+    #print("\n{}".format(LightsOut.bonito(diagonal)))
+    #compara_metodos(diagonal, h_1, h_2)
 
-    print("\n\nPara el problema simétrico")
-    print("\n{}".format(LightsOut.bonito(simetria)))
-    compara_metodos(simetria, h_1, h_2)
+    #print("\n\nPara el problema simétrico")
+    #print("\n{}".format(LightsOut.bonito(simetria)))
+    #compara_metodos(simetria, h_1, h_2)
 
-    print("\n\nPara el problema Bonito")
-    print("\n{}".format(LightsOut.bonito(problemin)))
-    compara_metodos(problemin, h_1, h_2)
+    #print("\n\nPara el problema Bonito")
+    #print("\n{}".format(LightsOut.bonito(problemin)))
+    #compara_metodos(problemin, h_1, h_2)
