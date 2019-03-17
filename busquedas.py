@@ -72,7 +72,6 @@ class ProblemaBusqueda:
         a) Un estado inicial
         b) Una función que diga si un estado es una meta o no
         c) Un modelo para la búsqueda
-
     """
     def __init__(self, x0, meta, modelo):
         """
@@ -109,8 +108,8 @@ class Nodo:
         self.estado = estado
         self.accion = accion
         self.padre = padre
-        self.costo = 0 if not padre else padre.costo + costo_local
-        self.profundidad = 0 if not padre else padre.profundidad + 1
+        self.costo = padre.costo + costo_local if padre else 0
+        self.profundidad = padre.profundidad + 1 if padre else 0
         self.nodos_visitados = 0
 
     def expande(self, modelo):
@@ -124,10 +123,18 @@ class Nodo:
         """
         return (
             Nodo(
+                # Insertamos el estado al cual se llega aplicando la
+                # acción a al esto actual.
                 modelo.sucesor(self.estado, a),
+                # El nodo tiene la accion a.
                 a,
+                # Es hijo del nodo actual.
                 self,
+                # El costo de llegar al estado generado por la acción
+                # a.
                 modelo.costo_local(self.estado, a))
+            # Repetimos esto para cada acción legal que tenga
+            # el estado actual.
             for a in modelo.acciones_legales(self.estado))
 
     def genera_plan(self):
@@ -172,22 +179,43 @@ def busqueda_ancho(problema):
     @return Un objeto tipo Nodo con un plan completo
 
     """
+    # Verificamos si el nodo inicial es
+    # la meta.
     if problema.es_meta(problema.x0):
         return Nodo(problema.x0)
 
+    # Inicializamos la frontera de la busqueda que
+    # es una cola con los nodos hijos que se van
+    # metiendo al expandir un nodo, lo que garantiza
+    # que se revisen todos los nodos de un mismo nivel
+    # antes de revisar los del siguiente.
     frontera = deque([Nodo(problema.x0)])
+
+    # Conjunto auxiliar usado para guardar los estados
+    # que ya visitamos y que no se repitan.
     visitados = {problema.x0}
 
     while frontera:
         nodo = frontera.popleft()
+        # Revisamos todos los hijos del nodo actual
         for hijo in nodo.expande(problema.modelo):
+            # Revisamos que no haya sido visitado
             if hijo.estado in visitados:
                 continue
+            # Si ya encontramos la meta, la devolvemos.
             if problema.es_meta(hijo.estado):
+                # Guardamos el numero de nodos que hemos
+                # revisado para encontrar este nodo. 
                 hijo.nodos_visitados = problema.num_nodos
                 return hijo
+            # En caso de que no se a meta, lo guardamos en
+            # la frontera para procesar a sus hijos mas 
+            # tarde.
             frontera.append(hijo)
+            # De igual manera guardamos su estado.
             visitados.add(hijo.estado)
+    # En caso de no haber encontrado una solución
+    # regresamos None.
     return None
 
 
@@ -201,22 +229,42 @@ def busqueda_profundo(problema, max_profundidad=None):
     @return Un objeto tipo Nodo con la estructura completa
 
     """
+    # La frontera es una pila en donde guardamos
+    # los nodos que seran expandidos, de manera
+    # que siempre se expande el ultimo nodo que
+    # se inserto, con lo que logramos que revisamos
+    # primero a los hijos de un nodo y luego a sus
+    # hermanos, por lo que es una lectura en post
+    # orden, y por lo tanto una busqueda a profundidad.
     frontera = deque([Nodo(problema.x0)])
+
+    # Lista auxiliar que sirve para verificar si
+    # es que un estado ya ha sido revisado previamente
+    # para evitar repeticiones.
     visitados = {problema.x0: 0}
 
     while frontera:
         nodo = frontera.pop()
+        # Verificamos si el nodo actual es meta.
         if problema.es_meta(nodo.estado):
             nodo.nodos_visitados = problema.num_nodos
             return nodo
+        # Revisamos si ya hemos alcanzado la profundidad maxima para buscar,
+        # en cuyo caso salimos del nodo actual y buscamos en otros nodos que
+        # esten en la frontera.
         if max_profundidad is not None and max_profundidad == nodo.profundidad:
             continue
         for hijo in nodo.expande(problema.modelo):
             # or visitados[hijo.estado] > hijo.profundidad:
+            # Solo metemos a la frontera aquellos nodos
+            # que no hayan sido visitados o que tengan un
+            # estado que se encuentre en la lista de visitados
+            # pero con una menor profundidad.
             if (hijo.estado not in visitados or
                 visitados[hijo.estado] > hijo.profundidad):
                 frontera.append(hijo)
                 visitados[hijo.estado] = hijo.profundidad
+    # En caso de que el algoritmo no encuentre una solución.
     return None
 
 
@@ -286,5 +334,18 @@ def busqueda_A_estrella(problema, heuristica):
     @return Un objeto tipo Nodo con la estructura completa
 
     """
-    raise NotImplementedError('Hay que hacerlo de tarea \
-                              (problema 2 en el archivo busquedas.py)')
+    frontera = []
+    heapq.heappush(frontera, (0, Nodo(problema.x0)))
+    visitados = {problema.x0: 0}
+
+    while frontera:
+        (_, nodo) = heapq.heappop(frontera)
+        if problema.es_meta(nodo.estado):
+            nodo.nodos_visitados = problema.num_nodos
+            return nodo
+        for hijo in nodo.expande(problema.modelo):
+            if (hijo.estado not in visitados or
+                visitados[hijo.estado] > hijo.costo + heuristica(hijo)):
+                heapq.heappush(frontera, (hijo.costo + heuristica(hijo), hijo))
+                visitados[hijo.estado] = hijo.costo
+    return None
