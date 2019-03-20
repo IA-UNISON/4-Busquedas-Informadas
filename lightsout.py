@@ -7,11 +7,12 @@ lightsout.py
 Tarea sobre búsquedas, donde lo que es importante es crear nuevas heurísticas
 
 """
-__author__ = 'nombre del estudiante'
+__author__ = 'Brayan Durazo'
 
 
 import busquedas
-
+import math
+from collections import Counter
 
 class LightsOut(busquedas.ModeloBusqueda):
     # --------------------------------------------------------
@@ -53,17 +54,35 @@ class LightsOut(busquedas.ModeloBusqueda):
 
     """
     def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        # Acciones legales
+        self.acciones = range(25)
 
     def acciones_legales(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        # Se obtienen las acciones legales
+        return self.acciones
 
     def sucesor(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        estado = list(estado)
+        estado[accion] = 0 if estado[accion] == 1 else 1
+
+        columna = accion % 5  # Encontrar la columna del elemento
+        renglon = accion // 5  # Encontrar el renglon del elemento
+
+        if columna != 4:  # Es posible agregar a la derecha
+            estado[accion + 1] = 0 if estado[accion + 1] == 1 else 1
+        if columna != 0:  # Es posible agregar a la izquierda
+            estado[accion - 1] = 0 if estado[accion - 1] == 1 else 1
+
+        if renglon != 4:  # Es posible agregar abajo
+            estado[accion + 5] = 0 if estado[accion + 5] == 1 else 1
+        if renglon != 0:  # Es posible agregar arriba
+            estado[accion - 5] = 0 if estado[accion - 5] == 1 else 1
+
+        return tuple(estado)
 
     def costo_local(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
-
+        return 1
+    
     @staticmethod
     def bonito(estado):
         """
@@ -93,8 +112,8 @@ class ProblemaLightsOut(busquedas.ProblemaBusqueda):
         # Completa el código
         x0 = tuple(pos_ini)
         def meta(x):
-            raise NotImplementedError("Hay que hacer de tarea")
-
+            suma = sum(list(x))
+            return (suma == 0) or (suma == 25)
         super().__init__(x0=x0, meta=meta, modelo=LightsOut())
 
 
@@ -105,10 +124,20 @@ def h_1(nodo):
     """
     DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
-
+    
+    En el tablero de 25 luces, se tiene un X numero de luces prendidas y un
+    Y numero de luces apagadas, se obtiene la diferencia entre estas.
+    La heuristica se define como la diferencia que hay entre luces, ya que como
+    es el tablero de 25 y se esta restando a 25 la diferencia entre luces prendidas 
+    y apagadas, cuan mayor la diferencia entre estas, quiere decir que estas mas cerca
+    de que este quede mas homogeneo.
+    Considero la heuristica como admisible ya que a final de cuentas la manera
+    mas homogenea es la mas cerca la solucion del problema.
     """
-    return 0
-
+    estado = list(nodo.estado)
+    a = Counter(estado)
+    b = math.sqrt(25 - abs(a[0]-a[1]))
+    return b
 
 # ------------------------------------------------------------
 #  Desarrolla otra política admisible.
@@ -120,9 +149,23 @@ def h_2(nodo):
     DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
+    Dado un numero n de luces encendidas y suponiendo que cada
+    movimiento consige modificar 5 luces, la heuristica se
+    define como la cantidad de grupos de 5 luces necesarios a pulsar
+    para llegar al estado objetivo.
+    Considero la heuristica como admisible ya que para 5 luces o menos
+    se requeriria de un paso. Son hasta cantidades multiplos de 5 donde
+    los costos se elevan.
+    
+    No considero que esta politica sea dominante sobre la primera, ya que la
+    primer politica, consiguio el mismo costo, pero visitando una cantidad
+    menor de nodos, pienso que es más cercano el hecho de basarse en que tan
+    homogeneo se va poniendo el tablero a solo tomar en cuenta el hecho de que
+    se van modificando focos de 5 en 5, y solo los focos encendidos.
     """
-    return 0
-
+    estado = list(nodo.estado)
+    a = Counter(estado)
+    return a[1]//5
 
 def prueba_modelo():
     """
