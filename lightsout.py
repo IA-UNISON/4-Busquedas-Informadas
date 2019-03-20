@@ -9,7 +9,6 @@ Tarea sobre búsquedas, donde lo que es importante es crear nuevas heurísticas
 """
 __author__ = 'Ricardo E. Alvarado Mata'
 
-
 import busquedas
 
 
@@ -118,8 +117,16 @@ def h_1(nodo):
     DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
+    Esta heuristica se basa en la idea de apagar primero las esquinas
+    y luego las luces del centro.
     """
-    return 0
+    
+    s = 0
+    for i in range(5):
+        for j in range(5):
+            if nodo.estado[i*5+j] == 1:
+                s += abs(i-2)+ abs(j-2)
+    return s/4
 
 
 # ------------------------------------------------------------
@@ -132,8 +139,18 @@ def h_2(nodo):
     DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
+    Esta heuristica busca apagar primero las luces de los renglones
+    de arriba primero, inspirado en el metodo para resolver el priblema
+    de lightsout que consiste en apagar primero las luces del renglon
+    de hasta arriba y luego ir apagando renglon por renglon hasta que
+    solo te queden las del renglon de hasta abajo.
     """
-    return 0
+    s = 0
+    for i in range(5):
+        for j in range(5):
+            if nodo.estado[i*5+j] == 1:
+                s += 5 - i
+    return s/5
 
 
 def prueba_modelo():
@@ -244,14 +261,14 @@ if __name__ == "__main__":
                  0, 0, 1, 1, 1,
                  0, 0, 0, 1, 1)
 
-    #print("\n\nPara el problema en diagonal")
-    #print("\n{}".format(LightsOut.bonito(diagonal)))
-    #compara_metodos(diagonal, h_1, h_2)
+    print("\n\nPara el problema en diagonal")
+    print("\n{}".format(LightsOut.bonito(diagonal)))
+    compara_metodos(diagonal, h_1, h_2)
 
-    #print("\n\nPara el problema simétrico")
-    #print("\n{}".format(LightsOut.bonito(simetria)))
-    #compara_metodos(simetria, h_1, h_2)
+    print("\n\nPara el problema simétrico")
+    print("\n{}".format(LightsOut.bonito(simetria)))
+    compara_metodos(simetria, h_1, h_2)
 
-    #print("\n\nPara el problema Bonito")
-    #print("\n{}".format(LightsOut.bonito(problemin)))
-    #compara_metodos(problemin, h_1, h_2)
+    print("\n\nPara el problema Bonito")
+    print("\n{}".format(LightsOut.bonito(problemin)))
+    compara_metodos(problemin, h_1, h_2)
