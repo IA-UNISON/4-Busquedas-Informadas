@@ -7,7 +7,7 @@ lightsout.py
 Tarea sobre búsquedas, donde lo que es importante es crear nuevas heurísticas
 
 """
-__author__ = 'nombre del estudiante'
+__author__ = 'Irving B'
 
 
 import busquedas
@@ -19,7 +19,7 @@ class LightsOut(busquedas.ModeloBusqueda):
     # para el modelo de lights out
     # --------------------------------------------------------
     """
-    Problema del jueguito "Ligths out".
+    Problema del jueguito "Lights out".
 
     La idea del juego es el apagar o prender todas las luces.
     Al seleccionar una casilla, la casilla y sus casillas
@@ -53,13 +53,52 @@ class LightsOut(busquedas.ModeloBusqueda):
 
     """
     def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        for i in range(0,25):
+            self.acciones = i
 
     def acciones_legales(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return range(25)
 
     def sucesor(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        
+        sucesor = list(estado).copy()
+        
+        ren = accion // 5
+        col = accion % 5
+        
+        if ren == 0 and col == 0:
+            accion_nueva = (0,5,0,1)
+        elif ren == 0 and col == 4:
+            accion_nueva = (0,5,-1,0)
+        elif ren == 4 and col == 0:
+            accion_nueva = (-5,0,0,1)
+        elif ren == 4 and col == 4:
+            accion_nueva = (-5,-1,0,0)
+        
+        if ren > 0 and col == 0:
+            accion_nueva = (-5,5,0,1)
+        elif col > 0 and ren == 0:
+            accion_nueva = (0,5,-1,1)
+        elif col == 4 and ren > 0:
+            accion_nueva = (-5,5,-1,0)
+        elif col > 0 and ren == 4:
+            accion_nueva = (-5,0,-1,1)
+        else:
+            accion_nueva = (-5,5,-1,1)
+            
+        if sucesor[accion]== 0 :
+            sucesor[accion] = 1
+        else:
+            sucesor[accion] = 0
+            
+        for a in accion_nueva:
+            if a != 0:
+                if sucesor[accion+a] == 0:
+                    sucesor[accion+a] = 1
+                else:
+                    sucesor[accion+a] = 0
+                    
+        return tuple(sucesor)
 
     def costo_local(self, estado, accion):
         raise NotImplementedError('Hay que hacerlo de tarea')
