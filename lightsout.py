@@ -188,11 +188,11 @@ def h_2(nodo):
     |_|X|_|
     |X|X|X|
     |_|X|_|
-    
-
+     creo que no es admisible
+    pero h_1 domina a h_2
     """
     x = 0
-    '''
+
     for i in range(25):
         if nodo.estado == 1:
             if i < 5: #se presiono una casilla en el primer renglon [0,1,2,3,4]
@@ -233,8 +233,7 @@ def h_2(nodo):
                     if (nodo.estado[i+1] == 1 and nodo.estado[i-1] == 1 
                     and nodo.estado[i+5] == 1 and nodo.estado[i-5]):
                         x+=1
-    '''
-    return sum(1 for x in list(nodo.estado) if x == 0)
+    #return h_1(nodo)/5
     return x
 
 
