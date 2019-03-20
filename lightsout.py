@@ -53,16 +53,38 @@ class LightsOut(busquedas.ModeloBusqueda):
 
     """
     def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        self.acciones = range(25)
 
     def acciones_legales(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        #todas las acciones son legales siempre
+        return self.acciones
 
     def sucesor(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        nuevo_estado=list(estado)
+        
+        renglon= accion % 5
+        columna= accion // 5
+        
+        nuevo_estado[accion]=1-nuevo_estado[accion]
+        #se cambian todas las casillas adyacentes, checando si
+        #son de orillas/esquinas
+        #si no es el ultimo renglon
+        if renglon is not 4:
+            nuevo_estado[accion+1]=1-nuevo_estado[accion+1]
+        #si no es el primer renglon
+        if renglon is not 0:
+            nuevo_estado[accion-1]=1-nuevo_estado[accion-1]
+        #si no es la primera columna
+        if columna is not 0:
+            nuevo_estado[accion-5]=1-nuevo_estado[accion-5]
+        #si no es la ultima columna
+        if columna is not 4:
+            nuevo_estado[accion+5]=1-nuevo_estado[accion+5]
+        
+        return tuple(nuevo_estado)
 
     def costo_local(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return 1
 
     @staticmethod
     def bonito(estado):
@@ -93,7 +115,11 @@ class ProblemaLightsOut(busquedas.ProblemaBusqueda):
         # Completa el código
         x0 = tuple(pos_ini)
         def meta(x):
-            raise NotImplementedError("Hay que hacer de tarea")
+            #con una que este encendida ya no es meta
+            for casilla in x:
+                if casilla == 1:
+                    return False
+            return True
 
         super().__init__(x0=x0, meta=meta, modelo=LightsOut())
 
@@ -106,8 +132,17 @@ def h_1(nodo):
     DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
+    Esta es la heuristica que creo que a todos se nos ocurre primero, y tiene
+    muy buenos resultados a pesar de ser tan simple. Sin embargo no es admisible,
+    ya que en caso de tener una casilla encendida que tenga todas sus adyacentes
+    encendidas también la heurística sobreestima, dando un costo de 5 cuando el
+    costo real es de 1.
+    Al intentar arreglarlo, haciendo por ejemplo sum(blablabla)//5, la heuristica
+    ya es admisible pero tiene muy malos resultados comparado con esta (mi 
+    computadora no reconoce la diferencia entre esa heuristica y ninguna
+    heuristica, se freezea)
     """
-    return 0
+    return sum(casilla_encendida for casilla_encendida in nodo.estado)
 
 
 # ------------------------------------------------------------
@@ -120,8 +155,16 @@ def h_2(nodo):
     DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
+    Pensando en la herusitica pasada, el buen resultado que me dio, que no es 
+    admisible; además de el mal resultado de la heuristica modificada que 
+    probe que si era admisible, intente un intermedio.
+    Sorprendentemente funciona bastante bien, mejor de lo que yo esperaba,
+    pero sigue sin ser admisible (¿hay algo como "menos no admisible"?)
+    por lo mismo que la primera no lo es. Ya que esta es una modificación 
+    de la anterior, la anterior es dominante sobre esta.
+    
     """
-    return 0
+    return sum(casilla_encendida for casilla_encendida in nodo.estado)//2
 
 
 def prueba_modelo():
