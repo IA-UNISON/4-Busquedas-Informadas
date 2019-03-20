@@ -62,7 +62,7 @@ class LightsOut(busquedas.ModeloBusqueda):
 
     def sucesor(self, estado, accion):
         lista_estado = list(estado)
-        
+        lista_estado[accion]= 0 if lista_estado[accion] == 1 else 1
         #ahora ponemos las acciones por los tres tipos de posibles
         #cambios en el tablero
         
@@ -70,54 +70,58 @@ class LightsOut(busquedas.ModeloBusqueda):
         if accion < 5: #se presiono una casilla en el primer renglon [0,1,2,3,4]
             if accion == 0: #si es la esquina superio izquirda solo afecta dos casillas
                 lista_estado[accion+1] = 0 if lista_estado[accion+1] == 1 else 1
-                lista_estado[accion+5] = 0 if lista_estado[accion+5] == 1 else 0
+                lista_estado[accion+5] = 0 if lista_estado[accion+5] == 1 else 1
                 
             elif accion == 4: #es la esquina superior derecha
                 lista_estado[accion-1] = 0 if lista_estado[accion-1] == 1 else 1
-                lista_estado[accion+5] = 0 if lista_estado[accion+5] == 1 else 0
+                lista_estado[accion+5] = 0 if lista_estado[accion+5] == 1 else 1
                 
             else: #es cualquier que no este en esquina
                 lista_estado[accion+1] = 0 if lista_estado[accion+1] == 1 else 1
                 lista_estado[accion-1] = 0 if lista_estado[accion-1] == 1 else 1
-                lista_estado[accion+5] = 0 if lista_estado[accion+5] == 1 else 0
+                lista_estado[accion+5] = 0 if lista_estado[accion+5] == 1 else 1
                 
         #ahora checamos si se presiono el ultimop renglon        
         elif accion > 19:#se presiono una casilla en el primer renglon [20,21,22,23,24]
             if accion == 20: #si es la esquina inferior izquirda solo afecta dos casillas
                 lista_estado[accion+1] = 0 if lista_estado[accion+1] == 1 else 1
-                lista_estado[accion-5] = 0 if lista_estado[accion-5] == 1 else 0
+                lista_estado[accion-5] = 0 if lista_estado[accion-5] == 1 else 1
                 
             elif accion == 24: #es la esquina inferior derecha
                 lista_estado[accion-1] = 0 if lista_estado[accion-1] == 1 else 1
-                lista_estado[accion-5] = 0 if lista_estado[accion-5] == 1 else 0
+                lista_estado[accion-5] = 0 if lista_estado[accion-5] == 1 else 1
                 
             else: #es cualquier que no este en esquina
                 lista_estado[accion+1] = 0 if lista_estado[accion+1] == 1 else 1
                 lista_estado[accion-1] = 0 if lista_estado[accion-1] == 1 else 1
-                lista_estado[accion-5] = 0 if lista_estado[accion-5] == 1 else 0
+                lista_estado[accion-5] = 0 if lista_estado[accion-5] == 1 else 1
                 
         #ahora checamos en caso que se presione una casilla que no este
         #ni en el primero ni en el ultimo renglon
         else:
             if accion % 5 == 0 : #esta en la columna de hasta la izquierda
                 lista_estado[accion+1] = 0 if lista_estado[accion+1] == 1 else 1
-                lista_estado[accion+5] = 0 if lista_estado[accion+5] == 1 else 0
-                lista_estado[accion-5] = 0 if lista_estado[accion-5] == 1 else 0
+                lista_estado[accion+5] = 0 if lista_estado[accion+5] == 1 else 1
+                lista_estado[accion-5] = 0 if lista_estado[accion-5] == 1 else 1
                 
             elif accion % 5 == 4: #esta en la columna de hasta la derecha
                 lista_estado[accion-1] = 0 if lista_estado[accion-1] == 1 else 1
-                lista_estado[accion+5] = 0 if lista_estado[accion+5] == 1 else 0
-                lista_estado[accion-5] = 0 if lista_estado[accion-5] == 1 else 0
+                lista_estado[accion+5] = 0 if lista_estado[accion+5] == 1 else 1
+                lista_estado[accion-5] = 0 if lista_estado[accion-5] == 1 else 1
                 
             else: #es cualquier que no este en esquina
                 lista_estado[accion+1] = 0 if lista_estado[accion+1] == 1 else 1
                 lista_estado[accion-1] = 0 if lista_estado[accion-1] == 1 else 1
-                lista_estado[accion+5] = 0 if lista_estado[accion+5] == 1 else 0
-                lista_estado[accion-5] = 0 if lista_estado[accion-5] == 1 else 0
+                lista_estado[accion+5] = 0 if lista_estado[accion+5] == 1 else 1
+                lista_estado[accion-5] = 0 if lista_estado[accion-5] == 1 else 1
+                
+        
+        return tuple(lista_estado)
                 
             
     def costo_local(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        #el costo por cualquier accion es igual a 1 (igual en todas)
+        return 1
 
     @staticmethod
     def bonito(estado):
@@ -148,7 +152,7 @@ class ProblemaLightsOut(busquedas.ProblemaBusqueda):
         # Completa el código
         x0 = tuple(pos_ini)
         def meta(x):
-            raise NotImplementedError("Hay que hacer de tarea")
+            return all(casilla == 0 for casilla in x)
 
         super().__init__(x0=x0, meta=meta, modelo=LightsOut())
 
@@ -160,9 +164,12 @@ def h_1(nodo):
     """
     DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
+    
+    esta heuristica devuelve la cantidad de casillas encendiadas, 
+    es decir que ocupan ser apagadas
 
     """
-    return 0
+    return sum(1 for x in list(nodo.estado) if x == 1)
 
 
 # ------------------------------------------------------------
@@ -174,9 +181,61 @@ def h_2(nodo):
     """
     DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
+    
+    en esta heuristica regresamos la suma de el numero de cruces prendidas, 
+    es decir sumamos si tenemos la siguiente situacion
+    _______
+    |_|X|_|
+    |X|X|X|
+    |_|X|_|
+    
 
     """
-    return 0
+    x = 0
+    '''
+    for i in range(25):
+        if nodo.estado == 1:
+            if i < 5: #se presiono una casilla en el primer renglon [0,1,2,3,4]
+                if i == 0: #si es la esquina superio izquirda solo afecta dos casillas
+                    if nodo.estado[i+1] == 1 and nodo.estado[i+5] == 1: x+=1
+                    
+                elif i == 4: #es la esquina superior derecha
+                    if nodo.estado[i-1] == 1 and nodo.estado[i+5] == 1: x+=1
+                    
+                else: #es cualquier que no este en esquina
+                    if (nodo.estado[i+1] == 1 and nodo.estado[i-1] == 1 
+                    and nodo.estado[i+5] == 1) : x+=1
+                    
+            #ahora checamos si se presiono el ultimop renglon        
+            elif i > 19:#se presiono una casilla en el primer renglon [20,21,22,23,24]
+                if i == 20: #si es la esquina inferior izquirda solo afecta dos casillas
+                    if nodo.estado[i+1] == 1 and nodo.estado[i-5] == 1: x+=1
+                    
+                elif i == 24: #es la esquina inferior derecha
+                    if nodo.estado[i-1] == 1 and nodo.estado[i-5] == 1: x+=1
+                    
+                else: #es cualquier que no este en esquina
+                    if (nodo.estado[i+1] == 1 and nodo.estado[i-1] == 1 
+                    and nodo.estado[i-5] == 1): x+=1
+                    
+            #ahora checamos en caso que se presione una casilla que no este
+            #ni en el primero ni en el ultimo renglon
+            else:
+                if i % 5 == 0 : #esta en la columna de hasta la izquierda
+                    if (nodo.estado[i+1] == 1 and nodo.estado[i+5] == 1 
+                    and nodo.estado[i-5] == 1): x+=1
+                    
+                elif i % 5 == 4: #esta en la columna de hasta la derecha
+                    if (nodo.estado[i-1] == 1 and nodo.estado[i+5] == 1 
+                    and nodo.estado[i-5] == 1): x+=1
+                    
+                else: #es cualquier que no este en esquina
+                    if (nodo.estado[i+1] == 1 and nodo.estado[i-1] == 1 
+                    and nodo.estado[i+5] == 1 and nodo.estado[i-5]):
+                        x+=1
+    '''
+    return sum(1 for x in list(nodo.estado) if x == 0)
+    return x
 
 
 def prueba_modelo():
