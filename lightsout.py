@@ -7,7 +7,7 @@ lightsout.py
 Tarea sobre búsquedas, donde lo que es importante es crear nuevas heurísticas
 
 """
-__author__ = 'nombre del estudiante'
+__author__ = 'Jose Pimienta'
 
 
 import busquedas
@@ -53,14 +53,69 @@ class LightsOut(busquedas.ModeloBusqueda):
 
     """
     def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        #inicializamos el tablero encendido
+       self.x = tuple(1 for x in range(25))
 
     def acciones_legales(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        #siempre es permitido presionar cualquier casilla del tablero
+        return range(25)
 
     def sucesor(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
-
+        lista_estado = list(estado)
+        
+        #ahora ponemos las acciones por los tres tipos de posibles
+        #cambios en el tablero
+        
+        #Si se presiona algun boton del primer renglon
+        if accion < 5: #se presiono una casilla en el primer renglon [0,1,2,3,4]
+            if accion == 0: #si es la esquina superio izquirda solo afecta dos casillas
+                lista_estado[accion+1] = 0 if lista_estado[accion+1] == 1 else 1
+                lista_estado[accion+5] = 0 if lista_estado[accion+5] == 1 else 0
+                
+            elif accion == 4: #es la esquina superior derecha
+                lista_estado[accion-1] = 0 if lista_estado[accion-1] == 1 else 1
+                lista_estado[accion+5] = 0 if lista_estado[accion+5] == 1 else 0
+                
+            else: #es cualquier que no este en esquina
+                lista_estado[accion+1] = 0 if lista_estado[accion+1] == 1 else 1
+                lista_estado[accion-1] = 0 if lista_estado[accion-1] == 1 else 1
+                lista_estado[accion+5] = 0 if lista_estado[accion+5] == 1 else 0
+                
+        #ahora checamos si se presiono el ultimop renglon        
+        elif accion > 19:#se presiono una casilla en el primer renglon [20,21,22,23,24]
+            if accion == 20: #si es la esquina inferior izquirda solo afecta dos casillas
+                lista_estado[accion+1] = 0 if lista_estado[accion+1] == 1 else 1
+                lista_estado[accion-5] = 0 if lista_estado[accion-5] == 1 else 0
+                
+            elif accion == 24: #es la esquina inferior derecha
+                lista_estado[accion-1] = 0 if lista_estado[accion-1] == 1 else 1
+                lista_estado[accion-5] = 0 if lista_estado[accion-5] == 1 else 0
+                
+            else: #es cualquier que no este en esquina
+                lista_estado[accion+1] = 0 if lista_estado[accion+1] == 1 else 1
+                lista_estado[accion-1] = 0 if lista_estado[accion-1] == 1 else 1
+                lista_estado[accion-5] = 0 if lista_estado[accion-5] == 1 else 0
+                
+        #ahora checamos en caso que se presione una casilla que no este
+        #ni en el primero ni en el ultimo renglon
+        else:
+            if accion % 5 == 0 : #esta en la columna de hasta la izquierda
+                lista_estado[accion+1] = 0 if lista_estado[accion+1] == 1 else 1
+                lista_estado[accion+5] = 0 if lista_estado[accion+5] == 1 else 0
+                lista_estado[accion-5] = 0 if lista_estado[accion-5] == 1 else 0
+                
+            elif accion % 5 == 4: #esta en la columna de hasta la derecha
+                lista_estado[accion-1] = 0 if lista_estado[accion-1] == 1 else 1
+                lista_estado[accion+5] = 0 if lista_estado[accion+5] == 1 else 0
+                lista_estado[accion-5] = 0 if lista_estado[accion-5] == 1 else 0
+                
+            else: #es cualquier que no este en esquina
+                lista_estado[accion+1] = 0 if lista_estado[accion+1] == 1 else 1
+                lista_estado[accion-1] = 0 if lista_estado[accion-1] == 1 else 1
+                lista_estado[accion+5] = 0 if lista_estado[accion+5] == 1 else 0
+                lista_estado[accion-5] = 0 if lista_estado[accion-5] == 1 else 0
+                
+            
     def costo_local(self, estado, accion):
         raise NotImplementedError('Hay que hacerlo de tarea')
 
