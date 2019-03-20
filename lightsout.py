@@ -11,6 +11,7 @@ __author__ = 'nombre del estudiante'
 
 
 import busquedas
+#import math
 
 
 class LightsOut(busquedas.ModeloBusqueda):
@@ -53,16 +54,36 @@ class LightsOut(busquedas.ModeloBusqueda):
 
     """
     def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        #raise NotImplementedError('Hay que hacerlo de tarea')
+        self.acciones = [i for i in range(25)]
 
     def acciones_legales(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        #raise NotImplementedError('Hay que hacerlo de tarea')
+        return range(25)
 
     def sucesor(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        #raise NotImplementedError('Hay que hacerlo de tarea')
+        nuevo_estado = list(estado)
+
+        if accion//5!=0: #NO ESTA HASTA ARRIBA, tonces puedo cambiar el de arriba yey
+            nuevo_estado[accion-5]= 1-nuevo_estado[accion-5]
+          
+        if accion//5!=4: #NO ESTA HASTA ABAJO, tonces puedo cambiar el de abajo yey
+            nuevo_estado[accion+5]= 1-nuevo_estado[accion+5]
+        
+        if accion%5!=0: #NO ESTA HASTA LA IZQUIERDA, tonces puedo cambiar el de la izquierda yey 
+            nuevo_estado[accion-1]= 1-nuevo_estado[accion-1]
+        
+        if accion%5!=4: #NO ESTA HASTA LA DERECHA, tonces puedo cambiar el de la derecha yey
+            nuevo_estado[accion+1]= 1-nuevo_estado[accion+1]
+        
+        nuevo_estado[accion]= 1-nuevo_estado[accion]
+        
+        return tuple(nuevo_estado)
 
     def costo_local(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        #raise NotImplementedError('Hay que hacerlo de tarea')
+        return 1
 
     @staticmethod
     def bonito(estado):
@@ -93,7 +114,8 @@ class ProblemaLightsOut(busquedas.ProblemaBusqueda):
         # Completa el código
         x0 = tuple(pos_ini)
         def meta(x):
-            raise NotImplementedError("Hay que hacer de tarea")
+            #raise NotImplementedError("Hay que hacer de tarea")
+            return(sum(x)==0)
 
         super().__init__(x0=x0, meta=meta, modelo=LightsOut())
 
@@ -103,11 +125,11 @@ class ProblemaLightsOut(busquedas.ProblemaBusqueda):
 # ------------------------------------------------------------
 def h_1(nodo):
     """
-    DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN
-    PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
+    Verificando cuantas luces faltan por apagar es más eficiente
+    que regresar el número de luces que faltan por encender.
 
     """
-    return 0
+    return sum(nodo.estado)
 
 
 # ------------------------------------------------------------
@@ -121,7 +143,9 @@ def h_2(nodo):
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
     """
-    return 0
+    
+    cant = nodo.estado.count(1)
+    return (cant/5)
 
 
 def prueba_modelo():
