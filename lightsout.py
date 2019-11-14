@@ -126,8 +126,11 @@ class ProblemaLightsOut(busquedas.ProblemaBusqueda):
         """
         # Completa el código
         x0 = tuple(pos_ini)
-        def meta(x):
-            raise NotImplementedError("Hay que hacer de tarea")
+        
+        def meta(estado):
+            #La meta es que todas las luces estén apagadas, es decir, que todos los bits sean cero.
+            return  not (1 in estado)
+            
 
         super().__init__(x0=x0, meta=meta, modelo=LightsOut())
 
