@@ -22,7 +22,7 @@ class ModeloBusqueda:
 
     Todo modelo de búsqueda debe de tener:
         1) Un método que obtenga las acciones legales en cada estado
-        2) Un método que calcule cual es es siguiente estado
+        2) Un método que calcule cual es siguiente estado
         3) Una función de costo local
 
     """
@@ -89,11 +89,12 @@ class ProblemaBusqueda:
         def es_meta(estado):
             self.num_nodos += 1
             return meta(estado)
+        
         self.es_meta = es_meta
 
         self.x0 = x0
         self.modelo = modelo
-        self.num_nodos = 0  # Solo para efectos medición
+        self.num_nodos = 0  # Solo para efectos de medición
 
 
 class Nodo:
@@ -138,7 +139,7 @@ class Nodo:
                  los x0, x1, ..., xT son tuplas con los estados a
                  cada paso del plan, mientras que los a1, a2, ..., aT
                  son las acciónes que hay que implementar para llegar desde
-                 el estado inicial x0 hasta el testado final xT
+                 el estado inicial x0 hasta el estado final xT
 
         """
         return ([self.estado] if not self.padre else
@@ -286,5 +287,25 @@ def busqueda_A_estrella(problema, heuristica):
     @return Un objeto tipo Nodo con la estructura completa
 
     """
-    raise NotImplementedError('Hay que hacerlo de tarea \
-                              (problema 2 en el archivo busquedas.py)')
+
+    #La búsqueda A* es igual a UCS, excepto que  en A* f(n) = g(n) + h(n).
+    #Entonces al costo le sumamos la heurística.
+
+    frontera = []
+    heapq.heappush(frontera, (0, Nodo(problema.x0)))
+    visitados = {problema.x0: 0}
+
+    while frontera:
+        (_, nodo) = heapq.heappop(frontera)
+        if problema.es_meta(nodo.estado):
+            nodo.nodos_visitados = problema.num_nodos
+            return nodo
+        for hijo in nodo.expande(problema.modelo):
+            if (hijo.estado not in visitados or
+                visitados[hijo.estado] > hijo.costo + heuristica(hijo)):
+                heapq.heappush(frontera, (hijo.costo + heuristica(hijo), hijo))
+                visitados[hijo.estado] = hijo.costo + heuristica(hijo)
+                
+    return None
+
+    
