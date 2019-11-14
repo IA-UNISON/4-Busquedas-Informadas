@@ -7,7 +7,7 @@ lightsout.py
 Tarea sobre búsquedas, donde lo que es importante es crear nuevas heurísticas
 
 """
-__author__ = 'nombre del estudiante'
+__author__ = 'Miguel Romero Valdés'
 
 
 import busquedas
@@ -53,16 +53,50 @@ class LightsOut(busquedas.ModeloBusqueda):
 
     """
     def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+
+        #Las acciones legales son aquellos número en el rango [0, 24]
+        self.acciones = range(25)
 
     def acciones_legales(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+
+        self.acciones
 
     def sucesor(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+
+        estado_sig = list(estado)
+        
+        #Se invierte el bit del botón que se seleccionó.
+        estado_sig[accion] = 1 - estado_sig[accion]
+
+        
+        #Se obtiene la posición en la matriz del botón seleccionado.
+        renglon = accion // 5
+        columna = accion % 5
+
+        if renglon < 4:
+            #Se invierte el bit al Este
+            estado_sig[accion+1] = 1 - estado_sig[accion+1]
+            
+        if renglon > 0:
+            #Se invierte el bit al Oeste
+            estado_sig[accion-1] = 1 - estado_sig[accion-1]
+
+        if columna < 4:
+            #Se invierte el bit al Sur
+            estado_sig[accion+5] = 1 - estado_sig[accion+5]
+
+        if columna > 0:
+            #Se invierte el bit al Norte
+            estado_sig[accion-5] = 1 - estado_sig[accion-5]
+
+
+        return tuple(estado_sig)
+        
 
     def costo_local(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        
+        return 1
+
 
     @staticmethod
     def bonito(estado):
