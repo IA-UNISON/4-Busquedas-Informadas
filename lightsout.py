@@ -59,7 +59,7 @@ class LightsOut(busquedas.ModeloBusqueda):
 
     def acciones_legales(self, estado):
 
-        self.acciones
+        return self.acciones
 
     def sucesor(self, estado, accion):
 
@@ -73,19 +73,19 @@ class LightsOut(busquedas.ModeloBusqueda):
         renglon = accion // 5
         columna = accion % 5
 
-        if renglon < 4:
+        if columna < 4:
             #Se invierte el bit al Este
             estado_sig[accion+1] = 1 - estado_sig[accion+1]
             
-        if renglon > 0:
+        if columna > 0:
             #Se invierte el bit al Oeste
             estado_sig[accion-1] = 1 - estado_sig[accion-1]
 
-        if columna < 4:
+        if renglon < 4:
             #Se invierte el bit al Sur
             estado_sig[accion+5] = 1 - estado_sig[accion+5]
 
-        if columna > 0:
+        if renglon > 0:
             #Se invierte el bit al Norte
             estado_sig[accion-5] = 1 - estado_sig[accion-5]
 
@@ -143,8 +143,20 @@ def h_1(nodo):
     DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
+    En esta heurística se estima el número de pasos que faltan tomado
+    en cuenta la cantidad de luces prendidas, imaginándonos un escenario
+    optimista en donde solo necesitamos apagar la mitad de las luces
+    para que se apaguen las demás.
+
+    Creo que esta heurística es admisible porque se toma en cuenta un
+    escenario optimista que favorece al jugador y que se estima un costo
+    menor a un escenario (más realista) donde cada vez que se apaga una
+    luz se prenden otras, que es lo que sucede la mayoría de las veces.
+
     """
-    return 0
+    
+    
+    return sum(nodo.estado) / 2
 
 
 # ------------------------------------------------------------
@@ -157,8 +169,20 @@ def h_2(nodo):
     DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
+    En esta heurística se toma en cuenta el número de celdas prendidas
+    para estimar la cantidad de pasos que faltan para llegar a la
+    solución.
+
+    Esta heurística es menos optimista que la anterior y se aproxima
+    más al costo real que falta para llegar al nodo final.
+
+    Esta heurística es dominante sobre la otra porque devuelve un
+    número mayor para un nodo dado.
+
     """
-    return 0
+    
+
+    return sum(nodo.estado)
 
 
 def prueba_modelo():
