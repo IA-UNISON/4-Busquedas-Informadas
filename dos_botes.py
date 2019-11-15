@@ -96,7 +96,7 @@ def el_problema_mas_antiecologico(max_cubo):
                key=costo_solucion)
 
 
-if __name__ is "__main__":
+if __name__ == "__main__":
 
     print("Vamos a ver como se resuleve el problema")
     print("de un bote de 7, otro de 5, si queremos tener 3 litros al final")
