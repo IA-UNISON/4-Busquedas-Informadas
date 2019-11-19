@@ -7,7 +7,7 @@ lightsout.py
 Tarea sobre búsquedas, donde lo que es importante es crear nuevas heurísticas
 
 """
-__author__ = 'nombre del estudiante'
+__author__ = 'Jorge Xavier Paredes Padilla'
 
 
 import busquedas
@@ -53,16 +53,74 @@ class LightsOut(busquedas.ModeloBusqueda):
 
     """
     def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        #inicializamos el tablero encendido
+        self.x = tuple(1 for x in range(25))
 
     def acciones_legales(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        #siempre es permitido presionar cualquier casilla del tablero
+        return range(25)
 
     def sucesor(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        lista_estado = list(estado)
+        lista_estado[accion]= 0 if lista_estado[accion] == 1 else 1
+        #ahora ponemos las acciones por los tres tipos de posibles
+        #cambios en el tablero
+        
+        #Si se presiona algun boton del primer renglon
+        if accion < 5: #se presiono una casilla en el primer renglon [0,1,2,3,4]
+            if accion == 0: #si es la esquina superio izquirda solo afecta dos casillas
+                lista_estado[accion+1] = 0 if lista_estado[accion+1] == 1 else 1
+                lista_estado[accion+5] = 0 if lista_estado[accion+5] == 1 else 1
+                
+            elif accion == 4: #es la esquina superior derecha
+                lista_estado[accion-1] = 0 if lista_estado[accion-1] == 1 else 1
+                lista_estado[accion+5] = 0 if lista_estado[accion+5] == 1 else 1
+                
+            else: #es cualquier que no este en esquina
+                lista_estado[accion+1] = 0 if lista_estado[accion+1] == 1 else 1
+                lista_estado[accion-1] = 0 if lista_estado[accion-1] == 1 else 1
+                lista_estado[accion+5] = 0 if lista_estado[accion+5] == 1 else 1
+                
+        #ahora checamos si se presiono el ultimop renglon        
+        elif accion > 19:#se presiono una casilla en el primer renglon [20,21,22,23,24]
+            if accion == 20: #si es la esquina inferior izquirda solo afecta dos casillas
+                lista_estado[accion+1] = 0 if lista_estado[accion+1] == 1 else 1
+                lista_estado[accion-5] = 0 if lista_estado[accion-5] == 1 else 1
+                
+            elif accion == 24: #es la esquina inferior derecha
+                lista_estado[accion-1] = 0 if lista_estado[accion-1] == 1 else 1
+                lista_estado[accion-5] = 0 if lista_estado[accion-5] == 1 else 1
+                
+            else: #es cualquier que no este en esquina
+                lista_estado[accion+1] = 0 if lista_estado[accion+1] == 1 else 1
+                lista_estado[accion-1] = 0 if lista_estado[accion-1] == 1 else 1
+                lista_estado[accion-5] = 0 if lista_estado[accion-5] == 1 else 1
+                
+        #ahora checamos en caso que se presione una casilla que no este
+        #ni en el primero ni en el ultimo renglon
+        else:
+            if accion % 5 == 0 : #esta en la columna de hasta la izquierda
+                lista_estado[accion+1] = 0 if lista_estado[accion+1] == 1 else 1
+                lista_estado[accion+5] = 0 if lista_estado[accion+5] == 1 else 1
+                lista_estado[accion-5] = 0 if lista_estado[accion-5] == 1 else 1
+                
+            elif accion % 5 == 4: #esta en la columna de hasta la derecha
+                lista_estado[accion-1] = 0 if lista_estado[accion-1] == 1 else 1
+                lista_estado[accion+5] = 0 if lista_estado[accion+5] == 1 else 1
+                lista_estado[accion-5] = 0 if lista_estado[accion-5] == 1 else 1
+                
+            else: #es cualquier que no este en esquina
+                lista_estado[accion+1] = 0 if lista_estado[accion+1] == 1 else 1
+                lista_estado[accion-1] = 0 if lista_estado[accion-1] == 1 else 1
+                lista_estado[accion+5] = 0 if lista_estado[accion+5] == 1 else 1
+                lista_estado[accion-5] = 0 if lista_estado[accion-5] == 1 else 1
+                
+        
+        return tuple(lista_estado)
 
     def costo_local(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        #el costo por cualquier accion es igual a 1 (igual en todas)
+        return 1
 
     @staticmethod
     def bonito(estado):
@@ -93,7 +151,11 @@ class ProblemaLightsOut(busquedas.ProblemaBusqueda):
         # Completa el código
         x0 = tuple(pos_ini)
         def meta(x):
-            raise NotImplementedError("Hay que hacer de tarea")
+            #con una que este encendida ya no es meta
+            for casilla in x:
+                if casilla == 1:
+                    return False
+            return True
 
         super().__init__(x0=x0, meta=meta, modelo=LightsOut())
 
@@ -107,7 +169,7 @@ def h_1(nodo):
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
     """
-    return 0
+    return sum(1 for x in list(nodo.estado) if x == 1)
 
 
 # ------------------------------------------------------------
@@ -121,7 +183,49 @@ def h_2(nodo):
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
     """
-    return 0
+    x = 0
+
+    for i in range(25):
+        if nodo.estado == 1:
+            if i < 5: #se presiono una casilla en el primer renglon [0,1,2,3,4]
+                if i == 0: #si es la esquina superio izquirda solo afecta dos casillas
+                    if nodo.estado[i+1] == 1 and nodo.estado[i+5] == 1: x+=1
+                    
+                elif i == 4: #es la esquina superior derecha
+                    if nodo.estado[i-1] == 1 and nodo.estado[i+5] == 1: x+=1
+                    
+                else: #es cualquier que no este en esquina
+                    if (nodo.estado[i+1] == 1 and nodo.estado[i-1] == 1 
+                    and nodo.estado[i+5] == 1) : x+=1
+                    
+            #ahora checamos si se presiono el ultimop renglon        
+            elif i > 19:#se presiono una casilla en el primer renglon [20,21,22,23,24]
+                if i == 20: #si es la esquina inferior izquirda solo afecta dos casillas
+                    if nodo.estado[i+1] == 1 and nodo.estado[i-5] == 1: x+=1
+                    
+                elif i == 24: #es la esquina inferior derecha
+                    if nodo.estado[i-1] == 1 and nodo.estado[i-5] == 1: x+=1
+                    
+                else: #es cualquier que no este en esquina
+                    if (nodo.estado[i+1] == 1 and nodo.estado[i-1] == 1 
+                    and nodo.estado[i-5] == 1): x+=1
+                    
+            #ahora checamos en caso que se presione una casilla que no este
+            #ni en el primero ni en el ultimo renglon
+            else:
+                if i % 5 == 0 : #esta en la columna de hasta la izquierda
+                    if (nodo.estado[i+1] == 1 and nodo.estado[i+5] == 1 
+                    and nodo.estado[i-5] == 1): x+=1
+                    
+                elif i % 5 == 4: #esta en la columna de hasta la derecha
+                    if (nodo.estado[i-1] == 1 and nodo.estado[i+5] == 1 
+                    and nodo.estado[i-5] == 1): x+=1
+                    
+                else: #es cualquier que no este en esquina
+                    if (nodo.estado[i+1] == 1 and nodo.estado[i-1] == 1 
+                    and nodo.estado[i+5] == 1 and nodo.estado[i-5]):
+                        x+=1
+    return x
 
 
 def prueba_modelo():
@@ -192,10 +296,8 @@ def compara_metodos(pos_inicial, heuristica_1, heuristica_2):
     de la función
 
     """
-    solucion1 = busquedas.busqueda_A_estrella(ProblemaLightsOut(pos_inicial),
-                                              heuristica_1)
-    solucion2 = busquedas.busqueda_A_estrella(ProblemaLightsOut(pos_inicial),
-                                              heuristica_2)
+    solucion1 = busquedas.busqueda_A_estrella(ProblemaLightsOut(pos_inicial),heuristica_1)
+    solucion2 = busquedas.busqueda_A_estrella(ProblemaLightsOut(pos_inicial),heuristica_2)
 
     print('-' * 50)
     print('Método'.center(10) + 'Costo'.center(20) + 'Nodos visitados')
