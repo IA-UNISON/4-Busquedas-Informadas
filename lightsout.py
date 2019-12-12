@@ -7,7 +7,7 @@ lightsout.py
 Tarea sobre búsquedas, donde lo que es importante es crear nuevas heurísticas
 
 """
-__author__ = 'nombre del estudiante'
+__author__ = 'Mario Cesar Enriquez Rodriguez'
 
 
 import busquedas
@@ -53,13 +53,25 @@ class LightsOut(busquedas.ModeloBusqueda):
 
     """
     def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        self.acciones = range(25)
 
     def acciones_legales(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return self.acciones
 
     def sucesor(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        lista = list(estado)
+        lista[accion] = 1-lista[accion]
+
+        if accion % 5 > 0:
+            lista[accion - 1] = 1 - lista[accion - 1]
+        if accion % 5 < 4:
+            lista[accion + 1] = 1 - lista[accion + 1]
+        if accion > 4:
+            lista[accion - 5] = 1 - lista[accion - 5]
+        if accion < 20:
+            lista[accion + 5] = 1 - lista[accion + 5]
+
+        return tuple(lista)
 
     def costo_local(self, estado, accion):
         raise NotImplementedError('Hay que hacerlo de tarea')
@@ -93,7 +105,8 @@ class ProblemaLightsOut(busquedas.ProblemaBusqueda):
         # Completa el código
         x0 = tuple(pos_ini)
         def meta(x):
-            raise NotImplementedError("Hay que hacer de tarea")
+            # Pense que era mas!
+            return sum(x0) == 0
 
         super().__init__(x0=x0, meta=meta, modelo=LightsOut())
 
@@ -107,7 +120,9 @@ def h_1(nodo):
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
     """
-    return 0
+    # Solo sumar los encendidos. Mo se me ocurrio otra.
+    # Numero de prendidos
+    return sum(1 for x in list(nodo.estado) if x == 1)
 
 
 # ------------------------------------------------------------
@@ -121,7 +136,7 @@ def h_2(nodo):
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
     """
-    return 0
+    return sum(5-x//5 for x in range(25) if nodo.estado[x] == 1)/5
 
 
 def prueba_modelo():
