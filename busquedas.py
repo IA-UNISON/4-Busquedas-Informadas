@@ -87,6 +87,10 @@ class ProblemaBusqueda:
 
         """
         def es_meta(estado):
+            
+# =============================================================================
+#             por que se agrega un nodo aqui?
+# =============================================================================
             self.num_nodos += 1
             return meta(estado)
         self.es_meta = es_meta
@@ -112,6 +116,7 @@ class Nodo:
         self.costo = 0 if not padre else padre.costo + costo_local
         self.profundidad = 0 if not padre else padre.profundidad + 1
         self.nodos_visitados = 0
+        self.valor_heuristica = 0
 
     def expande(self, modelo):
         """
@@ -172,6 +177,7 @@ def busqueda_ancho(problema):
     @return Un objeto tipo Nodo con un plan completo
 
     """
+
     if problema.es_meta(problema.x0):
         return Nodo(problema.x0)
 
@@ -179,6 +185,7 @@ def busqueda_ancho(problema):
     visitados = {problema.x0}
 
     while frontera:
+        
         nodo = frontera.popleft()
         for hijo in nodo.expande(problema.modelo):
             if hijo.estado in visitados:
@@ -281,10 +288,36 @@ def busqueda_A_estrella(problema, heuristica):
     @param heuristica: Una funcion de heuristica, esto es, una función
                        heuristica(nodo), la cual devuelva un número mayor
                        o igual a cero con el costo esperado desde nodo hasta
-                       un nodo cuyo estado final sea méta.
+                       un nodo cuyo estado final sea meta.
 
     @return Un objeto tipo Nodo con la estructura completa
 
     """
-    raise NotImplementedError('Hay que hacerlo de tarea \
-                              (problema 2 en el archivo busquedas.py)')
+    frontera = []
+    heapq.heappush(frontera, (0, Nodo(problema.x0)))
+    
+    
+    visitados = {problema.x0: 0}
+    
+# =============================================================================
+#     PRIMERO DEBERIA DE AGREGAR A LA HEAPQ, LUEGO POPPEAR, Y CHECAR SI ESTA EN VISITADOS?
+# =============================================================================
+    while frontera:
+        puntaje, actual = heapq.heappop(frontera)
+        
+        if problema.es_meta(actual.estado):
+            actual.nodos_visitados = problema.num_nodos
+            return actual #, puntaje?
+   
+        
+        for hijo in actual.expande(problema.modelo):
+            puntaje_aestrella = hijo.costo + heuristica(hijo)
+            
+            if (hijo.estado not in visitados or
+                visitados[hijo.estado] > puntaje_aestrella):
+                heapq.heappush(frontera, (puntaje_aestrella, hijo))
+                visitados[hijo.estado] = puntaje_aestrella
+            
+        
+        
+        

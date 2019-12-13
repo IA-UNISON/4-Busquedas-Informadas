@@ -7,7 +7,7 @@ lightsout.py
 Tarea sobre búsquedas, donde lo que es importante es crear nuevas heurísticas
 
 """
-__author__ = 'nombre del estudiante'
+__author__ = 'celeste '
 
 
 import busquedas
@@ -28,7 +28,11 @@ class LightsOut(busquedas.ModeloBusqueda):
     El juego consiste en una matriz de 5 X 5, cuyo estado puede
     ser apagado 0 o prendido 1. Por ejemplo el estado
 
-       (0,0,1,0,0,1,1,0,0,1,0,0,1,1,0,1,0,1,0,1,0,0,0,0,0)
+       (0,0,1,0,0,
+        1,1,0,0,1,
+        0,0,1,1,0,
+        1,0,1,0,1,
+        0,0,0,0,0)
 
     corresponde a:
 
@@ -52,17 +56,69 @@ class LightsOut(busquedas.ModeloBusqueda):
     http://en.wikipedia.org/wiki/Lights_Out_(game)
 
     """
-    def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+
 
     def acciones_legales(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        # cualquier accion es legal, puesto que una casilla siempre se puede seleccionar
+        # y modificarse y a sus adyacentes
+        return range(25)
 
     def sucesor(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        # la accion siempre es la misma, tocar casilla, entonces es un numero entre 0 y 24 (indices de las casillas)
+        estado = list(estado)
+        estado[accion] *= -1
 
-    def costo_local(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        # caso de las esquinas
+        if accion == 0: #esquina superior izquierda
+            estado[accion+1] *= -1
+            estado[accion+5] *= -1
+            return tuple(estado)
+
+        if accion == 4:     # esquina superior derecha
+            estado[accion-1] *= -1
+            estado[accion+5] *= -1
+            return tuple(estado)
+
+        if accion == 20:    # esquina inferior izquierda
+            estado[accion+1] *= -1
+            estado[accion-5] *= -1
+            return tuple(estado)
+
+        if accion == 24:    # esquina inferior derecha
+            estado[accion-1] *= -1
+            estado[accion-5] *= -1
+            return tuple(estado)
+
+        # caso de la columna izquierda
+        if accion % 5 == 0:
+            estado[accion+1] *= -1
+            estado[accion-5] *= -1
+            estado[accion+5] *= -1
+            return tuple(estado)
+
+        # caso de la columna derecha
+        if (accion+1) % 5 == 0:
+
+            estado[accion-1] *= -1
+            estado[accion-5] *= -1
+            estado[accion+5] *= -1
+            return tuple(estado)
+
+
+        if accion - 1 >= 0:
+            estado[accion-1] *= -1
+
+        if accion + 1 <= 24:
+            estado[accion+1] *= -1
+
+        if accion + 5 <= 24:
+            estado[accion+5] *= -1
+
+        if accion - 5 >= 0:
+            estado[accion-5] *= -1
+
+        return tuple(estado)
+
 
     @staticmethod
     def bonito(estado):
@@ -73,7 +129,7 @@ class LightsOut(busquedas.ModeloBusqueda):
         cadena = "---------------------\n"
         for i in range(5):
             for j in range(5):
-                if estado[5 * i + j]:
+                if estado[5 * i + j] > 0:
                     cadena += "| X "
                 else:
                     cadena += "|   "
@@ -93,7 +149,7 @@ class ProblemaLightsOut(busquedas.ProblemaBusqueda):
         # Completa el código
         x0 = tuple(pos_ini)
         def meta(x):
-            raise NotImplementedError("Hay que hacer de tarea")
+            return 1 not in x
 
         super().__init__(x0=x0, meta=meta, modelo=LightsOut())
 
@@ -130,41 +186,41 @@ def prueba_modelo():
 
     """
 
-    pos_ini = (0, 1, 0, 1, 0,
-               0, 0, 1, 1, 0,
-               0, 0, 0, 1, 1,
-               0, 0, 1, 1, 1,
-               0, 0, 0, 1, 1)
+    pos_ini = (-1, 1, -1, 1, -1,
+               -1, -1, 1, 1, -1,
+               -1, -1, -1, 1, 1,
+               -1, -1, 1, 1, 1,
+               -1, -1, -1, 1, 1)
 
-    pos_a0 = (1, 0, 0, 1, 0,
-              1, 0, 1, 1, 0,
-              0, 0, 0, 1, 1,
-              0, 0, 1, 1, 1,
-              0, 0, 0, 1, 1)
+    pos_a0 = (1, -1, -1, 1, -1,
+              1, -1, 1, 1, -1,
+              -1, -1, -1, 1, 1,
+              -1, -1, 1, 1, 1,
+              -1, -1, -1, 1, 1)
 
-    pos_a4 = (1, 0, 0, 0, 1,
-              1, 0, 1, 1, 1,
-              0, 0, 0, 1, 1,
-              0, 0, 1, 1, 1,
-              0, 0, 0, 1, 1)
+    pos_a4 = (1, -1, -1, -1, 1,
+              1, -1, 1, 1, 1,
+              -1, -1, -1, 1, 1,
+              -1, -1, 1, 1, 1,
+              -1, -1, -1, 1, 1)
 
-    pos_a24 = (1, 0, 0, 0, 1,
-               1, 0, 1, 1, 1,
-               0, 0, 0, 1, 1,
-               0, 0, 1, 1, 0,
-               0, 0, 0, 0, 0)
+    pos_a24 = (1, -1, -1, -1, 1,
+               1, -1, 1, 1, 1,
+               -1, -1, -1, 1, 1,
+               -1, -1, 1, 1, -1,
+               -1, -1, -1, -1, -1)
 
-    pos_a15 = (1, 0, 0, 0, 1,
-               1, 0, 1, 1, 1,
-               1, 0, 0, 1, 1,
-               1, 1, 1, 1, 0,
-               1, 0, 0, 0, 0)
+    pos_a15 = (1, -1, -1, -1, 1,
+               1, -1, 1, 1, 1,
+               1, -1, -1, 1, 1,
+               1, 1, 1, 1, -1,
+               1, -1, -1, -1, -1)
 
-    pos_a12 = (1, 0, 0, 0, 1,
-               1, 0, 0, 1, 1,
-               1, 1, 1, 0, 1,
-               1, 1, 0, 1, 0,
-               1, 0, 0, 0, 0)
+    pos_a12 = (1, -1, -1, -1, 1,
+               1, -1, -1, 1, 1,
+               1, 1, 1, -1, 1,
+               1, 1, -1, 1, -1,
+               1, -1, -1, -1, -1)
 
     modelo = LightsOut()
 
