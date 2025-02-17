@@ -134,15 +134,12 @@ class Nodo:
         """
         Genera el plan (parcial o completo) que representa el nodo.
 
-        @return: Una lista [x0, a1, x1, a2, x2, ..., aT, xT], donde
-                 los x0, x1, ..., xT son tuplas con los estados a
-                 cada paso del plan, mientras que los a1, a2, ..., aT
-                 son las acciónes que hay que implementar para llegar desde
-                 el estado inicial x0 hasta el testado final xT
+        @return: Una lista [(x0, c0), a1, (x1, c1), a2, (x2, c2), ..., aT, (xT, cT)], donde los x0, x1, ..., xT son tuplas con los estados a cada paso del plan, c0, c1, ..., cT es el costo total hasta ese momento del plan, a1, a2, ..., aT son las acciónes que hay que implementar para llegar desde el estado inicial x0 hasta el testado final xT
 
         """
-        return ([self.estado] if not self.padre else
-                self.padre.genera_plan() + [self.accion, self.estado])
+        return ([(self.estado, self.costo)] if not self.padre else
+                (self.padre.genera_plan() 
+                 + [self.accion, (self.estado, self.costo)]))
 
     def __str__(self):
         """
@@ -150,10 +147,10 @@ class Nodo:
 
         """
         plan = self.genera_plan()
-        return ("Costo: {}\n".format(self.costo) +
-                "Profundidad: {}\n".format(self.profundidad) +
-                "Trayectoria:\n" +
-                "".join(["en {} hace {} y va a {},\n".format(x, a, xp)
+        return (f"Costo: {self.costo}\n" +
+                f"Profundidad: {self.profundidad}\n" +
+                f"Trayectoria:\n" +
+                "".join([f"en {x[0]} hace {a} y va a {xp[0]} con costo {xp[1]},\n"
                          for (x, a, xp)
                          in zip(plan[:-1:2], plan[1::2], plan[2::2])]))
 

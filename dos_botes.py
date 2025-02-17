@@ -34,17 +34,17 @@ class ModeloDosBotes(busquedas.ModeloBusqueda):
     def acciones_legales(self, estado):
         return [(op, cubo)
                 for op in ['vaciar', 'llenar', 'pasar'] for cubo in [0, 1]
-                if (op is 'vaciar' and estado[cubo] > 0) or
-                (op is 'llenar' and estado[cubo] < self.maximos[cubo]) or
-                (op is 'pasar' and estado[cubo] > 0 and
+                if (op == 'vaciar' and estado[cubo] > 0) or
+                (op == 'llenar' and estado[cubo] < self.maximos[cubo]) or
+                (op == 'pasar' and estado[cubo] > 0 and
                  estado[1 - cubo] < self.maximos[1 - cubo])]
 
     def sucesor(self, estado, accion):
         x = list(estado)
         verbo, cubo = accion
-        if verbo is 'vaciar':
+        if verbo == 'vaciar':
             x[cubo] = 0
-        elif verbo is 'llenar':
+        elif verbo == 'llenar':
             x[cubo] = self.maximos[cubo]
         else:
             delta = min(x[cubo], self.maximos[1 - cubo] - x[1 - cubo])
@@ -57,7 +57,7 @@ class ModeloDosBotesAgua(ModeloDosBotes):
     def costo_local(self, estado, accion):
         a, i = accion
         costo = 0.01
-        if a is 'llenar':
+        if a == 'llenar':
             costo += self.maximos[i] - estado[i]
         return costo
 
@@ -96,7 +96,7 @@ def el_problema_mas_antiecologico(max_cubo):
                key=costo_solucion)
 
 
-if __name__ is "__main__":
+if __name__ == "__main__":
 
     print("Vamos a ver como se resuleve el problema")
     print("de un bote de 7, otro de 5, si queremos tener 3 litros al final")
@@ -105,9 +105,9 @@ if __name__ is "__main__":
     a, b, x = el_problema_mas_largo(15)
     print("\n\nEl problema que más pasos tiene uno que hacer")
     print("si el bote mayor puede tener 15 litros es de")
-    print("un cubo de {}, otro de {}, y tener {} en uno".format(a, b, x))
+    print(f"un cubo de {a}, otro de {b}, y tener {x} en uno")
 
     a, b, x = el_problema_mas_antiecologico(15)
     print("\n\nEl problema que más agua gasta")
     print("si el bote mayor puede tener 15 litros es de")
-    print("un cubo de {}, otro de {}, y tener {} en uno".format(a, b, x))
+    print(f"un cubo de {a}, otro de {b}, y tener {x} en uno")
