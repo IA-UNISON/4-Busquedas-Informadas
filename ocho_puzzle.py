@@ -53,9 +53,9 @@ class Modelo8puzzle(busquedas.ModeloBusqueda):
     def sucesor(self, estado, accion):
         s = list(estado)
         ind = s[-1]
-        bias = (-3 if accion is 'N' else
-                3 if accion is 'S' else
-                -1 if accion is 'O' else
+        bias = (-3 if accion == 'N' else
+                3 if accion == 'S' else
+                -1 if accion == 'O' else
                 1)
         s[ind], s[ind + bias] = s[ind + bias], s[ind]
         s[-1] += bias
