@@ -283,5 +283,5 @@ def busqueda_A_estrella(problema, heuristica):
     @return Un objeto tipo Nodo con la estructura completa
 
     """
-    raise NotImplementedError('Hay que hacerlo de tarea \
-                              (problema 2 en el archivo busquedas.py)')
+    #raise NotImplementedError('Hay que hacerlo de tarea \
+    #                          (problema 2 en el archivo busquedas.py)')

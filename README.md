@@ -20,13 +20,14 @@ y conjuntos (como estructura de datos).
    
    En clase se dio un ejemplo de el uso de dichas búsquedas. Revisa y familiarizate con dichas clases y funciones. Si es necesario desarrolla un problema pequeñito para que las pruebes (el problema de los *misioneros y los canibales* es un ejemplo fácil de programar y fácil de aplicar).
    
-2. En el mismo archivo, en la parte final, se encuentra el encabezado para desarrollar la función de búsqueda utilizando el algoritmo A*. Recuerda que en general estamos haciendo la búsqueda en grafos con el fin de reducir el número de estados explorados. Con el fin que pruebes si el algortimo que desarrollaste funciona, en el archivo `ocho_puzzle.py` se encuentra programado y funcionando el problema del ocho puzzle, así como las dos heurísicas vistas en clase. Con el fin de comparar resultados, se presenta la solucion de 3 problemas (3 estados iniciales diferentes) con ambas heurísticas y con la búsqueda de costo uniforme. Puedes cambiar esto y experimentar, hasta que estes seguro que tu algoritmo es eficiente.
+2. En el mismo archivo, en la parte final, se encuentra el encabezado para desarrollar la función de búsqueda utilizando el algoritmo A*. Recuerda que en general estamos haciendo la búsqueda en grafos con el fin de reducir el número de estados explorados. Con el fin que pruebes si el algoritmo que desarrollaste funciona, en el archivo `ocho_puzzle.py` se encuentra programado y funcionando el problema del ocho puzzle, así como las dos heurísticas vistas en clase. Con el fin de comparar resultados, se presenta la solución de 3 problemas (3 estados iniciales diferentes) con ambas heurísticas y con la búsqueda de costo uniforme. Puedes cambiar esto y experimentar, hasta que estes seguro que tu algoritmo es eficiente.
    
 3. En el archivo `problemas.py` se encuentran unos nuevos problemas de planeación. Desarrolla los modelos de cada reto, definiendo los métodos de `acciones_legales`, `sucesor`, `costo_local` y modificando el método `__init__`. 
 
-4. Desarrolla una huerística para cada reto, especifíca porque consideras que es admisible, y prográmala en la función `h_1_{nombre del problema}`. 
+4. Desarrolla una heurística para cada reto, específica porque consideras que es admisible, y prográmala en la función `h_1_{nombre del problema}`. 
    
 5. Ahora desarrolla una segunda heurística (proponer una puede ser algo dificil, pero dos ya implica creatividad). Argumenta porque crees que es admisible esta heurística.
    
 6. Ejecuta el programa y revisa las soluciones con ambas heurísticas, y sobre esto, determina si hay una que parece dominante sobre la otra, y porqué.
-   
+
+
