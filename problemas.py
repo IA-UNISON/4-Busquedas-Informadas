@@ -250,9 +250,10 @@ def compara_metodos(problema, heuristica_1, heuristica_2):
 
 
 if __name__ == "__main__":
+    print("---------- 1 - Problema Implementado -------------")
     estado_inicial = (3, 3, 1, 0, 0)
     meta = lambda estado: estado == (0, 0, 0, 3, 3)
-    busquedas.ProblemaBusqueda(estado_inicial, meta, MisionerosCanibales())
+    problema = busquedas.ProblemaBusqueda(estado_inicial, meta, MisionerosCanibales())
 
     solucion = busquedas.busqueda_ancho(problema)
     if solucion:
@@ -260,8 +261,11 @@ if __name__ == "__main__":
         print(solucion)
     else:
         print("No se encontró solución.")
-    # Compara los métodos de búsqueda para el problema del camión mágico
+    
+    
+    # 2 - Compara los métodos de búsqueda para el problema del camión mágico
     # con las heurísticas que desarrollaste
+    print("---------- 2 - Camion Magico con A* -------------")
     problema = PblCamionMagico(20)
     compara_metodos(problema, h_1_camion_magico, h_2_camion_magico) # <--- PONLE LOS PARÁMETROS QUE NECESITES
     

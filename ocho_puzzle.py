@@ -171,7 +171,7 @@ def probando(pos_ini):
 
 
 if __name__ == "__main__":
-
+    print("---------- Pruebas Default -------------")
     probando((1, 0, 2, 3, 4, 5, 6, 7, 8))
 
     print("\n\n\ny con otro problema de 8 puzzle")
@@ -179,3 +179,17 @@ if __name__ == "__main__":
 
     print("\n\n\ny por último")
     probando((1, 7, 8, 2, 3, 4, 5, 6, 0))
+
+     # ------- A* con h1 ----------- 
+    print("---------- Utilizando A* con h1 -------------")
+    problema = Ocho_puzzle((5, 1, 3, 4, 0, 2, 6, 7, 8))
+    solucion = busquedas.busqueda_A_estrella(problema, h_1)
+    print(solucion)
+    print("Explorando {} nodos".format(solucion.nodos_visitados))
+
+    # ------- A* con h2 ----------- 
+    print("---------- Utilizando A* con h2 -------------")
+    problema = Ocho_puzzle((1, 7, 8, 2, 3, 4, 5, 6, 0))
+    solucion = busquedas.busqueda_A_estrella(problema, h_2)
+    print(solucion)
+    print("Explorando {} nodos".format(solucion.nodos_visitados))

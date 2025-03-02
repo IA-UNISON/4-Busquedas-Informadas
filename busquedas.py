@@ -283,5 +283,24 @@ def busqueda_A_estrella(problema, heuristica):
     @return Un objeto tipo Nodo con la estructura completa
 
     """
-    #raise NotImplementedError('Hay que hacerlo de tarea \
-    #                          (problema 2 en el archivo busquedas.py)')
+
+    nodo_inicio = problema.nodo_inicio()
+    frontera = []
+    heapq.heappush(frontera, (heuristica(nodo_inicio), nodo_inicio))
+    visitados = {nodo_inicio.estado: nodo_inicio.costo}
+
+    while frontera:
+        _, nodo = heapq.heappop(frontera)  # Se extrae el nodo con menor costo f(n)
+        
+        if problema.es_meta(nodo.estado):
+            nodo.nodos_visitados = problema.num_nodos
+            return nodo
+
+        for hijo in nodo.expande(problema.modelo):
+            f_hijo = hijo.costo + heuristica(hijo)  # f(n) = g(n) + h(n)
+
+            # Si es un mejor camino
+            if hijo.estado not in visitados or visitados[hijo.estado] > hijo.costo:
+                heapq.heappush(frontera, (f_hijo, hijo))
+                visitados[hijo.estado] = hijo.costo
+    return None
