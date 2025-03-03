@@ -16,7 +16,7 @@ y conjuntos (como estructura de datos).
 
 ## Instrucciones:
 
-1. En el archivo `busquedas.py` se encuentra la clase abstracta `Problema` (para búsquedas), la clase `Nodo`, para la estructura de datos que nos ayudará en la búsqueda, así como ls 4 búsquedas no informadas más utilizadas: BFS, DFS, IDS y UCS. Estas búsquedas las vimos en clase y no vamos a repetir. 
+1. En el archivo `busquedas.py` se encuentra la clase abstracta `Problema` (para búsquedas), la clase `Nodo`, para la estructura de datos que nos ayudará en la búsqueda, así como las 4 búsquedas no informadas más utilizadas: BFS, DFS, IDS y UCS. Estas búsquedas las vimos en clase y no vamos a repetir. 
    
    En clase se dio un ejemplo de el uso de dichas búsquedas. Revisa y familiarizate con dichas clases y funciones. Si es necesario desarrolla un problema pequeñito para que las pruebes (el problema de los *misioneros y los canibales* es un ejemplo fácil de programar y fácil de aplicar).
    
