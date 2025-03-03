@@ -10,6 +10,8 @@ completamente observables
 
 """
 
+import busquedas 
+
 __author__ = 'juliowaissman'
 
 from collections import deque
@@ -284,7 +286,7 @@ def busqueda_A_estrella(problema, heuristica):
 
     """
 
-    nodo_inicio = problema.nodo_inicio()
+    nodo_inicio = busquedas.Nodo(problema.x0)
     frontera = []
     heapq.heappush(frontera, (heuristica(nodo_inicio), nodo_inicio))
     visitados = {nodo_inicio.estado: nodo_inicio.costo}

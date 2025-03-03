@@ -171,25 +171,110 @@ def probando(pos_ini):
 
 
 if __name__ == "__main__":
+    estado1 = (1, 0, 2, 3, 4, 5, 6, 7, 8)
+    estado2 = (5, 1, 3, 4, 0, 2, 6, 7, 8)
+    estado3 = (1, 7, 8, 2, 3, 4, 5, 6, 0)
+
     print("---------- Pruebas Default -------------")
-    probando((1, 0, 2, 3, 4, 5, 6, 7, 8))
+    probando(estado1)
 
     print("\n\n\ny con otro problema de 8 puzzle")
-    probando((5, 1, 3, 4, 0, 2, 6, 7, 8))
+    probando(estado2)
 
     print("\n\n\ny por último")
-    probando((1, 7, 8, 2, 3, 4, 5, 6, 0))
+    probando(estado3)
 
      # ------- A* con h1 ----------- 
     print("---------- Utilizando A* con h1 -------------")
-    problema = Ocho_puzzle((5, 1, 3, 4, 0, 2, 6, 7, 8))
+    print("------- 1 -------")
+    problema = Ocho_puzzle(estado1)
+    solucion = busquedas.busqueda_A_estrella(problema, h_1)
+    print(solucion)
+    print("Explorando {} nodos".format(solucion.nodos_visitados))
+
+    print("------- 2 -------")
+    problema = Ocho_puzzle(estado2)
+    solucion = busquedas.busqueda_A_estrella(problema, h_1)
+    print(solucion)
+    print("Explorando {} nodos".format(solucion.nodos_visitados))
+
+    print("------- 3 -------")
+    problema = Ocho_puzzle(estado3)
     solucion = busquedas.busqueda_A_estrella(problema, h_1)
     print(solucion)
     print("Explorando {} nodos".format(solucion.nodos_visitados))
 
     # ------- A* con h2 ----------- 
     print("---------- Utilizando A* con h2 -------------")
-    problema = Ocho_puzzle((1, 7, 8, 2, 3, 4, 5, 6, 0))
+    print("------- 1 -------")
+    problema = Ocho_puzzle(estado1)
     solucion = busquedas.busqueda_A_estrella(problema, h_2)
     print(solucion)
     print("Explorando {} nodos".format(solucion.nodos_visitados))
+
+    print("------- 2 -------")
+    problema = Ocho_puzzle(estado2)
+    solucion = busquedas.busqueda_A_estrella(problema, h_2)
+    print(solucion)
+    print("Explorando {} nodos".format(solucion.nodos_visitados))
+
+    print("------- 3 -------")
+    problema = Ocho_puzzle(estado3)
+    solucion = busquedas.busqueda_A_estrella(problema, h_2)
+    print(solucion)
+    print("Explorando {} nodos".format(solucion.nodos_visitados))
+
+'''
+estado1 = (1, 0, 2, 3, 4, 5, 6, 7, 8)
+    estado2 = (5, 1, 3, 4, 0, 2, 6, 7, 8)
+    estado3 = (1, 7, 8, 2, 3, 4, 5, 6, 0)
+
+    print("---------- Pruebas Default -------------")
+    probando(estado1)
+
+    print("\n\n\ny con otro problema de 8 puzzle")
+    probando(estado2)
+
+    print("\n\n\ny por último")
+    probando(estado3)
+
+     # ------- A* con h1 ----------- 
+    print("---------- Utilizando A* con h1 -------------")
+    print("------- 1 -------")
+    problema = Ocho_puzzle(estado1)
+    solucion = busquedas.busqueda_A_estrella(problema, h_1)
+    print(solucion)
+    print("Explorando {} nodos".format(solucion.nodos_visitados))
+
+    print("------- 2 -------")
+    problema = Ocho_puzzle(estado2)
+    solucion = busquedas.busqueda_A_estrella(problema, h_1)
+    print(solucion)
+    print("Explorando {} nodos".format(solucion.nodos_visitados))
+
+    print("------- 3 -------")
+    problema = Ocho_puzzle(estado3)
+    solucion = busquedas.busqueda_A_estrella(problema, h_1)
+    print(solucion)
+    print("Explorando {} nodos".format(solucion.nodos_visitados))
+
+    # ------- A* con h2 ----------- 
+    print("---------- Utilizando A* con h2 -------------")
+    print("------- 1 -------")
+    problema = Ocho_puzzle(estado1)
+    solucion = busquedas.busqueda_A_estrella(problema, h_2)
+    print(solucion)
+    print("Explorando {} nodos".format(solucion.nodos_visitados))
+
+    print("------- 2 -------")
+    problema = Ocho_puzzle(estado2)
+    solucion = busquedas.busqueda_A_estrella(problema, h_2)
+    print(solucion)
+    print("Explorando {} nodos".format(solucion.nodos_visitados))
+
+    print("------- 3 -------")
+    problema = Ocho_puzzle(estado3)
+    solucion = busquedas.busqueda_A_estrella(problema, h_2)
+    print(solucion)
+    print("Explorando {} nodos".format(solucion.nodos_visitados))
+    '''

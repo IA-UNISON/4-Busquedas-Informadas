@@ -194,28 +194,40 @@ class PblCuboRubik(busquedas.ProblemaBusqueda):
 
 # ------------------------------------------------------------
 #  Desarrolla una política admisible.
+#  Diseñadas para el problema MisionerosCanibales
 # ------------------------------------------------------------
 def h_1_problema_1(nodo):
     """
     DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
+    Heurística que cuenta cuántos misioneros y caníbales quedan en la orilla izquierda.
+    Como cada viaje mueve al menos una persona, este valor es una cota inferior del costo.
     """
-    return 0
+    M_izq, C_izq, bote, M_der, C_der = nodo.estado
+    return (M_izq + C_izq) // 2  # Cada cruce mueve hasta 2 personas
 
 
 # ------------------------------------------------------------
 #  Desarrolla otra política admisible.
 #  Analiza y di porque piensas que es (o no es) dominante una
-#  respecto otra política
+#  respecto otra política:
+#  
+#  
+#  
 # ------------------------------------------------------------
 def h_2_problema_1(nodo):
     """
     DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
+    Heurística basada en la cantidad mínima de cruces necesarios,
+    considerando que algunos viajes son de ida y vuelta.
     """
-    return 0
+    M_izq, C_izq, bote, M_der, C_der = nodo.estado
+    if M_izq + C_izq <= 2:
+        return 1  # Un solo cruce si quedan 2 o menos personas
+    return (2 * (M_izq + C_izq) - 3) // 2
 
 
 
@@ -269,6 +281,11 @@ if __name__ == "__main__":
     problema = PblCamionMagico(20)
     compara_metodos(problema, h_1_camion_magico, h_2_camion_magico) # <--- PONLE LOS PARÁMETROS QUE NECESITES
     
+    # 4 - Heuristicas Desarrolladas
+    print("---------- 4 - Heuristicas Propias -------------")
+    problema = busquedas.ProblemaBusqueda((3, 3, 1, 0, 0), lambda estado: estado == (0, 0, 0, 3, 3), MisionerosCanibales())
+    compara_metodos(problema, h_1_problema_1, h_2_problema_1)
+
     # Compara los métodos de búsqueda para el problema del cubo de rubik
     # con las heurísticas que desarrollaste
    # problema = PblCuboRubik( XXXXXXXXXX )  # <--- PONLE LOS PARÁMETROS QUE NECESITES
