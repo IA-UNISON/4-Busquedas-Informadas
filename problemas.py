@@ -174,6 +174,8 @@ def compara_metodos(problema, heuristica_1, heuristica_2):
     """
     solucion1 = busquedas.busqueda_A_estrella(problema, heuristica_1)
     solucion2 = busquedas.busqueda_A_estrella(problema, heuristica_2)
+    solucion3 = busquedas.busqueda_costo_uniforme(problema)
+    solucion4 = busquedas.busqueda_profundidad_iterativa(problema)
     
     print('-' * 50)
     print('Método'.center(12) + 'Costo'.center(18) + 'Nodos visitados'.center(20))
@@ -184,6 +186,12 @@ def compara_metodos(problema, heuristica_1, heuristica_2):
     print('A* con h2'.center(12) 
           + str(solucion2.costo).center(20) 
           + str(solucion2.nodos_visitados))
+    print('Busqueda a costo uniforme '.center(12) 
+          + str(solucion3.costo).center(20) 
+          + str(solucion3.nodos_visitados))
+    print('Busqueda a profundida iterativa '.center(12) 
+          + str(solucion4.costo).center(20) 
+          + str(solucion4.nodos_visitados))
     print('-' * 50 + '\n\n')
 
 
