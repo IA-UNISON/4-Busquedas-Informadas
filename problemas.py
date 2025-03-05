@@ -10,14 +10,12 @@ Tarea sobre búsquedas, donde lo que es importante es crear nuevas heurísticas
 
 import busquedas
 
-
-
 # ------------------------------------------------------------
 #  Desarrolla el modelo del Camión mágico
 # ------------------------------------------------------------
 
-class CamionMagico.busquedas.ModeloBusqueda):
-     """
+class CamionMagico(busquedas.ModeloBusqueda):
+    """
     ---------------------------------------------------------------------------------
      Supongamos que quiero trasladarme desde la posición discreta $1$ hasta 
      la posicion discreta $N$ en una vía recta usando un camión mágico. 
@@ -29,19 +27,18 @@ class CamionMagico.busquedas.ModeloBusqueda):
 
      Desarrollar la clase del modelo del camión mágico
     ----------------------------------------------------------------------------------
-    
+    Los estados son una tupla con un número que representa la posición. 
+    Las acciones legales son ['P', 'C'], 'P' es caminar a pie y 'C' es usar el camión.
+    ----------------------------------------------------------------------------------
     """
-    def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
-
     def acciones_legales(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return ['P','C']
 
     def sucesor(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return (estado[0] + (1 if accion == 'P' else estado[0]),)
 
     def costo_local(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return (1 if accion == 'P' else 2)
 
     @staticmethod
     def bonito(estado):
@@ -49,7 +46,7 @@ class CamionMagico.busquedas.ModeloBusqueda):
         El prettyprint de un estado dado
 
         """
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        print("Posicion: " + str(estado[0]))
  
 # ------------------------------------------------------------
 #  Desarrolla el problema del Camión mágico
@@ -61,9 +58,16 @@ class PblCamionMágico(busquedas.ProblemaBusqueda):
     punto $1$ hasta el punto $N$ en el menor tiempo posible.
 
     """
-    def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
-    
+    def __init__(self, N):
+        def es_meta(estado):
+            self.num_nodos += 1
+            return (estado[0] == N)
+            
+        self.es_meta = es_meta
+        self.x0 = (1,)
+        self.modelo = CamionMagico()
+        self.num_nodos = 0
+
 
 # ------------------------------------------------------------
 #  Desarrolla una política admisible.
@@ -96,7 +100,7 @@ def h_2_camion_magico(nodo):
 #  Desarrolla el modelo del cubo de Rubik
 # ------------------------------------------------------------
 
-class CuboRubik.busquedas.ModeloBusqueda):
+class CuboRubik(busquedas.ModeloBusqueda):
     """
     La clase para el modelo de cubo de rubik, documentación, no olvides poner
     la documentación de forma clara y concisa.
@@ -166,8 +170,8 @@ def h_2_problema_1(nodo):
 
 def compara_metodos(problema, heuristica_1, heuristica_2):
     """
-    Compara en un cuadro lo nodos expandidos y el costo de la solución
-    de varios métodos de búsqueda
+    Compara en un cuadro lo nodos expandidos y el costo 
+    de la solución de varios métodos de búsqueda,
 
     @param pos_inicial: Una tupla con una posicion inicial
     @param heuristica_1: Una función de heurística
@@ -184,14 +188,15 @@ def compara_metodos(problema, heuristica_1, heuristica_2):
     
     print('-' * 50)
     print('Método'.center(12) + 'Costo'.center(18) + 'Nodos visitados'.center(20))
-    print('-' * 50 + '\n\n')
+    print('-' * 50 )
     print('A* con h1'.center(12) 
           + str(solucion1.costo).center(18) 
-          + str(solucion1.nodos_visitados))
+          + str(solucion1.nodos_visitados).center(20))
     print('A* con h2'.center(12) 
-          + str(solucion2.costo).center(20) 
-          + str(solucion2.nodos_visitados))
-    print('-' * 50 + '\n\n')
+          + str(solucion2.costo).center(18)
+          + str(solucion2.nodos_visitados - solucion1.nodos_visitados).center(20))
+    print('-' * 50 + '\n')
+
 
 
 if __name__ == "__main__":
@@ -199,11 +204,11 @@ if __name__ == "__main__":
 
     # Compara los métodos de búsqueda para el problema del camión mágico
     # con las heurísticas que desarrollaste
-    problema = PblCamionMágico( XXXXXXXXXX )  # <--- PONLE LOS PARÁMETROS QUE NECESITES
+    problema = PblCamionMágico(1000)  # <--- PONLE LOS PARÁMETROS QUE NECESITES
     compara_metodos(problema, h_1_camion_magico, h_2_camion_magico)
     
     # Compara los métodos de búsqueda para el problema del cubo de rubik
     # con las heurísticas que desarrollaste
-    problema = PblCuboRubik( XXXXXXXXXX )  # <--- PONLE LOS PARÁMETROS QUE NECESITES
-    compara_metodos(problema, h_1_problema_1, h_2_problema_1)
+    # problema = PblCuboRubik( XXXXXXXXXX )  # <--- PONLE LOS PARÁMETROS QUE NECESITES
+    # compara_metodos(problema, h_1_problema_1, h_2_problema_1)
     
