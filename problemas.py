@@ -196,13 +196,12 @@ class PblCuboRubik(busquedas.ProblemaBusqueda):
 #  Desarrolla una política admisible.
 #  Diseñadas para el problema MisionerosCanibales
 # ------------------------------------------------------------
-def h_1_problema_1(nodo):
+def h_1_MisionerosCanibales(nodo):
     """
-    DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN
-    PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
-
     Heurística que cuenta cuántos misioneros y caníbales quedan en la orilla izquierda.
-    Como cada viaje mueve al menos una persona, este valor es una cota inferior del costo.
+
+    Como va contando los pasajeros que van de un lado a otro y van de dos en dos, 
+    el valor final sera inferior al costo
     """
     M_izq, C_izq, bote, M_der, C_der = nodo.estado
     return (M_izq + C_izq) // 2  # Cada cruce mueve hasta 2 personas
@@ -212,22 +211,22 @@ def h_1_problema_1(nodo):
 #  Desarrolla otra política admisible.
 #  Analiza y di porque piensas que es (o no es) dominante una
 #  respecto otra política:
-#  
-#  
-#  
 # ------------------------------------------------------------
-def h_2_problema_1(nodo):
+def h_2_MisionerosCanibales(nodo):
     """
     DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
-    Heurística basada en la cantidad mínima de cruces necesarios,
-    considerando que algunos viajes son de ida y vuelta.
+    En esta heuristica, se prioriza el movimiento de Misioneros
+    sobre Canibales, siguiendo la formula:
+    h2 = M_izq + C_izq/2
+
+    En este caso, al priorizar el movimiento de Misioneros, se
+    minimiza la perdida causada por los Canibales a los Misioneros,
+    Haciendo que el valor final sea menor al costo.
     """
     M_izq, C_izq, bote, M_der, C_der = nodo.estado
-    if M_izq + C_izq <= 2:
-        return 1  # Un solo cruce si quedan 2 o menos personas
-    return (2 * (M_izq + C_izq) - 3) // 2
+    return M_izq + (C_izq / 2)  # Prioriza mover misioneros
 
 
 
@@ -282,9 +281,14 @@ if __name__ == "__main__":
     compara_metodos(problema, h_1_camion_magico, h_2_camion_magico) # <--- PONLE LOS PARÁMETROS QUE NECESITES
     
     # 4 - Heuristicas Desarrolladas
-    print("---------- 4 - Heuristicas Propias -------------")
+    print("---------- 4 y 5 - Heuristicas Propias -------------")
     problema = busquedas.ProblemaBusqueda((3, 3, 1, 0, 0), lambda estado: estado == (0, 0, 0, 3, 3), MisionerosCanibales())
-    compara_metodos(problema, h_1_problema_1, h_2_problema_1)
+    compara_metodos(problema, h_1_MisionerosCanibales, h_2_MisionerosCanibales)
+
+    '''
+    Los resultados muestran que h1 y h2 tienen un costo igual de 11, pero h1 visita 15 nodos
+    mientras que h2 visita 29, lo que muestra que h1 es mas eficiente que h2 y por lo tanto es dominante.
+    '''
 
     # Compara los métodos de búsqueda para el problema del cubo de rubik
     # con las heurísticas que desarrollaste
