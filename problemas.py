@@ -100,6 +100,8 @@ def heuristicas_cambion_magico(N):
         siempre es menor que con la heurística 0, asi que voy a suponer
         que probablemente si funcione pero no lo aseguro y no entiendo
         porque.
+
+        No tengo claro si esta heurística es admisible.
         """
         arg = N / nodo.estado[0]
         return (2*math.log(arg , 2) if arg > 1 else abs(N - nodo.estado[0]))
@@ -116,23 +118,31 @@ def heuristicas_cambion_magico(N):
         ----------------------------------------------------------
         La idea de esta heurística es que para encontrar el camino
         mas corto de 1 hasta N es tomar el camino más corto de 1 
-        hasta N/2, caminar un paso si N es impar y tomar el camión,
+        hasta N/2, caminar un paso si N es impar y tomar el camión.
         
         Aunque si ya estoy después de N/2, por ejemplo si estoy en 
         9 y quiero llegar a 16, no puedo retroceder, asi que nomas
         me queda caminar.
 
+        Si ya me pasé no puedo llegar, entonces pongo costo infinito.
 
+        El costo que estoy calculando es el costo real, ignorando 
+        cuando ya me pasé de la meta, por lo que se cumple que 
+        para todo n, h2(n) <= h*(n).
         """
-        estado = nodo.estado[0]    
+        
+        estado = nodo.estado[0]
+        
+        if estado > N:
+            return float('inf')
+
         costo = 0
         x, y = N // 2 , N
 
         # cada iteración agrega el coste para ir de `x a `y
         while estado <= x and x > 1:
-            costo += 2 + y % 2
-            y = x
-            x = x // 2
+             costo += 2 + y % 2
+             y, x = x, x//2
 
         return costo + y - estado # agrego el costo de caminar de `estado a `y
 
@@ -249,7 +259,8 @@ if __name__ == "__main__":
     # Compara los métodos de búsqueda para el problema del camión mágico
     # con las heurísticas que desarrollaste
 
-    N = 3
+    # La meta a donde quiero llegar
+    N = 100
     problema = PblCamionMágico(N)  # <--- PONLE LOS PARÁMETROS QUE NECESITES
     h1_camion_magico, h2_camion_magico = heuristicas_cambion_magico(N)
     compara_metodos(problema, h1_camion_magico, h2_camion_magico)
