@@ -9,6 +9,7 @@ Tarea sobre búsquedas, donde lo que es importante es crear nuevas heurísticas
 """
 
 import busquedas
+import math
 
 # ------------------------------------------------------------
 #  Desarrolla el modelo del Camión mágico
@@ -62,7 +63,7 @@ class PblCamionMágico(busquedas.ProblemaBusqueda):
         def es_meta(estado):
             self.num_nodos += 1
             return (estado[0] == N)
-            
+
         self.es_meta = es_meta
         self.x0 = (1,)
         self.modelo = CamionMagico()
@@ -72,29 +73,58 @@ class PblCamionMágico(busquedas.ProblemaBusqueda):
 # ------------------------------------------------------------
 #  Desarrolla una política admisible.
 # ------------------------------------------------------------
+def heuristicas_cambion_magico(N):
+    def h1(nodo):
+        """
+        DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN
+        PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
+        --------------------------------------------------------------
+        La idea de esta heurística es que por por ejemplo si estoy en 
+        la posición x y debo llegar a la posición 2x, a excepcion de 
+        cuando x es 1, el costo va a ser 2 al usar el camión.
 
-def h_1_camion_magico(nodo):
-    """
-    DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN
-    PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
+        Si estoy en 3 y quiero llegar a 12 debo duplicar dos veces, por
+        eso hago math.log(N/nodo.estado[0],2), luego lo multiplico por 2 
+        porque ese es el costo de tomar el camión.
 
-    """
-    return 0
+        Hago la condición de que esto solo sea cuando arg >= 1 porque si no 
+        salen números negativos, que sería cuando N < nodo.estado[0], 
+        en ese caso ya no se debería poder llegar a la meta.
+
+        abs(N - nodo.estado[0]) estaba pensando que era porque cuando
+        estoy despues de la mitad del camino, por ejemplo estoy en 9 y 
+        quiero llegar a 16 no puedo duplicar, y que cuando me pasó de N
+        siga aumentando o algo así, pero esto lo devuelvo nomas cuando
+        me pasé de N, así que en realidad no tengo justificación, pero
+        al correrlo el número de nodos explorados con N de 1 hasta 1000
+        siempre es menor que con la heurística 0, asi que voy a suponer
+        que probablemente si funcione pero no lo aseguro y no entiendo
+        porque.
+        """
+        arg = N / nodo.estado[0]
+        return (2*math.log(arg , 2) if arg > 1 else abs(N - nodo.estado[0]))
+    # ------------------------------------------------------------
+    #  Desarrolla otra política admisible.
+    #  Analiza y di porque piensas que es (o no es) dominante una
+    #  respecto otra política
+    # ------------------------------------------------------------
+
+    def h2(nodo):
+        """
+        DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN
+        PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
+
+        """
+        acc = 0
+        estado = nodo.estado[0]
 
 
-# ------------------------------------------------------------
-#  Desarrolla otra política admisible.
-#  Analiza y di porque piensas que es (o no es) dominante una
-#  respecto otra política
-# ------------------------------------------------------------
+        return 0
 
-def h_2_camion_magico(nodo):
-    """
-    DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN
-    PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
+    return (h1, h2)
 
-    """
-    return 0
+
+
 
 # ------------------------------------------------------------
 #  Desarrolla el modelo del cubo de Rubik
@@ -201,12 +231,13 @@ def compara_metodos(problema, heuristica_1, heuristica_2):
 
 if __name__ == "__main__":
 
-
     # Compara los métodos de búsqueda para el problema del camión mágico
     # con las heurísticas que desarrollaste
-    problema = PblCamionMágico(1000)  # <--- PONLE LOS PARÁMETROS QUE NECESITES
-    compara_metodos(problema, h_1_camion_magico, h_2_camion_magico)
-    
+    N = 100
+    problema = PblCamionMágico(N)  # <--- PONLE LOS PARÁMETROS QUE NECESITES
+    h1_camion_magico, h2_camion_magico = heuristicas_cambion_magico(N)
+    compara_metodos(problema, h1_camion_magico, h2_camion_magico)
+
     # Compara los métodos de búsqueda para el problema del cubo de rubik
     # con las heurísticas que desarrollaste
     # problema = PblCuboRubik( XXXXXXXXXX )  # <--- PONLE LOS PARÁMETROS QUE NECESITES
