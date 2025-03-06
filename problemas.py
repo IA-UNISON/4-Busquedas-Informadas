@@ -113,13 +113,28 @@ def heuristicas_cambion_magico(N):
         """
         DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN
         PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
+        ----------------------------------------------------------
+        La idea de esta heurística es que para encontrar el camino
+        mas corto de 1 hasta N es tomar el camino más corto de 1 
+        hasta N/2, caminar un paso si N es impar y tomar el camión,
+        
+        Aunque si ya estoy después de N/2, por ejemplo si estoy en 
+        9 y quiero llegar a 16, no puedo retroceder, asi que nomas
+        me queda caminar.
+
 
         """
-        acc = 0
-        estado = nodo.estado[0]
+        estado = nodo.estado[0]    
+        costo = 0
+        x, y = N // 2 , N
 
+        # cada iteración agrega el coste para ir de `x a `y
+        while estado <= x and x > 1:
+            costo += 2 + y % 2
+            y = x
+            x = x // 2
 
-        return 0
+        return costo + y - estado # agrego el costo de caminar de `estado a `y
 
     return (h1, h2)
 
@@ -233,7 +248,8 @@ if __name__ == "__main__":
 
     # Compara los métodos de búsqueda para el problema del camión mágico
     # con las heurísticas que desarrollaste
-    N = 100
+
+    N = 3
     problema = PblCamionMágico(N)  # <--- PONLE LOS PARÁMETROS QUE NECESITES
     h1_camion_magico, h2_camion_magico = heuristicas_cambion_magico(N)
     compara_metodos(problema, h1_camion_magico, h2_camion_magico)
