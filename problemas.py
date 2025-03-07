@@ -231,13 +231,23 @@ class CuboRubik(busquedas.ModeloBusqueda):
     de poner el símbolo `.
 
     """
-    def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+    # def __init__(self):
+    #     raise NotImplementedError('Hay que hacerlo de tarea')
 
     def acciones_legales(self, estado):
         return ('F', 'f', 'B', 'b', 'R', 'r', 'U', 'u', 'L', 'l', 'D', 'd')
 
+    def rotar(cara, estado):
+        x = cara*8
+        for i in range(2):
+            temp = estado[x + i]
+            estado[x + i] = estado[x + i + 6]
+            estado[x + i + 6] = estado[x + i + 4]
+            estado[x + i + 4] = estado[x + i + 2]
+            estado[x + i + 2] = temp
+
     def sucesor(self, estado, accion):
+
         estado = list(estado)
         if accion == 'F':
             for i in range(3):
@@ -246,6 +256,20 @@ class CuboRubik(busquedas.ModeloBusqueda):
                 estado[40+i] = estado[24+(6+i)%8]
                 estado[24+(6+i)%8] = estado[20+i]
                 estado[20+i] = temp
+
+   #         +========+
+   #         ║16 17 18║
+   #         ║23    19║
+   #         ║22 21 20║
+   # +=======+========+========+========+
+   # ║ 0 1 2 ║ 8  9 10║24 25 26║32 33 34║
+   # ║ 7   3 ║15    11║31    27║39    35║
+   # ║ 6 5 4 ║14 13 12║30 29 28║38 37 36║
+   # +=======+========+========+========+
+   #         ║40 41 42║
+   #         ║47    43║
+   #         ║46 45 44║
+   #         +========+            
 
         elif accion == 'f':
             for i in range(3):
@@ -336,6 +360,7 @@ class CuboRubik(busquedas.ModeloBusqueda):
                 estado[36+i] = temp
 
 
+        return tuple(estado)
     @staticmethod
     def bonito(estado):
         """
@@ -408,8 +433,26 @@ class PblCuboRubik(busquedas.ProblemaBusqueda):
     El problema a resolver es establecer un plan para resolver el cubo de rubik.
 
     """
-    def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+    def __init__(self, x0 =(0,0,0,0,0,0,0,0,
+                            1,1,1,1,1,1,1,1,
+                            2,2,2,2,2,2,2,2,
+                            3,3,3,3,3,3,3,3,
+                            4,4,4,4,4,4,4,4,
+                            5,5,5,5,5,5,5,5)):
+
+
+        self.x0 = x0
+        self.modelo = CuboRubik()
+        self.num_nodos = 0
+
+    def es_meta(estado):
+        self.num_nodos += 1
+        for i in range(6):
+            for j in range(8):
+                if estado[i*8 + j] != i:
+                    return false
+        return true
+
  
 
 # ------------------------------------------------------------
