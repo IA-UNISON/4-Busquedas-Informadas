@@ -73,7 +73,7 @@ class PblCamionMágico(busquedas.ProblemaBusqueda):
 # ------------------------------------------------------------
 #  Desarrolla una política admisible.
 # ------------------------------------------------------------
-def heuristicas_cambion_magico(N):
+def heuristicas_camion_magico(N):
     def h1(nodo):
         """
         DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN
@@ -162,12 +162,64 @@ class CuboRubik(busquedas.ModeloBusqueda):
     
     https://en.wikipedia.org/wiki/Rubik%27s_Cube
     
+    Los estados lo representaré como una tupla que la voy a pensar
+    como una matriz de 6x8.
+
+    Cada cara tiene un color número que indica que color va ahi, 
+    por ejemplo la cara 1 tiene que tener todos las piezas de color 1.
+
+    Las caras van a ser las siguientes:
+
+           . = = = .
+           |       |
+           |   2   |
+           |       |
+   . = = = . = = = . = = = . = = = .
+   |       |       |       |       |
+   |   0   |   1   |   3   |   4   |
+   |       |       |       |       |
+   . = = = . = = = . = = = . = = = .
+           |       |
+           |   5   |
+           |       |
+           . = = = .
+
+    Cada cara va a tener los índices de la siguiente manera para 
+    representar las piezas:
+
+           . = = = .
+           | 0 1 2 |
+           | 7   3 |
+           | 6 5 4 |
+           . = = = .
+
+    El estado va a ser entonces una tupla con 48 números, el
+    número guardado va a representar el color que está en dicha
+    posición, por ejemplo un cubo resuelto sería la siguiente tupla:
+        (0,0,0,0,0,0,0,0,
+         1,1,1,1,1,1,1,1,
+         2,2,2,2,2,2,2,2,
+         3,3,3,3,3,3,3,3,
+         4,4,4,4,4,4,4,4,
+         5,5,5,5,5,5,5,5)
+
+    Las son (F, B, R, U,  L, D, f, b, r, u, l, d)
+
+    Estas letras corresponden a front, back, right, up, left y down,
+    las mayúsculas significan que el movimiento se hace en sentido 
+    del reloj y las minúsculas en sentido contrario contrario.
+
+    Esta notación es parecida a la de Singmaster pero uso
+    minúsculas para indicar un movimiento invertdio en lugar 
+    de poner el símbolo `.
+
+
     """
     def __init__(self):
         raise NotImplementedError('Hay que hacerlo de tarea')
 
     def acciones_legales(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return (F, f, B, b, R, r, U, u, L, l, D, d)
 
     def sucesor(self, estado, accion):
         raise NotImplementedError('Hay que hacerlo de tarea')
@@ -260,9 +312,11 @@ if __name__ == "__main__":
     # con las heurísticas que desarrollaste
 
     # La meta a donde quiero llegar
-    N = 100
+    N = 10000
     problema = PblCamionMágico(N)  # <--- PONLE LOS PARÁMETROS QUE NECESITES
-    h1_camion_magico, h2_camion_magico = heuristicas_cambion_magico(N)
+    h1_camion_magico, h2_camion_magico = heuristicas_camion_magico(N)
+    # Al comparar los métodos h2 checa muchos menos nodos comparado con h1,
+    # por lo que creo que h2 es dominante sobre h1
     compara_metodos(problema, h1_camion_magico, h2_camion_magico)
 
     # Compara los métodos de búsqueda para el problema del cubo de rubik
