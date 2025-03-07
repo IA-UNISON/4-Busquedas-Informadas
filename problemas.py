@@ -165,6 +165,21 @@ class CuboRubik(busquedas.ModeloBusqueda):
     Los estados lo representaré como una tupla que la voy a pensar
     como una matriz de 6x8.
 
+           +========+
+           ║16 17 18║
+           ║23    19║
+           ║22 21 20║
+   +=======+========+========+========+
+   ║ 0 1 2 ║ 8  9 10║24 25 26║32 33 34║
+   ║ 7   3 ║15    11║31    27║39    35║
+   ║ 6 5 4 ║14 13 12║30 29 28║38 37 36║
+   +=======+========+========+========+
+           ║40 41 42║
+           ║47    43║
+           ║46 45 44║
+           +========+
+
+
     Cada cara tiene un color número que indica que color va ahi, 
     por ejemplo la cara 1 tiene que tener todos las piezas de color 1.
 
@@ -193,6 +208,8 @@ class CuboRubik(busquedas.ModeloBusqueda):
            | 6 5 4 |
            . = = = .
 
+    El centro va a tener un color fijo.
+
     El estado va a ser entonces una tupla con 48 números, el
     número guardado va a representar el color que está en dicha
     posición, por ejemplo un cubo resuelto sería la siguiente tupla:
@@ -203,29 +220,121 @@ class CuboRubik(busquedas.ModeloBusqueda):
          4,4,4,4,4,4,4,4,
          5,5,5,5,5,5,5,5)
 
-    Las son (F, B, R, U,  L, D, f, b, r, u, l, d)
+    Las acciones son (F, B, R, U,  L, D, f, b, r, u, l, d)
 
     Estas letras corresponden a front, back, right, up, left y down,
     las mayúsculas significan que el movimiento se hace en sentido 
-    del reloj y las minúsculas en sentido contrario contrario.
+    del reloj y las minúsculas en sentido contrario.
 
     Esta notación es parecida a la de Singmaster pero uso
     minúsculas para indicar un movimiento invertdio en lugar 
     de poner el símbolo `.
-
 
     """
     def __init__(self):
         raise NotImplementedError('Hay que hacerlo de tarea')
 
     def acciones_legales(self, estado):
-        return (F, f, B, b, R, r, U, u, L, l, D, d)
+        return ('F', 'f', 'B', 'b', 'R', 'r', 'U', 'u', 'L', 'l', 'D', 'd')
 
     def sucesor(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        estado = list(estado)
+        if accion == 'F':
+            for i in range(3):
+                temp = estado[2+i]
+                estado[2+i] = estado[40+i]
+                estado[40+i] = estado[24+(6+i)%8]
+                estado[24+(6+i)%8] = estado[20+i]
+                estado[20+i] = temp
 
-    def costo_local(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        elif accion == 'f':
+            for i in range(3):
+                temp = estado[2+i]
+                estado[2+i] = estado[20+i]
+                estado[20+i] = estado[24+(6+i)%8]
+                estado[24+(6+i)%8] = estado[40+i]
+                estado[40+i] = temp
+
+        elif accion == 'B':
+            for i in range(3):
+                temp = estado[(6+i)%8]
+                estado[(6+i)%8] = estado[16+i]
+                estado[16+i] = estado[26+i]
+                estado[26+i] = estado[44+i]
+                estado[44+i] = temp
+
+        elif accion == 'b':
+            for i in range(3):
+                temp = estado[(6+i)%8]
+                estado[(6+i)%8] = estado[44+i]
+                estado[44+i] = estado[26+i]
+                estado[26+i] = estado[16+i]
+                estado[16+i] = temp
+
+        elif accion == 'R':
+            for i in range(3):
+                temp = estado[10+i]
+                estado[10+i] = estado[42+i]
+                estado[42+i] = estado[32+(6+i)%8]
+                estado[32+(6+i)%8] = estado[18+i]
+                estado[18+i] = temp
+
+        elif accion == 'r':
+            for i in range(3):
+                temp = estado[10+i]
+                estado[10+i] = estado[18+i]
+                estado[18+i] = estado[32+(6+i)%8]
+                estado[32+(6+i)%8] = estado[42+i]
+                estado[42+i] = temp
+
+        elif accion == 'U':
+            for i in range(3):
+                temp = estado[i]
+                estado[i] = estado[8+i]
+                estado[8+i] = estado[24+i]
+                estado[24+i] = estado[32+i]
+                estado[32+i] = temp
+        
+        elif accion == 'u':
+            for i in range(3):
+                temp = estado[i]
+                estado[i] = estado[32+i]
+                estado[32+i] = estado[24+i]
+                estado[24+i] = estado[8+i]
+                estado[8+i] = temp
+        
+        elif accion == 'L':
+            for i in range(3):
+                temp = estado[8+(6+i)%8]
+                estado[8+(6+i)%8] = estado[16+(6+i)%8]
+                estado[16+(6+i)%8] = estado[34+i]
+                estado[34+i] = estado[40+(6+i)%8]
+                estado[40+(6+i)%8] = temp
+
+        elif accion == 'l':
+            for i in range(3):
+                temp = estado[8+(6+i)%8]
+                estado[8+(6+i)%8] = estado[40+(6+i)%8]
+                estado[40+(6+i)%8] = estado[34+i]
+                estado[34+i] = estado[16+(6+i)%8]
+                estado[16+(6+i)%8] = temp
+
+        elif accion == 'D':
+            for i in range(3):
+                temp = estado[4+i]
+                estado[4+i] = estado[36+i]
+                estado[36+i] = estado[28+i]
+                estado[28+i] = estado[12+i]
+                estado[12+i] = temp
+
+        elif accion == 'd':
+            for i in range(3):
+                temp = estado[4+i]
+                estado[4+i] = estado[12+i]
+                estado[12+i] = estado[28+i]
+                estado[28+i] = estado[36+i]
+                estado[36+i] = temp
+
 
     @staticmethod
     def bonito(estado):
@@ -233,9 +342,64 @@ class CuboRubik(busquedas.ModeloBusqueda):
         El prettyprint de un estado dado
 
         """
-        raise NotImplementedError('Hay que hacerlo de tarea')
- 
- # ------------------------------------------------------------
+        print(' '*8 + '+' + '='*7, end='+')
+        
+        print(' '*8 + '║', end=' ')
+        for i in (16,17,18):
+            print(estado[i], end=' ')
+        print('║')
+
+        print(' '*8 + '║', end=' ')
+        print(str(estado[23]) + ' '*3 + str(estado[19]) + ' ║')
+
+        print(' '*8 + '║', end=' ')
+        for i in (22,21,20):
+            print(estado[i], end=' ')
+        print('║')
+
+        for i in range(4):
+            print('+' + '='*7, end='')
+        print('+')
+
+        for i in (0,8,24,32):
+            print('║', end=' ')
+            for j in range(3):
+                print(estado[i+j], end=' ')
+        print('║')
+
+        for i in (7,15,31,39):
+            print('║ ' + str(estado[i]), end='')
+            print(' '*3 + str(estado[i-4]), end=' ')
+        print('║')
+
+        for i in (6,14,30,38):
+            print('║', end=' ')
+            for j in range(3):
+                print(estado[i-j], end=' ')
+        print('║')
+
+        for i in range(4):
+            print('+' + '='*7, end='')
+        print('+')
+        
+        ##
+
+        print(' '*8 + '║ ', end='')
+        for i in (40,41,42):
+            print(estado[i], end=' ')
+        print('║')
+
+        print(' '*8 + '║ ', end='')
+        print(str(estado[47]) + ' '*3 + str(estado[43]) + ' ║')
+
+        print(' '*8 + '║ ', end='')
+        for i in (46,45,44):
+            print(estado[i], end=' ')
+        print('║')
+
+        print(' '*8 + '+' + '='*7, end='+')
+
+# ------------------------------------------------------------
 #  Desarrolla el problema del Cubo de Rubik
 # ------------------------------------------------------------
 
