@@ -60,8 +60,28 @@ class PblCamionMágico(busquedas.ProblemaBusqueda):
     punto $1$ hasta el punto $N$ en el menor tiempo posible.
 
     """
-    def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+    def __init__(self, n):
+        assert n >=1, "El número de pasajeros debe ser mayor o igual que 1"
+        self.estado_inicial = 1
+        self.n = n
+        self.modelo = CamionMagico(n)
+
+    def es_meta(self, estado):
+        """Verifca si el estado actual es meta"""
+    
+        return estado == self.n
+    
+    def acciones_legales(self, estado):
+        """Devuelve las acciones legales"""
+        return self.modelo.acciones_legales(estado)
+    
+    def sucesor(self, estado, accion):
+        """Devuelve el estado sucesor"""
+        return self.modelo.sucesor(estado, accion)
+    
+    def costo_local(self, estado, accion):
+        """Devuelve el costo local"""
+        return self.modelo.costo_local(estado, accion)
     
 
 # ------------------------------------------------------------
@@ -74,7 +94,15 @@ def h_1_camion_magico(nodo):
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
     """
-    return 0
+    estado = nodo.estado
+    n = nodo.problema.n
+    pasos = 0
+
+    while estado * 2 <= n:
+        estado *= 2
+        pasos += 1
+    pasos += (n - estado)
+    return pasos
 
 
 # ------------------------------------------------------------
@@ -89,7 +117,28 @@ def h_2_camion_magico(nodo):
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
     """
-    return 0
+    
+    """
+    Mejora sobre h_1: Permite caminar algunos pasos antes de empezar a duplicar,
+    reduciendo el número total de movimientos en ciertos casos.
+    """
+    estado = nodo.estado
+    n = nodo.problema.n
+    pasos = 0
+    
+    # Opcionalmente caminar algunos pasos antes de duplicar
+    while (estado % 2 != 0) and (estado < n):
+        estado += 1
+        pasos += 1
+    
+    # Ahora, realizar las duplicaciones
+    while estado * 2 <= n:
+        estado *= 2
+        pasos += 1
+    
+    # Pasos restantes para llegar exactamente a N
+    pasos += (n - estado)
+    return pasos
 
 # ------------------------------------------------------------
 #  Desarrolla el modelo del cubo de Rubik
@@ -145,23 +194,18 @@ def h_1_problema_1(nodo):
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
     """
-    return 0
-
-
 # ------------------------------------------------------------
 #  Desarrolla otra política admisible.
 #  Analiza y di porque piensas que es (o no es) dominante una
 #  respecto otra política
 # ------------------------------------------------------------
+
 def h_2_problema_1(nodo):
     """
     DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
     """
-    return 0
-
-
 
 def compara_metodos(problema, heuristica_1, heuristica_2):
     """
@@ -198,11 +242,12 @@ if __name__ == "__main__":
 
     # Compara los métodos de búsqueda para el problema del camión mágico
     # con las heurísticas que desarrollaste
-    problema = PblCamionMágico( XXXXXXXXXX )  # <--- PONLE LOS PARÁMETROS QUE NECESITES
+    n = 20
+    problema = PblCamionMágico(20)  # <--- PONLE LOS PARÁMETROS QUE NECESITES
     compara_metodos(problema, h_1_camion_magico, h_2_camion_magico)
     
-    # Compara los métodos de búsqueda para el problema del cubo de rubik
-    # con las heurísticas que desarrollaste
-    problema = PblCuboRubik( XXXXXXXXXX )  # <--- PONLE LOS PARÁMETROS QUE NECESITES
-    compara_metodos(problema, h_1_problema_1, h_2_problema_1)
+    # # Compara los métodos de búsqueda para el problema del cubo de rubik
+    # # con las heurísticas que desarrollaste
+    # problema = PblCuboRubik( XXXXXXXXXX )  # <--- PONLE LOS PARÁMETROS QUE NECESITES
+    # compara_metodos(problema, h_1_problema_1, h_2_problema_1)
     
