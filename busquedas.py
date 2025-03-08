@@ -99,14 +99,19 @@ class ProblemaBusqueda:
 class Nodo:
     """
     Clase para implementar un árbol como estructura de datos.
-
     """
-    def __init__(self, estado, accion=None, padre=None, costo_local=0):
+    def __init__(self, estado, problema, accion=None, padre=None, costo_local=0):
         """
         Inicializa un nodo como una estructura
 
+        @param estado: El estado del nodo.
+        @param problema: El problema que se está resolviendo.
+        @param accion: La acción que llevó a este nodo.
+        @param padre: El nodo padre.
+        @param costo_local: El costo local de alcanzar este nodo.
         """
         self.estado = estado
+        self.problema = problema
         self.accion = accion
         self.padre = padre
         self.costo = 0 if not padre else padre.costo + costo_local
@@ -120,11 +125,11 @@ class Nodo:
         @param modelo: Un objeto de una clase heredada de ModeloBusqueda
 
         @return: Una lista de posibles nodos sucesores
-
         """
         return (
             Nodo(
                 modelo.sucesor(self.estado, a),
+                self.problema,  # Pasamos el problema a los nodos hijos
                 a,
                 self,
                 modelo.costo_local(self.estado, a))
@@ -134,8 +139,7 @@ class Nodo:
         """
         Genera el plan (parcial o completo) que representa el nodo.
 
-        @return: Una lista [(x0, c0), a1, (x1, c1), a2, (x2, c2), ..., aT, (xT, cT)], donde los x0, x1, ..., xT son tuplas con los estados a cada paso del plan, c0, c1, ..., cT es el costo total hasta ese momento del plan, a1, a2, ..., aT son las acciónes que hay que implementar para llegar desde el estado inicial x0 hasta el testado final xT
-
+        @return: Una lista con el plan generado
         """
         return ([(self.estado, self.costo)] if not self.padre else
                 (self.padre.genera_plan() 
@@ -144,7 +148,6 @@ class Nodo:
     def __str__(self):
         """
         Muestra el nodo como lo que es en realidad, un plan.
-
         """
         plan = self.genera_plan()
         return (f"Costo: {self.costo}\n" +
@@ -154,10 +157,12 @@ class Nodo:
                          for (x, a, xp)
                          in zip(plan[:-1:2], plan[1::2], plan[2::2])]))
 
-    # Este método de sobrecarga del operador < es necesario
-    # para poder utilizar los nodos en la heapq
     def __lt__(self, other):
+        """
+        Sobrecarga del operador < para poder usar los nodos en la heapq.
+        """
         return self.profundidad < other.profundidad
+
 
 
 def busqueda_ancho(problema):
@@ -283,5 +288,21 @@ def busqueda_A_estrella(problema, heuristica):
     @return Un objeto tipo Nodo con la estructura completa
 
     """
-    raise NotImplementedError('Hay que hacerlo de tarea \
-                              (problema 2 en el archivo busquedas.py)')
+    frontera = []
+    nodo_inicial = Nodo(problema.x0)
+    heapq.heappush(frontera, (heuristica(nodo_inicial),nodo_inicial))
+    visitados = {problema.x0: 0}
+
+    while frontera:
+        _, nodo = heapq.heappop(frontera)  # Extrae el nodo con menor f(n)
+
+        if problema.es_meta(nodo.estado):  # Si es la meta, regresa la solución
+            nodo.nodos_visitados = problema.num_nodos
+            return nodo
+
+        for hijo in nodo.expande(problema.modelo):
+            costo_hijo = hijo.costo + heuristica(hijo)  # f(n) = g(n) + h(n)
+            
+            if hijo.estado not in visitados or visitados[hijo.estado] > hijo.costo:
+                heapq.heappush(frontera, (costo_hijo, hijo))
+                visitados[hijo.estado] = hijo.costo
