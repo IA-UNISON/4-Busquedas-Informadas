@@ -158,27 +158,37 @@ class CuboRubik(busquedas.ModeloBusqueda):
     la documentación de forma clara y concisa.
     
     https://en.wikipedia.org/wiki/Rubik%27s_Cube
+
+    El cubo estara compuesto de 6 listas de valores enumeradas de 0 a 5,
+    donde la lista 0 sera la cara frontal de este y 4 y 5 seran las
+    caras inferior y superior respectivamente. Los caracteres de las 6 
+    listas representan un color:
+
+    A = Azul
+    R = Rojo
+    V = Verde
+    N = Naranja
+    B = Blanco
+    C = Cafe
+
     
     """
     def __init__(self):
         raise NotImplementedError('Hay que hacerlo de tarea')
 
     def acciones_legales(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        aux = A
 
     def sucesor(self, estado, accion):
         raise NotImplementedError('Hay que hacerlo de tarea')
 
     def costo_local(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
-
-    @staticmethod
-    def bonito(estado):
-        """
-        El prettyprint de un estado dado
-
-        """
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        normal = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}
+        giro = {12, 13}
+        if accion in normal:
+            return 1
+        if accion in giro:
+            return 3
  
 # ------------------------------------------------------------
 #  Desarrolla el problema del Cubo de Rubik
