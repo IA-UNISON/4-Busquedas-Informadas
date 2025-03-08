@@ -16,32 +16,32 @@ import busquedas
 #  Desarrolla el modelo del Camión mágico
 # ------------------------------------------------------------
 
-class CamionMagico.busquedas.ModeloBusqueda):
-     """
-    ---------------------------------------------------------------------------------
-     Supongamos que quiero trasladarme desde la posición discreta $1$ hasta 
-     la posicion discreta $N$ en una vía recta usando un camión mágico. 
-    
-     Puedo trasladarme de dos maneras:
-      1. A pie, desde el punto $x$ hasta el punto $x + 1$ en un tiempo de 1 minuto.
-      2. Usando un camión mágico, desde el punto $x$ hasta el punto $2x$ con un tiempo 
-         de 2 minutos.
-
-     Desarrollar la clase del modelo del camión mágico
-    ----------------------------------------------------------------------------------
-    
-    """
-    def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+class CamionMagico(busquedas.ModeloBusqueda):
+    def __init__(self, n):
+        assert n >=1, "El número de pasajeros debe ser mayor o igual que 1"
+        self.n = n
 
     def acciones_legales(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
-
+        a = []
+        if estado < self.n:
+            a.append('camina')
+        if 2 * estado <= self.n:
+            a.append('pasa')
+        return a
+    
     def sucesor(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        if accion == 'camina':
+            return estado + 1
+        if accion == 'pasa':
+            return 2 * estado
+        raise ValueError('Acción no válida')
 
     def costo_local(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        if accion == 'camina':
+            return 1
+        if accion == 'pasa':
+            return 2
+        raise ValueError('Acción no válida')
 
     @staticmethod
     def bonito(estado):
@@ -49,8 +49,7 @@ class CamionMagico.busquedas.ModeloBusqueda):
         El prettyprint de un estado dado
 
         """
-        raise NotImplementedError('Hay que hacerlo de tarea')
- 
+        return f"Estado actual :  {estado} pasajeros"
 # ------------------------------------------------------------
 #  Desarrolla el problema del Camión mágico
 # ------------------------------------------------------------
@@ -96,7 +95,7 @@ def h_2_camion_magico(nodo):
 #  Desarrolla el modelo del cubo de Rubik
 # ------------------------------------------------------------
 
-class CuboRubik.busquedas.ModeloBusqueda):
+class CuboRubik(busquedas.ModeloBusqueda):
     """
     La clase para el modelo de cubo de rubik, documentación, no olvides poner
     la documentación de forma clara y concisa.
