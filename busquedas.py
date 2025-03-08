@@ -86,14 +86,15 @@ class ProblemaBusqueda:
         @param modelo: Un objeto de la clase ModeloBusqueda
 
         """
+        self.num_nodos = 0  # Solo para efectos medición
+        self.x0 = x0
+        self.modelo = modelo
         def es_meta(estado):
             self.num_nodos += 1
             return meta(estado)
         self.es_meta = es_meta
 
-        self.x0 = x0
-        self.modelo = modelo
-        self.num_nodos = 0  # Solo para efectos medición
+
 
 
 class Nodo:
@@ -283,5 +284,18 @@ def busqueda_A_estrella(problema, heuristica):
     @return Un objeto tipo Nodo con la estructura completa
 
     """
-    raise NotImplementedError('Hay que hacerlo de tarea \
-                              (problema 2 en el archivo busquedas.py)')
+    frontera = []
+    heapq.heappush(frontera, (0, Nodo(problema.x0)))
+    visitados = {problema.x0: 0}
+
+    while frontera:
+        (_, nodo) = heapq.heappop(frontera)
+        if problema.es_meta(nodo.estado):
+            nodo.nodos_visitados = problema.num_nodos
+            return nodo
+        for hijo in nodo.expande(problema.modelo):
+            if (hijo.estado not in visitados or
+                visitados[hijo.estado] > hijo.costo + heuristica(hijo)):
+                heapq.heappush(frontera, (hijo.costo + heuristica(hijo), hijo))
+                visitados[hijo.estado] = hijo.costo + heuristica(hijo)
+    return None
