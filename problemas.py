@@ -10,38 +10,47 @@ Tarea sobre búsquedas, donde lo que es importante es crear nuevas heurísticas
 
 import busquedas
 
-
-
 # ------------------------------------------------------------
 #  Desarrolla el modelo del Camión mágico
 # ------------------------------------------------------------
 
-class CamionMagico.busquedas.ModeloBusqueda):
-     """
+class CamionMagico(busquedas.ModeloBusqueda):
+    """
     ---------------------------------------------------------------------------------
-     Supongamos que quiero trasladarme desde la posición discreta $1$ hasta 
-     la posicion discreta $N$ en una vía recta usando un camión mágico. 
+    Supongamos que quiero trasladarme desde la posición discreta $1$ hasta 
+    la posicion discreta $N$ en una vía recta usando un camión mágico. 
     
-     Puedo trasladarme de dos maneras:
-      1. A pie, desde el punto $x$ hasta el punto $x + 1$ en un tiempo de 1 minuto.
-      2. Usando un camión mágico, desde el punto $x$ hasta el punto $2x$ con un tiempo 
-         de 2 minutos.
+    Puedo trasladarme de dos maneras:
+    1. A pie, desde el punto $x$ hasta el punto $x + 1$ en un tiempo de 1 minuto.
+    2. Usando un camión mágico, desde el punto $x$ hasta el punto $2x$ con un tiempo 
+       de 2 minutos.
 
-     Desarrollar la clase del modelo del camión mágico
+    Desarrollar la clase del modelo del camión mágico
     ----------------------------------------------------------------------------------
     
     """
-    def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+    def __init__(self, maximo):
+        self.maximo = maximo
 
     def acciones_legales(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        acciones = []
+        if estado < self.maximo:
+            acciones.append('caminar')
+        if estado * 2 <= self.maximo:
+            acciones.append('camion')
+        return acciones
 
     def sucesor(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        if accion == 'caminar':
+            return estado + 1
+        elif accion == 'camion':
+            return estado * 2
 
     def costo_local(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        if accion == 'caminar':
+            return 1
+        elif accion == 'camion':
+            return 2
 
     @staticmethod
     def bonito(estado):
@@ -49,20 +58,21 @@ class CamionMagico.busquedas.ModeloBusqueda):
         El prettyprint de un estado dado
 
         """
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return f"Posición: {estado}"
  
 # ------------------------------------------------------------
 #  Desarrolla el problema del Camión mágico
 # ------------------------------------------------------------
 
-class PblCamionMágico(busquedas.ProblemaBusqueda):
+class PblCamionMagico(busquedas.ProblemaBusqueda):
     """
     El problema a resolver es establecer un plan para ir desde el 
     punto $1$ hasta el punto $N$ en el menor tiempo posible.
 
     """
-    def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+    def __init__(self, N):
+        self.maximo = N
+        super().__init__(1, lambda estado: estado == N, CamionMagico(N))
     
 
 # ------------------------------------------------------------
@@ -74,8 +84,22 @@ def h_1_camion_magico(nodo):
     DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
+
+    Heurística combinada que considera tanto la caminata como el uso del camión mágico.
     """
-    return 0
+    estado_actual = nodo.estado
+    estado_objetivo = nodo.problema.maximo
+    costo = 0
+
+    while estado_actual < estado_objetivo:
+        if estado_actual * 2 <= estado_objetivo:
+            estado_actual *= 2
+            costo += 2
+        #else:
+            #costo += (estado_objetivo - estado_actual)
+            break
+
+    return costo
 
 
 # ------------------------------------------------------------
@@ -96,7 +120,7 @@ def h_2_camion_magico(nodo):
 #  Desarrolla el modelo del cubo de Rubik
 # ------------------------------------------------------------
 
-class CuboRubik.busquedas.ModeloBusqueda):
+class CuboRubik(busquedas.ModeloBusqueda):
     """
     La clase para el modelo de cubo de rubik, documentación, no olvides poner
     la documentación de forma clara y concisa.
@@ -124,7 +148,7 @@ class CuboRubik.busquedas.ModeloBusqueda):
         """
         raise NotImplementedError('Hay que hacerlo de tarea')
  
- # ------------------------------------------------------------
+# ------------------------------------------------------------
 #  Desarrolla el problema del Cubo de Rubik
 # ------------------------------------------------------------
 
@@ -195,15 +219,13 @@ def compara_metodos(problema, heuristica_1, heuristica_2):
 
 
 if __name__ == "__main__":
-
-
+    
     # Compara los métodos de búsqueda para el problema del camión mágico
     # con las heurísticas que desarrollaste
-    problema = PblCamionMágico( XXXXXXXXXX )  # <--- PONLE LOS PARÁMETROS QUE NECESITES
+    problema = PblCamionMagico( XXXXXXXXXX )  # <--- PONLE LOS PARÁMETROS QUE NECESITES
     compara_metodos(problema, h_1_camion_magico, h_2_camion_magico)
     
     # Compara los métodos de búsqueda para el problema del cubo de rubik
     # con las heurísticas que desarrollaste
     problema = PblCuboRubik( XXXXXXXXXX )  # <--- PONLE LOS PARÁMETROS QUE NECESITES
     compara_metodos(problema, h_1_problema_1, h_2_problema_1)
-    
