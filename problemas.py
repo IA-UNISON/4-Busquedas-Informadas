@@ -7,7 +7,7 @@ problemas.py
 Tarea sobre búsquedas, donde lo que es importante es crear nuevas heurísticas
 
 """
-
+from random import choice
 import busquedas
 import math
 
@@ -233,21 +233,36 @@ class CuboRubik(busquedas.ModeloBusqueda):
     """
     # def __init__(self):
     #     raise NotImplementedError('Hay que hacerlo de tarea')
+    def mezclar(self, estado, movimientos):
+        estado = list(estado)
+        acciones = self.acciones_legales(None)
+        for i in range(movimientos):
+            estado = self.sucesor(estado, choice(acciones))
+        return tuple(estado)
 
     def acciones_legales(self, estado):
         return ('F', 'f', 'B', 'b', 'R', 'r', 'U', 'u', 'L', 'l', 'D', 'd')
 
-    def rotar(cara, estado):
+    # con `direccion True se rota en dirección del reloj,
+    # con False se rota en sentido inverso
+    def rotar(self, cara, estado, direccion):
         x = cara*8
-        for i in range(2):
-            temp = estado[x + i]
-            estado[x + i] = estado[x + i + 6]
-            estado[x + i + 6] = estado[x + i + 4]
-            estado[x + i + 4] = estado[x + i + 2]
-            estado[x + i + 2] = temp
+        if direccion:
+            for i in range(2):
+                temp = estado[x + i]
+                estado[x + i] = estado[x + i + 6]
+                estado[x + i + 6] = estado[x + i + 4]
+                estado[x + i + 4] = estado[x + i + 2]
+                estado[x + i + 2] = temp
+        else:
+            for i in range(2):
+                temp = estado[x + i]
+                estado[x + i] = estado[x + i + 2]
+                estado[x + i + 2] = estado[x + i + 4]     
+                estado[x + i + 4] = estado[x + i + 6]
+                estado[x + i + 6] = temp
 
     def sucesor(self, estado, accion):
-
         estado = list(estado)
         if accion == 'F':
             for i in range(3):
@@ -256,20 +271,7 @@ class CuboRubik(busquedas.ModeloBusqueda):
                 estado[40+i] = estado[24+(6+i)%8]
                 estado[24+(6+i)%8] = estado[20+i]
                 estado[20+i] = temp
-
-   #         +========+
-   #         ║16 17 18║
-   #         ║23    19║
-   #         ║22 21 20║
-   # +=======+========+========+========+
-   # ║ 0 1 2 ║ 8  9 10║24 25 26║32 33 34║
-   # ║ 7   3 ║15    11║31    27║39    35║
-   # ║ 6 5 4 ║14 13 12║30 29 28║38 37 36║
-   # +=======+========+========+========+
-   #         ║40 41 42║
-   #         ║47    43║
-   #         ║46 45 44║
-   #         +========+            
+            self.rotar(1, estado, True)
 
         elif accion == 'f':
             for i in range(3):
@@ -278,6 +280,7 @@ class CuboRubik(busquedas.ModeloBusqueda):
                 estado[20+i] = estado[24+(6+i)%8]
                 estado[24+(6+i)%8] = estado[40+i]
                 estado[40+i] = temp
+            self.rotar(1, estado, False)
 
         elif accion == 'B':
             for i in range(3):
@@ -286,6 +289,7 @@ class CuboRubik(busquedas.ModeloBusqueda):
                 estado[16+i] = estado[26+i]
                 estado[26+i] = estado[44+i]
                 estado[44+i] = temp
+            self.rotar(4, estado, True)
 
         elif accion == 'b':
             for i in range(3):
@@ -294,6 +298,7 @@ class CuboRubik(busquedas.ModeloBusqueda):
                 estado[44+i] = estado[26+i]
                 estado[26+i] = estado[16+i]
                 estado[16+i] = temp
+            self.rotar(4, estado, False)
 
         elif accion == 'R':
             for i in range(3):
@@ -302,6 +307,7 @@ class CuboRubik(busquedas.ModeloBusqueda):
                 estado[42+i] = estado[32+(6+i)%8]
                 estado[32+(6+i)%8] = estado[18+i]
                 estado[18+i] = temp
+            self.rotar(3, estado, True)
 
         elif accion == 'r':
             for i in range(3):
@@ -310,6 +316,7 @@ class CuboRubik(busquedas.ModeloBusqueda):
                 estado[18+i] = estado[32+(6+i)%8]
                 estado[32+(6+i)%8] = estado[42+i]
                 estado[42+i] = temp
+            self.rotar(3, estado, False)
 
         elif accion == 'U':
             for i in range(3):
@@ -318,6 +325,7 @@ class CuboRubik(busquedas.ModeloBusqueda):
                 estado[8+i] = estado[24+i]
                 estado[24+i] = estado[32+i]
                 estado[32+i] = temp
+            self.rotar(2, estado, True)
         
         elif accion == 'u':
             for i in range(3):
@@ -326,7 +334,8 @@ class CuboRubik(busquedas.ModeloBusqueda):
                 estado[32+i] = estado[24+i]
                 estado[24+i] = estado[8+i]
                 estado[8+i] = temp
-        
+            self.rotar(2, estado, False)
+
         elif accion == 'L':
             for i in range(3):
                 temp = estado[8+(6+i)%8]
@@ -334,6 +343,7 @@ class CuboRubik(busquedas.ModeloBusqueda):
                 estado[16+(6+i)%8] = estado[34+i]
                 estado[34+i] = estado[40+(6+i)%8]
                 estado[40+(6+i)%8] = temp
+            self.rotar(0, estado, True)
 
         elif accion == 'l':
             for i in range(3):
@@ -342,6 +352,7 @@ class CuboRubik(busquedas.ModeloBusqueda):
                 estado[40+(6+i)%8] = estado[34+i]
                 estado[34+i] = estado[16+(6+i)%8]
                 estado[16+(6+i)%8] = temp
+            self.rotar(0, estado, False)
 
         elif accion == 'D':
             for i in range(3):
@@ -350,6 +361,7 @@ class CuboRubik(busquedas.ModeloBusqueda):
                 estado[36+i] = estado[28+i]
                 estado[28+i] = estado[12+i]
                 estado[12+i] = temp
+            self.rotar(5, estado, True)
 
         elif accion == 'd':
             for i in range(3):
@@ -358,7 +370,7 @@ class CuboRubik(busquedas.ModeloBusqueda):
                 estado[12+i] = estado[28+i]
                 estado[28+i] = estado[36+i]
                 estado[36+i] = temp
-
+            self.rotar(5, estado, False)
 
         return tuple(estado)
     @staticmethod
@@ -367,7 +379,7 @@ class CuboRubik(busquedas.ModeloBusqueda):
         El prettyprint de un estado dado
 
         """
-        print(' '*8 + '+' + '='*7, end='+')
+        print(' '*8 + '+' + '='*7 + '+')
         
         print(' '*8 + '║', end=' ')
         for i in (16,17,18):
@@ -375,7 +387,7 @@ class CuboRubik(busquedas.ModeloBusqueda):
         print('║')
 
         print(' '*8 + '║', end=' ')
-        print(str(estado[23]) + ' '*3 + str(estado[19]) + ' ║')
+        print(str(estado[23]) + ' 2 ' + str(estado[19]) + ' ║')
 
         print(' '*8 + '║', end=' ')
         for i in (22,21,20):
@@ -393,8 +405,10 @@ class CuboRubik(busquedas.ModeloBusqueda):
         print('║')
 
         for i in (7,15,31,39):
-            print('║ ' + str(estado[i]), end='')
-            print(' '*3 + str(estado[i-4]), end=' ')
+            print('║', end=' ')
+            print(estado[i], end=' ')
+            print(i//8, end=' ')
+            print(estado[i-4], end=' ')
         print('║')
 
         for i in (6,14,30,38):
@@ -406,8 +420,6 @@ class CuboRubik(busquedas.ModeloBusqueda):
         for i in range(4):
             print('+' + '='*7, end='')
         print('+')
-        
-        ##
 
         print(' '*8 + '║ ', end='')
         for i in (40,41,42):
@@ -415,7 +427,10 @@ class CuboRubik(busquedas.ModeloBusqueda):
         print('║')
 
         print(' '*8 + '║ ', end='')
-        print(str(estado[47]) + ' '*3 + str(estado[43]) + ' ║')
+        print(estado[47], end = ' ')
+        print(5, end=' ')
+        print(estado[43], end=' ')
+        print('║')
 
         print(' '*8 + '║ ', end='')
         for i in (46,45,44):
@@ -433,7 +448,7 @@ class PblCuboRubik(busquedas.ProblemaBusqueda):
     El problema a resolver es establecer un plan para resolver el cubo de rubik.
 
     """
-    def __init__(self, x0 =(0,0,0,0,0,0,0,0,
+    def __init__(self, x0= (0,0,0,0,0,0,0,0,
                             1,1,1,1,1,1,1,1,
                             2,2,2,2,2,2,2,2,
                             3,3,3,3,3,3,3,3,
@@ -441,17 +456,23 @@ class PblCuboRubik(busquedas.ProblemaBusqueda):
                             5,5,5,5,5,5,5,5)):
 
 
+        def meta(estado):
+            self.num_nodos += 1
+            for i in range(6):
+                cara = i*8
+                for j in range(8):
+                    if estado[cara + j] != i:
+                        return False
+            return True
+        self.es_meta = meta
         self.x0 = x0
         self.modelo = CuboRubik()
         self.num_nodos = 0
 
-    def es_meta(estado):
-        self.num_nodos += 1
-        for i in range(6):
-            for j in range(8):
-                if estado[i*8 + j] != i:
-                    return false
-        return true
+    def mezclar(self, movimientos=20):
+        self.x0 = self.modelo.mezclar(self.x0, movimientos)
+
+
 
  
 
@@ -528,6 +549,9 @@ if __name__ == "__main__":
 
     # Compara los métodos de búsqueda para el problema del cubo de rubik
     # con las heurísticas que desarrollaste
-    # problema = PblCuboRubik( XXXXXXXXXX )  # <--- PONLE LOS PARÁMETROS QUE NECESITES
-    # compara_metodos(problema, h_1_problema_1, h_2_problema_1)
+    problema = PblCuboRubik()  # <--- PONLE LOS PARÁMETROS QUE NECESITES
+    problema.mezclar(2) # número de movimientos para mezclar el cubo
+    problema.modelo.bonito(problema.x0)
+    print('\n')    
+    compara_metodos(problema, h_1_problema_1, h_2_problema_1)
     
