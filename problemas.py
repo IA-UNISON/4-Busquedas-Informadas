@@ -180,7 +180,7 @@ class CuboRubik(busquedas.ModeloBusqueda):
            +========+
 
 
-    Cada cara tiene un color número que indica que color va ahi, 
+    Cada cara tiene un número que indica su color, 
     por ejemplo la cara 1 tiene que tener todos las piezas de color 1.
 
     Las caras van a ser las siguientes:
@@ -200,7 +200,7 @@ class CuboRubik(busquedas.ModeloBusqueda):
            . = = = .
 
     Cada cara va a tener los índices de la siguiente manera para 
-    representar las piezas:
+    representar los colores de las piezas de la cara:
 
            . = = = .
            | 0 1 2 |
@@ -208,7 +208,7 @@ class CuboRubik(busquedas.ModeloBusqueda):
            | 6 5 4 |
            . = = = .
 
-    El centro va a tener un color fijo.
+    El centro va a tener un color fijo, este es el color de la cara.
 
     El estado va a ser entonces una tupla con 48 números, el
     número guardado va a representar el color que está en dicha
@@ -231,8 +231,6 @@ class CuboRubik(busquedas.ModeloBusqueda):
     de poner el símbolo `.
 
     """
-    # def __init__(self):
-    #     raise NotImplementedError('Hay que hacerlo de tarea')
     def mezclar(self, estado, movimientos):
         estado = list(estado)
         acciones = self.acciones_legales(None)
@@ -245,7 +243,8 @@ class CuboRubik(busquedas.ModeloBusqueda):
 
     # con `direccion True se rota en dirección del reloj,
     # con False se rota en sentido inverso
-    def rotar(self, cara, estado, direccion):
+    @staticmethod
+    def rotar(cara, estado, direccion):
         x = cara*8
         if direccion:
             for i in range(2):
@@ -373,6 +372,7 @@ class CuboRubik(busquedas.ModeloBusqueda):
             self.rotar(5, estado, False)
 
         return tuple(estado)
+
     @staticmethod
     def bonito(estado):
         """
@@ -469,12 +469,8 @@ class PblCuboRubik(busquedas.ProblemaBusqueda):
         self.modelo = CuboRubik()
         self.num_nodos = 0
 
-    def mezclar(self, movimientos=20):
+    def mezclar(self, movimientos=10):
         self.x0 = self.modelo.mezclar(self.x0, movimientos)
-
-
-
- 
 
 # ------------------------------------------------------------
 #  Desarrolla una política admisible.
@@ -483,11 +479,19 @@ def h_1_problema_1(nodo):
     """
     DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
-
+    ----------------------------------------------------------
+    La idea de esta heurística es que en un movimiento a lo
+    más cambio 12 colores de cara, entonces supongo que en cada
+    movimiento voy a acomodar 12 colores a su lugar.
+    Cuento el número de colores mal acomodados y lo divido entre 12
+    para no sobreestimar, de esta manera la heurística es admisible.    
+    
     """
-    return 0
-
-
+    contador = 0
+    for i in range(48):
+        if nodo.estado[i] != i//8:
+            contador += 1
+    return contador / 12
 # ------------------------------------------------------------
 #  Desarrolla otra política admisible.
 #  Analiza y di porque piensas que es (o no es) dominante una
@@ -497,11 +501,27 @@ def h_2_problema_1(nodo):
     """
     DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
+    ----------------------------------------------------------
+    Esta heurística cuenta cuantos movimientos se necesitan 
+    para acomodar cada color mal acomodado suponiendo que no
+    muevo otros colores.
 
+    Si un color está en la cara que debe estar no agrego nada,
+    si un color debería estar en la cara contraria se suma 2, y
+    si un color debería estar en una cara adyacente se suma 1.
+
+    El resultado de esta suma lo divido entre 12 para que sea 
+    admisible porque con cada movimiento muevo 12 colores de lugar.
+     
     """
-    return 0
+    contador = 0
+    for i in range(48):
+        cara = i//8
+        color = nodo.estado[i]
+        if cara != color:
+            contador += (2 if abs(color - cara) == 3 else 1)
 
-
+    return contador/12
 
 def compara_metodos(problema, heuristica_1, heuristica_2):
     """
@@ -520,7 +540,7 @@ def compara_metodos(problema, heuristica_1, heuristica_2):
     """
     solucion1 = busquedas.busqueda_A_estrella(problema, heuristica_1)
     solucion2 = busquedas.busqueda_A_estrella(problema, heuristica_2)
-    
+
     print('-' * 50)
     print('Método'.center(12) + 'Costo'.center(18) + 'Nodos visitados'.center(20))
     print('-' * 50 )
@@ -535,23 +555,15 @@ def compara_metodos(problema, heuristica_1, heuristica_2):
 
 
 if __name__ == "__main__":
-
-    # Compara los métodos de búsqueda para el problema del camión mágico
-    # con las heurísticas que desarrollaste
-
-    # La meta a donde quiero llegar
-    N = 10000
-    problema = PblCamionMágico(N)  # <--- PONLE LOS PARÁMETROS QUE NECESITES
+    N = 10000 # N es la meta a llegar en el camión
+    problema = PblCamionMágico(N)
     h1_camion_magico, h2_camion_magico = heuristicas_camion_magico(N)
     # Al comparar los métodos h2 checa muchos menos nodos comparado con h1,
-    # por lo que creo que h2 es dominante sobre h1
+    # por lo que creo que h2 > h1
     compara_metodos(problema, h1_camion_magico, h2_camion_magico)
 
-    # Compara los métodos de búsqueda para el problema del cubo de rubik
-    # con las heurísticas que desarrollaste
-    problema = PblCuboRubik()  # <--- PONLE LOS PARÁMETROS QUE NECESITES
-    problema.mezclar(2) # número de movimientos para mezclar el cubo
-    problema.modelo.bonito(problema.x0)
-    print('\n')    
+    problema = PblCuboRubik()
+    problema.mezclar(8) # hago 8 movimientos aleatorios en el cubo
+    # Al comparar h1 y h2, parece que h2 checa menos nodos que h1,
+    # por lo que creo que h2 > h1
     compara_metodos(problema, h_1_problema_1, h_2_problema_1)
-    
