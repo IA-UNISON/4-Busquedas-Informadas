@@ -241,7 +241,7 @@ def busqueda_costo_uniforme(problema):
     @param problema: Un objeto de una clase heredada de ProblemaBusqueda
 
     @return Un objeto tipo Nodo con la estructura completa
-
+    
     """
     frontera = []
     heapq.heappush(frontera, (0, Nodo(problema.x0)))
@@ -269,9 +269,9 @@ def busqueda_costo_uniforme(problema):
 #
 # ---------------------------------------------------------------------
 
-
+"""
 def busqueda_A_estrella(problema, heuristica):
-    """
+    
     Búsqueda A*
 
     @param problema: Un objeto de una clase heredada de ProblemaBusqueda
@@ -282,6 +282,44 @@ def busqueda_A_estrella(problema, heuristica):
 
     @return Un objeto tipo Nodo con la estructura completa
 
-    """
+    
     raise NotImplementedError('Hay que hacerlo de tarea \
                               (problema 2 en el archivo busquedas.py)')
+"""
+def busqueda_A_estrella(problema, heuristica):
+    """
+    Búsqueda A*
+
+    @param problema: Un objeto de una clase heredada de ProblemaBusqueda
+    @param heuristica: Una función de heurística, que estima el costo desde un estado hasta la meta.
+
+    @return Un objeto tipo Nodo con la estructura completa
+    """
+    # Inicialización de la frontera y los visitados
+    frontera = []
+    heapq.heappush(frontera, (0, Nodo(problema.x0)))  # (f(n), nodo)
+    visitados = {problema.x0: 0}  # {estado: g(n)}
+
+    while frontera:
+        # Extraer el nodo con el menor f(n)
+        (_, nodo) = heapq.heappop(frontera)
+
+        # Verificar si es un estado meta
+        if problema.es_meta(nodo.estado):
+            nodo.nodos_visitados = problema.num_nodos
+            return nodo
+
+        # Expandir el nodo actual
+        for hijo in nodo.expande(problema.modelo):
+            # Calcular g(n) y f(n) para el nodo hijo
+            costo_acumulado = nodo.costo + problema.modelo.costo_local(nodo.estado, hijo.accion)
+            f = costo_acumulado + heuristica(hijo)
+
+            # Verificar si el estado no ha sido visitado o si tiene un costo menor
+            if (hijo.estado not in visitados or
+                visitados[hijo.estado] > costo_acumulado):
+                heapq.heappush(frontera, (f, hijo))
+                visitados[hijo.estado] = costo_acumulado
+
+    # Si no se encuentra una solución
+    return None
