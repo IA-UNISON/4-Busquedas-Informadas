@@ -386,7 +386,6 @@ def h_1_problema_1(nodo):
                     movimientos_necesarios += 1  # Se asume que al menos un movimiento será necesario
 
     return movimientos_necesarios / 8
-    return 2
 
 
 # ------------------------------------------------------------
@@ -396,26 +395,46 @@ def h_1_problema_1(nodo):
 # ------------------------------------------------------------
 def h_2_problema_1(nodo):
     """
-    Calcula la heurística basada en la cantidad de movimientos que necesita
-    cada esquina y cada arista para llegar a su posición y orientación correctas.
-
-    @param nodo: Nodo del cubo de Rubik con el estado actual del cubo.
-    @return: Estimación del número mínimo de movimientos necesarios para resolver el cubo.
+    Heurística admisible para el Cubo de Rubik:
+    Cuenta el número de esquinas y aristas mal ubicadas y lo divide por 8.
     """
-    estado = nodo.estado  # Obtenemos las 6 caras del cubo
-    meta = CuboRubik()  # Estado resuelto del cubo
-    meta_estado = meta.estado
+    estado = nodo.estado  # Extraemos el estado actual del nodo
+    
+    # Estado final
+    estado_meta = (
+        (('B', 'B', 'B'), ('B', 'B', 'B'), ('B', 'B', 'B')),  # Frontal
+        (('O', 'O', 'O'), ('O', 'O', 'O'), ('O', 'O', 'O')),  # Izquierda
+        (('R', 'R', 'R'), ('R', 'R', 'R'), ('R', 'R', 'R')),  # Derecha
+        (('G', 'G', 'G'), ('G', 'G', 'G'), ('G', 'G', 'G')),  # Trasera
+        (('Y', 'Y', 'Y'), ('Y', 'Y', 'Y'), ('Y', 'Y', 'Y')),  # Superior
+        (('W', 'W', 'W'), ('W', 'W', 'W'), ('W', 'W', 'W'))   # Inferior
+    )
 
-    movimientos_necesarios = 0
+    esquinas_mal = 0
+    aristas_mal = 0
 
-    # Comparar cada cara del cubo con la meta
-    for cara_actual, cara_objetivo in zip(estado, meta_estado):
-        for i in range(3):
-            for j in range(3):
-                if cara_actual[i][j] != cara_objetivo[i][j]:  # Si el color no está en su lugar
-                    movimientos_necesarios += 1  # Se asume que al menos un movimiento será necesario
+    esquinas = [
+        (0, 0, 0), (0, 0, 2), (0, 2, 0), (0, 2, 2),  # Frontal
+        (3, 0, 0), (3, 0, 2), (3, 2, 0), (3, 2, 2)   # Trasera
+    ]
 
-    return movimientos_necesarios / 8
+    aristas = [
+        (0, 0, 1), (0, 1, 0), (0, 1, 2), (0, 2, 1),  # Frontal
+        (1, 0, 1), (1, 1, 0), (1, 1, 2), (1, 2, 1),  # Izquierda
+        (2, 0, 1), (2, 1, 0), (2, 1, 2), (2, 2, 1)   # Derecha
+    ]
+
+    # Contar esquinas incorrectas
+    for cara, fila, col in esquinas:
+        if estado[cara][fila][col] != estado_meta[cara][fila][col]:
+            esquinas_mal += 1
+
+    # Contar aristas incorrectas
+    for cara, fila, col in aristas:
+        if estado[cara][fila][col] != estado_meta[cara][fila][col]:
+            aristas_mal += 1
+
+    return (esquinas_mal + aristas_mal) / 8
 
 
 def compara_metodos(problema, heuristica_1, heuristica_2):
