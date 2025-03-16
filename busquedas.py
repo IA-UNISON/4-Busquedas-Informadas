@@ -106,7 +106,9 @@ class Nodo:
         Inicializa un nodo como una estructura
 
         """
+        
         self.estado = estado
+        #self.estado = tuple(tuple(tuple(row) for row in cara) for cara in estado)
         self.accion = accion
         self.padre = padre
         self.costo = 0 if not padre else padre.costo + costo_local
@@ -125,6 +127,7 @@ class Nodo:
         return (
             Nodo(
                 modelo.sucesor(self.estado, a),
+                #tuple(tuple(tuple(row) for row in cara) for cara in modelo.sucesor(self.estado, a)),
                 a,
                 self,
                 modelo.costo_local(self.estado, a))
@@ -285,18 +288,23 @@ def busqueda_A_estrella(problema, heuristica):
     """
     raiz = Nodo(problema.x0)
     frontera = []
-    heapq.heappush(frontera, (heuristica(raiz.estado) + raiz.costo, raiz))  # f(n) = g(n) + h(n)
+    heapq.heappush(frontera, (heuristica(raiz) + raiz.costo, raiz))  # f(n) = g(n) + h(n)
     visitados = {problema.x0: 0}
+    #visitados = {raiz.estado: 0}
 
     while frontera:
         (_, nodo_actual) = heapq.heappop(frontera)
 
         if problema.es_meta(nodo_actual.estado):
-            nodo_actual.nodos_visitados = problema.num_nodos
+            nodo_actual.nodos_visitados = problema.num_nodos    
             return nodo_actual
 
         for hijo in nodo_actual.expande(problema.modelo):
-            f_n = heuristica(hijo.estado) + hijo.costo
+            #nuevo_estado = tuple(tuple(tuple(row) for row in cara) for cara in hijo.estado)
+
+            g_n = hijo.costo 
+            h_n = heuristica(hijo)  
+            f_n = g_n + h_n 
 
             if hijo.estado not in visitados or f_n < visitados[hijo.estado]:
                 visitados[hijo.estado] = f_n
