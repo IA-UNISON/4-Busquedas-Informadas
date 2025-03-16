@@ -87,13 +87,24 @@ class PblCamionMágico(busquedas.ProblemaBusqueda):
 # ------------------------------------------------------------
 def h_1_camion_magico(nodo, N):
     """
-    Heurística 1: Distancia mínima considerando solo movimientos a pie.
+    Heurística 1: Distancia mínima considerando movimientos a pie y el camión
     
     Justificación: 
-    Si solo nos movemos a pie, la distancia restante es N - estado_actual. 
-    Esto es admisible porque nunca sobreestima el costo real.
+    Utiliza el camión lo más posible para avanzar lo máximo posible y luego
+    camina, obteniendo así el costo mínimo.
     """
-    return (N - nodo)/2
+    estado_actual = nodo.estado
+    if estado_actual >= N:
+        return 0 # por si ya estamos en la meta
+
+    saltos = 0
+    while estado_actual * 2 <= N:
+        estado_actual *= 2
+        saltos += 1
+
+    distancia_restante = N - estado_actual
+
+    return min(2 * saltos + distancia_restante, N - nodo.estado)
 
 
 # ------------------------------------------------------------
