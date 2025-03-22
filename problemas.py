@@ -3,14 +3,10 @@
 """
 problemas.py
 ------------
-
 Tarea sobre búsquedas, donde lo que es importante es crear nuevas heurísticas
-
 """
 
 import busquedas
-
-
 
 
 class CamionMagico(busquedas.ModeloBusqueda):
@@ -18,20 +14,15 @@ class CamionMagico(busquedas.ModeloBusqueda):
     ---------------------------------------------------------------------------------
      Supongamos que quiero trasladarme desde la posición discreta $1$ hasta 
      la posicion discreta $N$ en una vía recta usando un camión mágico. 
-    
-     Puedo trasladarme de dos maneras:
-      1. A pie, desde el punto $x$ hasta el punto $x + 1$ en un tiempo de 1 minuto.
-      2. Usando un camión mágico, desde el punto $x$ hasta el punto $2x$ con un tiempo 
-         de 2 minutos.
-
+     Puedo trasladarme de dos maneras: 1. A pie, desde el punto $x$ hasta el punto $x + 1$ en un tiempo de 1 minuto. 
+     2. Usando un camión mágico, desde el punto $x$ hasta el punto $2x$ con un tiempo de 2 minutos.
      Desarrollar la clase del modelo del camión mágico
     ----------------------------------------------------------------------------------
-    
     """
-    def __init__(self):
-        self.n = n # posicion final
+     def __init__(self, n):
+        self.n = n # posicion final     
 
-    def acciones_legales(self, estado):
+     def acciones_legales(self, estado):
         acciones = []
         if estado + 1 <= self.n:
              acciones.append("caminar")
@@ -39,26 +30,24 @@ class CamionMagico(busquedas.ModeloBusqueda):
              acciones.append("camionMagico")
         return acciones
              
-
-    def sucesor(self, estado, accion):
+     def sucesor(self, estado, accion):
         if accion == "caminar":
              return estado + 1
         elif accion == "camionMagico":
              return estado * 2
         return estado
 
-    def costo_local(self, estado, accion):
+     def costo_local(self, estado, accion):
         if accion == "caminar":
              return 1
         elif accion == "camionMagico":
              return 2
         return float("inf")
 
-    @staticmethod
-    def bonito(estado):
+     @staticmethod
+     def bonito(estado):
         """
         El prettyprint de un estado dado
-
         """
         return f"Posición actual: {estado}"
  
@@ -68,12 +57,10 @@ class PblCamionMágico(busquedas.ProblemaBusqueda):
     punto $1$ hasta el punto $N$ en el menor tiempo posible.
 
     """
-    def __init__(self):
+    def __init__(self, N):
         self.N = N
         super().__init__(estado_inicial = 1, modelo = CamionMagico(N), meta = N)
     
-
-
 
 def h_1_camion_magico(nodo):
 
@@ -151,7 +138,7 @@ class CuboRubik(busquedas.ModeloBusqueda):
              'B' : [[45, 46, 47], [20, 23, 26], [42, 43, 44], [0, 3, 6]],
              'U' : [[36, 37, 38], [9, 10, 11], [18, 19, 20], [27, 28, 29]],
              'L' : [[0, 3, 6], [9, 18, 27], [45, 48, 51], [36, 39, 42]],
-             'R' : [[2, 5, 8], [11, 20, 29], [47, 50, 53] [38, 41, 44]],
+             'R' : [[2, 5, 8], [11, 20, 29], [47, 50, 53], [38, 41, 44]],
              'D' : [[45, 46, 47], [33, 34, 35], [24, 25, 26], [15, 16, 17]]
         }
 
@@ -194,7 +181,7 @@ class CuboRubik(busquedas.ModeloBusqueda):
              temporal1 = [nuevo_estado[i] for i in borde1]
              temporal2 = [nuevo_estado[i] for i in borde2]
              for i in range(3):
-                  nuevo_estado[borde1[i]] = nuevo_estado[b3[i]]
+                  nuevo_estado[borde1[i]] = nuevo_estado[borde3[i]]
                   nuevo_estado[borde3[i]] = temporal1[i]
                   nuevo_estado[borde2[i]] = nuevo_estado[borde4[i]]
                   nuevo_estado[borde4[i]] = temporal2[i]
@@ -260,21 +247,30 @@ class CuboRubik(busquedas.ModeloBusqueda):
 class PblCuboRubik(busquedas.ProblemaBusqueda):
 
     def __init__(self):
-        self.estado_inicial = estado_inicial 
-        self.estado_objetivo = list(range(54))
-        super()._init_(estado_inicial) #constructor de la clase base
+        # self.estado_inicial = estado_inicial 
+        # self.estado_objetivo = list(range(54))
+        super().__init__(estado_inicial=tuple(range(54)),modelo=CuboRubik(), meta=tuple(range(54))) #constructor de la clase base
      
 
 # ------------------------------------------------------------
 #  Desarrolla una política admisible.
 # ------------------------------------------------------------
 def h_1_problema_1(nodo):
-    """
-    DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN
-    PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
+    # Heurística de piezas mal colocadas.
+    # Esta heuristica cuenta cuantas posiciones del cubo actual tienen
+    # un valor diferente al que deberían tener en cuando el cubo esta ordenado.
+    # Compara las 54 posiciones del estado actual con el estado objetivo (el cubo ordenado).
+    # Cuenta cuántas posiciones tienen valores diferentes.
+    # Devuelve la estimación de la distancia al objetiv o.
 
-    """
-    return 0
+    # Es admisible porque cada pieza mal colocada necesitará al menos un movimiento para llegar a la posición correcta.
+    # En el cubo rubik un solo movimiento no resuelve una sola pieza sin afectar otras.
+    #  entoncws el número real de movimientos necesarios para resolver el cubo será casi siempre mayor que el numero de piezas que no están bien ordenadas
+
+    estado_actual = nodo.estado
+    estado_objetivo = tuple(range(54)) #estado meta con todas las piezas en orden.
+    return sum(1 for i in range(54) if estado_actual[i] != estado_objetivo[i])
+
 
 
 # ------------------------------------------------------------
@@ -283,12 +279,31 @@ def h_1_problema_1(nodo):
 #  respecto otra política
 # ------------------------------------------------------------
 def h_2_problema_1(nodo):
-    """
-    DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN
-    PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
+    # Distancia Manhattan.
+    # Esta heuristica intenta calcular una aproximación de la distancia manhattan para cada pieza, sumando las distancias de todas las piezas.
+    # Es un intento de cuantificar "que tan lejos" esta cada pieza de su posición correcta.
+    # 1. Para cada posicion en el estado actual, identifica que valor tiene.
+    # 2. Encuentra donde deberia estar ese valor en el estado objetivo.
+    # 3. Calcula la "distancia" entre estas posiciones, dividiendo cada indice por 3 para obtener coordenadas de fila y columna.
+    # 4. Suma las diferencias absolutas entre filas y columnas para obtener una distancia tipo Manhattan.
+    # 5. Acumula estas distancias para todas las posiciones.
 
-    """
-    return 0
+    # Esta heuristica nunca sobreestima el costo real para llegar al estado objetivo porque propociona una subestimación del numero real de los movimientos que son necesarios.
+
+    estado_actual = nodo.estado
+    estado_objetivo = tuple(range(54)) #estado meta con todas las piezas en orden.
+
+    distancia_total = 0
+    for i in range(54):
+        pieza_actual = estado_actual[i]
+        posicion_correcta = estado_objetivo.index(pieza_actual)
+
+        #calculamos la distancia aproximada en terminos de filas y columnas.
+        fila_actual, col_actual = divmod(i, 3)
+        fila_meta, col_meta = divmod(posicion_correcta, 3)
+        distancia_total += abs(fila_actual - fila_meta) + abs(col_actual - col_meta)
+     
+    return distancia_total
 
 
 
