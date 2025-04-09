@@ -94,6 +94,13 @@ def h_1_camion_magico(nodo):
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
     """
+
+    """Esta primera heuristica es la que se nos viene a la mente a todos
+    cuando iniciamos a resolver el problema del camión mágico.
+    Comenzamos por analizar el estado actual y duplicamos mientras
+    que el estado sea menor o igual a n, si no llegamos exactamente, 
+    caminamos los pasos restantes."""
+
     estado = nodo.estado
     n = nodo.problema.n
     pasos = 0
@@ -121,6 +128,9 @@ def h_2_camion_magico(nodo):
     """
     Mejora sobre h_1: Permite caminar algunos pasos antes de empezar a duplicar,
     reduciendo el número total de movimientos en ciertos casos.
+    Antes de empezar a duplicar, verificamos si avanzar algunos pasos iniciales
+    puede reducir el número total de movimientos. Esto es útil cuando N no es
+    una potencia de 2, porque caminar primero puede permitir alcanzar N en menos pasos.
     """
     estado = nodo.estado
     n = nodo.problema.n
