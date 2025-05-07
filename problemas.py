@@ -16,8 +16,8 @@ import busquedas
 #  Desarrolla el modelo del Camión mágico
 # ------------------------------------------------------------
 
-class CamionMagico.busquedas.ModeloBusqueda):
-     """
+class CamionMagico(busquedas.ModeloBusqueda):
+    """
     ---------------------------------------------------------------------------------
      Supongamos que quiero trasladarme desde la posición discreta $1$ hasta 
      la posicion discreta $N$ en una vía recta usando un camión mágico. 
@@ -31,17 +31,65 @@ class CamionMagico.busquedas.ModeloBusqueda):
     ----------------------------------------------------------------------------------
     
     """
-    def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+    def __init__(self,meta):
+        """
+        Inicializa el modelo con una posición meta.
+        
+        @param meta: Posición final a la que queremos llegar
+        
+        """
+        self.meta = meta
 
     def acciones_legales(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        """
+        Determina las acciones legales en un estado dado.
+        
+        @param estado: Posición actuan en la recta
+        @return: Lista de acciones legales
+        
+        """
+        acciones = []
+        
+        # Siempre podemos caminar a la siguiente posición, pero no nos pasemos de meta
+        if estado + 1 <= self.meta:
+            acciones.append("me gusta caminar")
+        
+        # También a veces se me antoja usar el camión mágico (vende cosas cósmicas),
+        # pero tampoco debemos pasarnos de meta
+        if 2 * estado <= self.meta:
+            acciones.append("camion magico cosmico")
+        
+        return acciones
 
     def sucesor(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        """
+        Determina el estado sucesor al aplicar una acción.
+        
+        @param estado: Posición actual en la línea
+        @param accion: Acción al aplicar ('me gusta caminar' o 'camion magico cosmico')
+        @return: Nueva posición resultante
+        
+        """
+        if accion == "me gusta caminar":
+            return estado + 1
+        elif accion == "camion magico cosmico":
+            return 2 * estado
+        raise ValueError(f"No reconozco esta accion carnal: {accion}")
 
     def costo_local(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        """
+        Determina el costo de aplicar una acción en un estado.
+        
+        @param estado: Posición actual en la línea
+        @param accion: Acción a aplicar ('me gusta caminar' o 'camion magico cosmico')
+        @return: Costo de la acción (tiempo en minutos)
+        
+        """
+        if accion == "me gusta caminar":
+            return 1 # de tu vida
+        elif accion == "camion magico cosmico":
+            return 2 # de tu vida con todo y papas
+        raise ValueError(f"No reconozco esta accion carnal: {accion}")
 
     @staticmethod
     def bonito(estado):
@@ -49,7 +97,7 @@ class CamionMagico.busquedas.ModeloBusqueda):
         El prettyprint de un estado dado
 
         """
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return f"Posicion: {estado}"
  
 # ------------------------------------------------------------
 #  Desarrolla el problema del Camión mágico
@@ -61,8 +109,21 @@ class PblCamionMágico(busquedas.ProblemaBusqueda):
     punto $1$ hasta el punto $N$ en el menor tiempo posible.
 
     """
-    def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+    def __init__(self, meta):
+        """
+        Inicializa el problema del camión mágico.
+        
+        @param meta: Posición final a la que queremos llegar
+        
+        """
+        # Le echamos leña al modelo
+        modelo = CamionMagico(meta)
+        
+        # Se define la función meta para saber que ya llegue y dormir la neta
+        meta_func = lambda estado: estado == meta
+        
+        # Inicializamos la clase padre
+        super().__init__(1, meta_func, modelo)
     
 
 # ------------------------------------------------------------
@@ -71,11 +132,53 @@ class PblCamionMágico(busquedas.ProblemaBusqueda):
 
 def h_1_camion_magico(nodo):
     """
-    DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN
-    PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
+    Heurística basada en el número mínimo de pasos necesarios para
+    alcanzar la meta usando una estrategia óptima de duplicación.
+    
+    Esta heurística es admisible por lo siguiente:
+    1. Asumimos que podemos llegar a la meta usando solo operaciones de duplicación
+    (camión mágico cósmico) y una cantidad mínima de pasos a pie.
+    2. Cada operación de duplicación toma 2 minutos, y cada paso a patín toma 1 minuto.
+    3. Nunca sobreestima el costo real porque calcula el mínimo teórico de pasos.
+    
+    @param nodo: Nodo actual en el árbol de búsqueda
+    @return: Estimación del costo mínimo para llegar a la meta
 
     """
-    return 0
+    estado_actual = nodo.estado
+    
+    # Accedemos a la meta a través del modelo del problema
+    meta = nodo.padre.modelo.meta if nodo.padre else nodo.estado
+    
+    # Si ya llegamos o nos pasamos de la meta, el costo restante es 0
+    if estado_actual >= meta:
+        return 0
+    
+    # Calculamos la diferencia que falta para llegar a la meta
+    diferencia = meta - estado_actual
+    
+    # Una estrategia: usamos el camión mágico cósmico (duplicar) en la medida de lo posible,
+    # luego caminamos. Esto nos ayuda a aproximar el costo mínimo
+    
+    import math
+    
+    # La potencia de 2 más cercana pero menor o igual a la posición actual
+    pot_2 = 2 ** math.floor(math.log2(estado_actual))
+    
+    # Calculamos cuantas veces me puedo aventar la duplicación para no pasarme
+    # la meta por pendejo :C
+    pasos_camion = 0
+    pos_actual = estado_actual
+    
+    while pos_actual * 2 <= meta:
+        pos_actual *= 2
+        pasos_camion += 1
+    
+    # Y pues para el resto tocó hacer cardio (caminar)
+    pasos_pie = meta - pos_actual
+    
+    # Total: casa paso en el camión mágico cósmico cuesta 2, cada paso a patín cuesta 1
+    return pasos_camion * 2 + pasos_pie
 
 
 # ------------------------------------------------------------
@@ -86,11 +189,31 @@ def h_1_camion_magico(nodo):
 
 def h_2_camion_magico(nodo):
     """
-    DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN
-    PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
+    Heurística simplista que estima el costo como la distancia directa a la meta,
+    asumiendo que solo caminamos (porque somos bien sanos, osea un paso por minuto).
+    
+    Esta heurística es admisible por lo siguiente:
+    1. Caminar siempre cuesta 1 minuto por paso
+    2. En el peor de los casos, podríamos llegar a la meta caminando todo el trayecto.
+    3. Cualquier uso del camión mágico cósmico (duplica la posición) nunca empeora este costo.
+    
+    Esta heurística es menos informada (coloquialmente, ignorante), pero es admisible :D
+    
+    @param nodo: Nodo actual en el árbol de búsqueda
+    @return: Estimación del costo mínimo para llegar a la meta
 
     """
-    return 0
+    estado_actual = nodo.estado
+    
+    # Accedemos a la meta a través del modelo
+    meta = nodo.padre.modelo.meta if nodo.padre else nodo.estado
+    
+    # Si ya llegamos o se nos fue el rollo (paranos de la meta), el costo restante es 0
+    if estado_actual >= meta:
+        return 0
+    
+    # La estimación simplista en cuestión, como el Quijote y los molinos de viento
+    return meta - estado_actual
 
 # ------------------------------------------------------------
 #  Desarrolla el modelo del cubo de Rubik
