@@ -208,7 +208,7 @@ def h_2_camion_magico(nodo):
     # Accedemos a la meta a través del modelo
     meta = nodo.padre.modelo.meta if nodo.padre else nodo.estado
     
-    # Si ya llegamos o se nos fue el rollo (paranos de la meta), el costo restante es 0
+    # Si ya llegamos o se nos fue el rollo (pasarnos de la meta), el costo restante es 0
     if estado_actual >= meta:
         return 0
     
@@ -219,7 +219,7 @@ def h_2_camion_magico(nodo):
 #  Desarrolla el modelo del cubo de Rubik
 # ------------------------------------------------------------
 
-class CuboRubik.busquedas.ModeloBusqueda):
+class CuboRubik(busquedas.ModeloBusqueda):
     """
     La clase para el modelo de cubo de rubik, documentación, no olvides poner
     la documentación de forma clara y concisa.
@@ -227,25 +227,392 @@ class CuboRubik.busquedas.ModeloBusqueda):
     https://en.wikipedia.org/wiki/Rubik%27s_Cube
     
     """
+    # -------------------------------------------------------------------------------------------
+    # Aquí inicia mi dolor de cabeza que no me lo quita ningún valium
+    #--------------------------------------------------------------------------------------------
+    """
+    Modelo para el cubo de Rubik estándar 3x3x3
+    
+    El estado del cubo lo representaremos como un diccionario:
+    - 'F': cara frontal (Front)
+    - 'B': cara trasera (Back)
+    - 'U': cara superior (Up)
+    - 'D': cara inferior (Down)
+    - 'L': cara izquierda (Left)
+    - 'R': cara derecha (Right)
+    
+    Cada cara es una matriz de 3x3 que contiene los colores.
+    Los colores se representan como letras:
+    - 'W': blanco (White) - cara U
+    - 'Y': amarillo (Yellow) - cara D
+    - 'R': rojo (red) - cara F
+    - 'O': naranja (Orange) - cara B
+    - 'G': verde (Green) - cara L
+    - 'B': azul (Blue) - cara R
+    
+    Las acciones son movimientos estándar de la notación del cubo:
+    - 'F', 'F', 'F2': rotación de la cara frontal (sentido horario, antihorario, doble)
+    - 'B', 'B', 'B2': rotación de la cara trasera
+    - 'U', 'U', 'U2': rotación de la cara superior
+    - 'D', 'D', 'D2': rotación de la cara inferior
+    - 'L', 'L', 'L2': rotación de la cara izquierda
+    - 'R', 'R', 'R2': rotación de la cara derecha
+    
+    """
     def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        """
+        Inicializa el modelo del cubo de Rubik
+        
+        """
+        # Definimos los colores para cada cara en el estado resuelto
+        self.colores = {
+            'U': 'W', # Up (blanco)
+            'D': 'Y', # Down (amarillo)
+            'F': 'R', # Front (rojo)
+            'B': 'O', # Back (naranja)
+            'L': 'G', # Left (verde)
+            'R': 'B'  # Right (azul)
+        }
+        
+    def estado_inicial(self):
+        """
+        Devuelve un cubo resuelto como estado inicial
+        
+        """
+        estado = {}
+        
+        # Inicializamos cada cara con su color correspondiente
+        for cara, color in self.colores.items():
+            estado[cara] = [[color for _ in range(3)] for _ in range(3)]
+            
+        return estado
 
     def acciones_legales(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        """
+        Determina las acciones legales en un estado dado.
+        
+        En el cubo Rubik, todas las acciones son legales en cualquier estado.
+        
+        @param estado: Estado actual del cubo
+        @return: Lista de acciones legales
+        
+        """
+        # Movimientos básicos: sentido horario, antihorario y doble giro
+        caras = ['F', 'B', 'U', 'D', 'L', 'R']
+        
+        # Generamos todas las acciones posibles (spoiler, un chingo)
+        acciones = []
+        for cara in caras:
+            # Movimiento en sentido horario
+            acciones.append(cara)
+            # Movimiento en sentido antihorario (notación con prima)
+            acciones.apprend(f"{cara}")
+            # Doble movimiento (giro de 180°)
+            acciones.append(f"{cara}2")
+            
+        return acciones
 
     def sucesor(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        """
+        Determina el estado sucesor al aplicar una acción.
+        
+        @param estado: Estado actual del cubo
+        @param accion: Acción a aplicar (movimiento del cubo)
+        @return: Nuevo estado resultante
+        
+        """
+        # Creamos una copia profunda del estado para no modificar el original
+        nuevo_estado = self._copiar_estado(estado)
+        
+        # Extraemos la cara y el tipo de movimiento
+        if len(accion) == 1:
+            # Movimiento simple (sentido horario): 'F', 'B', 'U', 'D', 'L', 'R'
+            cara = accion
+            repeticiones = 1
+        elif accion[1] == "'":
+            # Movimiento antihorario "F'", "B'", etc.
+            cara = accion[0]
+            repeticiones = 3 # Tres movimientos en sentido horario
+        elif accion[1] == "2":
+            # Doble movimiento: "F2", "B2", etc.
+            cara = accion[0]
+            repeticiones = 2
+        else:
+            raise ValueError(f"Sepa que madres hiciste (acción no reconocida): {accion}")
+        
+        # Aplicamos el movimiento la cantidad de veces indicada
+        for _ in range(repeticiones):
+            nuevo_estado = self._aplicar_movimiento(nuevo_estado, cara)
+            
+        return nuevo_estado
+    
+    def _copiar_estado(self,estado):
+        """
+        Crea una copia profunda del estado.
+        
+        @param estado: Estado del cubo a copiar
+        @return: Copia profunda del estado
+        
+        """
+        nuevo_estado = {}
+        for cara, matriz in estado.items():
+            nuevo_estado[cara] = [fila[:] for fila in matriz]
+        return nuevo_estado
+    
+    def _aplicar_movimiento(self, estado, cara):
+        """
+        Aplica un movimiento básico en sentido horario.
+        
+        @param estado: Estado actual del cubo
+        @para cara: Cara a rotar ('F', 'B', 'U', 'D', 'L', 'R')
+        @return: Nuevo estado después de aplicar el movimiento
+        
+        """
+        # Primero rotamos la cara 90 grados en sentido horario
+        estado[cara] = self._rotar_cara_horario(estado[cara])
+        
+        # Actualizamos las aristas afectadas según la cara
+        if cara == 'F':     # Frontal
+            # Guardamos de forma temporal la fila superior
+            temp = [estado['U'][2][0], estado['U'][2][1], estado['U'[2][2]]]
+            
+            # Movemos izquierda -> superior
+            estado['U'][2][0] = estado['L'][2][2]
+            estado['U'][2][1] = estado['L'][1][2]
+            estado['U'][2][2] = estado['L'][0][2]
+            
+            # Movemos inferior -> izquierda
+            estado['L'][0][2] = estado['D'][0][0]
+            estado['L'][1][2] = estado['D'][0][1]
+            estado['L'][2][2] = estado['D'][0][2]
+            
+            # Movemos derecha -> inferior
+            estado['D'][0][0] = estado['R'][2][0]
+            estado['D'][0][1] = estado['R'][1][0]
+            estado['D'][0][2] = estado['R'][0][0]
+            
+            # Movemos temporal (superior) -> derecha
+            estado['R'][0][0] = temp[2]
+            estado['R'][1][0] = temp[1]
+            estado['R'][2][0] = temp[0]
+            
+        elif cara == 'B':   # Trasera
+            # Guardamos de forma temporal la fila superior
+            temp = [estado['U'][0][0], estado['U'][0][1], estado['U'][0][2]]
+            
+            # Movemos derecha -> superior
+            estado['U'][0][0] = estado['R'][0][2]
+            estado['U'][0][1] = estado['R'][1][2]
+            estado['U'][0][2] = estado['R'][2][2]
+            
+            # Movemos inferior -> derecha
+            estado['R'][0][2] = estado['D'][2][2]
+            estado['R'][1][2] = estado['D'][2][1]
+            estado['R'][2][2] = estado['D'][2][0]
+            
+            # Movemos izquierda -> inferior
+            estado['D'][2][0] = estado['L'][0][0]
+            estado['D'][2][1] = estado['L'][1][0]
+            estado['D'][2][2] = estado['L'][2][0]
+            
+            # Movemos temporal (superior) -> izquierda
+            estado['L'][0][0] = temp[2]
+            estado['L'][1][0] = temp[1]
+            estado['L'][2][0] = temp[0]
+            
+        elif cara == 'U':   # Superior
+            # Guardamos de forma temporal la fila superior de frontal
+            temp = [estado['F'][0][0], estado['F'][0][1], estado['F'][0][2]]
+            
+            # Movemos derecha -> frontal
+            estado['F'][0][0] = estado['R'][0][0]
+            estado['F'][0][1] = estado['R'][0][1]
+            estado['F'][0][2] = estado['R'][0][2]
+            
+            # Movemos trasera -> derecha
+            estado['R'][0][0] = estado['B'][0][0]
+            estado['R'][0][1] = estado['B'][0][1]
+            estado['R'][0][2] = estado['B'][0][2]
+            
+            # Movemos izquierda -> trasera
+            estado['B'][0][0] = estado['L'][0][0]
+            estado['B'][0][1] = estado['L'][0][1]
+            estado['B'][0][2] = estado['L'][0][2]
+            
+            # Movemos temporal (frontal) -> izquierda
+            estado['L'][0][0] = temp[0]
+            estado['L'][0][1] = temp[1]
+            estado['L'][0][2] = temp[2]
+            
+        elif cara == 'D':   # Inferior
+            # Guardamos de forma temporal la fila inferior de frontal
+            temp = [estado['F'][2][0], estado['F'][2][1], estado['F'][2][2]]
+            
+            # Movemos izquierda -> frontal
+            estado['F'][2][0] = estado['L'][2][0]
+            estado['F'][2][1] = estado['L'][2][1]
+            estado['F'][2][2] = estado['L'][2][2]
+            
+            # Movemos trasera -> izquierda
+            estado['L'][2][0] = estado['B'][2][0]
+            estado['L'][2][1] = estado['B'][2][1]
+            estado['L'][2][2] = estado['B'][2][2]
+            
+            # Movemos derecha -> trasera
+            estado['B'][2][0] = estado['R'][2][0]
+            estado['B'][2][1] = estado['R'][2][1]
+            estado['B'][2][2] = estado['R'][2][2]
+            
+            # Movemos temporal (frontal) -> derecha
+            estado['R'][2][0] = temp[0]
+            estado['R'][2][1] = temp[1]
+            estado['R'][2][2] = temp[2]
+            
+        elif cara == 'L':   # Izquierda
+            # Guardamos de forma temporal la columna izquierda de frontal
+            temp = [estado['F'][0][0], estado['F'][1][0], estado['F'][2][0]]
+            
+            # Movemos inferior -> frontal
+            estado['F'][0][0] = estado['D'][0][0]
+            estado['F'][1][0] = estado['D'][1][0]
+            estado['F'][2][0] = estado['D'][2][0]
+            
+            # Movemos trasera -> inferior
+            estado['D'][0][0] = estado['B'][2][2]
+            estado['D'][1][0] = estado['B'][1][2]
+            estado['D'][2][0] = estado['B'][0][2]
+            
+            # Movemos superior -> trasera
+            estado['B'][0][2] = estado['U'][2][0]
+            estado['B'][1][2] = estado['U'][1][0]
+            estado['B'][2][2] = estado['U'][0][0]
+            
+            # Movemos temporal (frontal) -> superior
+            estado['U'][0][0] = temp[0]
+            estado['U'][1][0] = temp[1]
+            estado['U'][2][0] = temp[2]
+            
+        elif cara == 'R':    # Derecha
+            # Guardamos de forma temporal la columna derecha de frontal
+            temp = [estado['F'][0][2], estado['F'][1][2], estado['F'][2][2]]
+            
+            # Movemos superior -> frontal
+            estado['F'][0][2] = estado['U'][0][2]
+            estado['F'][1][2] = estado['U'][1][2]
+            estado['F'][2][2] = estado['U'][2][2]
+            
+            # Movemos trasera -> superior
+            estado['U'][0][2] = estado['B'][2][0]
+            estado['U'][1][2] = estado['B'][1][0]
+            estado['U'][2][2] = estado['B'][0][0]
+            
+            # Movemos inferior -> trasera
+            estado['B'][0][0] = estado['D'][2][2]
+            estado['B'][1][0] = estado['D'][1][2]
+            estado['B'][2][0] = estado['D'][0][2]
+            
+            # Movemos temporal (frontal) -> inferior
+            estado['D'][0][2] = temp[0]
+            estado['D'][1][2] = temp[1]
+            estado['D'][2][2] = temp[2]
+            
+        return estado
+    
+    def _rotar_cara_horario(self, cara):
+        """
+        Rota una cara 90 grados en sentido horario.
+        
+        @param cara: Matriz 3x3 que representa la cara
+        @return: Nueva matriz rotada
+        
+        """
+        # Creamos una nueva matriz para la cara rotada
+        nueva_cara = [[None for _ in range(3)] for _ in range(3)]
+        
+        # Rotamos 90 grados en sentido horario
+        for i in range(3):
+            for j in range(3):
+                nueva_cara[j][2-i] = cara[i][j]
+                
+        return nueva_cara
 
     def costo_local(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        """
+        Determina el costo de aplicar una acción en un estado.
+        
+        En el caso del cubo Rubik, todas las acciones tienen el mismo costo.
+        
+        @param estado: Estado actual del cubo
+        @param accion: Acción a aplicar
+        @return: Costo de la acción (1 para todos los movimientos)
+        
+        """
+        # Todos los movimientos tienen el mismo costo
+        return 1
 
     @staticmethod
     def bonito(estado):
         """
         El prettyprint de un estado dado
+        
+        @param estado: Estado del cubo a imprimir
+        @return: Representación en texto del estado
 
         """
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        resultado = []
+        
+        # Imprimimos la cara superior
+        resultado.append("    U    ")
+        for fila in estado['U']:
+            resultado.append("   " + "".join(fila) + "   ")
+        
+        # Imprimimos las caras L, F, R, B en una línea
+        for i in range(3):
+            linea = estado['L'] + estado['F'][i] + estado['R'][i] + estado['B'][i]
+            resultado.append("".join(linea))
+        
+        # Imprimimos la cara inferior (D)
+        resultado.append("    D    ")
+        for fila in estado['D']:
+            resultado.append("   " + "".join(fila) + "   ")
+        
+        return "\n".join(resultado)
+    
+    def es_estado_final(self, estado):
+        """
+        Verifica si el estado es el estado final (cubo resuelto).
+        
+        @param restado: Estado actual del cubo
+        @return: True si el cubo está resuelto, False en caso contrario
+        
+        """
+        # Un cubo está resuelto cuando cada cara tiene un solo color
+        for cara, matriz in estado.items():
+            color = matriz[0][0]    # Color de referencia
+            for fila in matriz:
+                for celda in fila:
+                    if celda != color:
+                        return False
+        return True
+    
+    def mezclar_cubo(self, n_movimientos=20):
+        """
+        Genera un estado mezclado aplicando n movimientos aleatorios.
+        
+        @param n_movimientos: Número de movimientos aleatorios
+        @return: Estado mezclado del cubo
+        
+        """
+        import random
+        
+        estado = self.estado_inicial()
+        acciones = self.acciones_legales(estado)
+        
+        for _ in range(n_movimientos):
+            accion = random.choice(acciones)
+            estado = self.sucesor(estado, accion)
+            
+        return estado
  
  # ------------------------------------------------------------
 #  Desarrolla el problema del Cubo de Rubik
