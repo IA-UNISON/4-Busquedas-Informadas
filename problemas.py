@@ -148,7 +148,7 @@ def h_1_camion_magico(nodo):
     estado_actual = nodo.estado
     
     # Accedemos a la meta a través del modelo del problema
-    meta = nodo.padre.modelo.meta if nodo.padre else nodo.estado
+    meta = nodo.problema.modelo.meta
     
     # Si ya llegamos o nos pasamos de la meta, el costo restante es 0
     if estado_actual >= meta:
@@ -177,7 +177,7 @@ def h_1_camion_magico(nodo):
     # Y pues para el resto tocó hacer cardio (caminar)
     pasos_pie = meta - pos_actual
     
-    # Total: casa paso en el camión mágico cósmico cuesta 2, cada paso a patín cuesta 1
+    # Total: cada paso en el camión mágico cósmico cuesta 2, cada paso a patín cuesta 1
     return pasos_camion * 2 + pasos_pie
 
 
@@ -206,7 +206,7 @@ def h_2_camion_magico(nodo):
     estado_actual = nodo.estado
     
     # Accedemos a la meta a través del modelo
-    meta = nodo.padre.modelo.meta if nodo.padre else nodo.estado
+    meta = nodo.problema.modelo.meta
     
     # Si ya llegamos o se nos fue el rollo (pasarnos de la meta), el costo restante es 0
     if estado_actual >= meta:
@@ -306,7 +306,7 @@ class CuboRubik(busquedas.ModeloBusqueda):
             # Movimiento en sentido horario
             acciones.append(cara)
             # Movimiento en sentido antihorario (notación con prima)
-            acciones.apprend(f"{cara}")
+            acciones.append(f"{cara}")
             # Doble movimiento (giro de 180°)
             acciones.append(f"{cara}2")
             
@@ -314,33 +314,43 @@ class CuboRubik(busquedas.ModeloBusqueda):
 
     def sucesor(self, estado, accion):
         """
-        Determina el estado sucesor al aplicar una acción.
+        Determina el estado sucesor al aplicar una acción
         
         @param estado: Estado actual del cubo
         @param accion: Acción a aplicar (movimiento del cubo)
         @return: Nuevo estado resultante
         
         """
-        # Creamos una copia profunda del estado para no modificar el original
+        # Hay que checar que pueda hashear el diccionario (me apendeje)
+        if isinstance(estado, tuple):
+            estado = self.hasheable_a_estado(estado)
+        
+        # Copio el estado para que no sé modifique
         nuevo_estado = self._copiar_estado(estado)
         
-        # Extraemos la cara y el tipo de movimiento
+        # Extracción de la cara y el tipo de movimiento
         if len(accion) == 1:
-            # Movimiento simple (sentido horario): 'F', 'B', 'U', 'D', 'L', 'R'
+            
+            # Movimiento simple
             cara = accion
             repeticiones = 1
-        elif accion[1] == "'":
-            # Movimiento antihorario "F'", "B'", etc.
+            
+        elif len(accion) > 1 and accion[1] == "'":
+            
+            # Movimiento antihorario
             cara = accion[0]
-            repeticiones = 3 # Tres movimientos en sentido horario
-        elif accion[1] == "2":
-            # Doble movimiento: "F2", "B2", etc.
+            repeticiones = 3 # Tres movimientos para tres (sentido horario)
+            
+        elif len(accion) > 1 and accion[1] == "2":
+            
+            # Doble movimiento
             cara = accion[0]
             repeticiones = 2
+            
         else:
-            raise ValueError(f"Sepa que madres hiciste (acción no reconocida): {accion}")
+            raise ValueError(f"Sepa que madres hiciste (no reconozco tu accion): {accion}")
         
-        # Aplicamos el movimiento la cantidad de veces indicada
+        # Aplicamos el movimiento al cantidad de veces indicada
         for _ in range(repeticiones):
             nuevo_estado = self._aplicar_movimiento(nuevo_estado, cara)
             
@@ -374,7 +384,7 @@ class CuboRubik(busquedas.ModeloBusqueda):
         # Actualizamos las aristas afectadas según la cara
         if cara == 'F':     # Frontal
             # Guardamos de forma temporal la fila superior
-            temp = [estado['U'][2][0], estado['U'][2][1], estado['U'[2][2]]]
+            temp = [estado['U'][2][0], estado['U'][2][1], estado['U'][2][2]]
             
             # Movemos izquierda -> superior
             estado['U'][2][0] = estado['L'][2][2]
@@ -536,6 +546,37 @@ class CuboRubik(busquedas.ModeloBusqueda):
                 
         return nueva_cara
 
+
+    def estado_a_hasheable(self, estado):
+        """
+        Convierte el estado del cubo (diccionario) a una representación hasheable (tupla).
+        
+        @param estado: Estado del cubo (diccionario)
+        @return: Tupla hasheable que representa el estado
+        """
+        estado_hasheable = []
+        # Para cada cara en un orden fijo
+        for cara in sorted(estado.keys()):
+            # Convertimos la matriz en una tupla de tuplas
+            matriz_cara = tuple(tuple(fila) for fila in estado[cara])
+            estado_hasheable.append((cara, matriz_cara))
+        
+        return tuple(estado_hasheable)
+
+    def hasheable_a_estado(self, estado_hasheable):
+        """
+        Convierte un estado hasheable de vuelta a la representación de diccionario.
+        
+        @param estado_hasheable: Tupla hasheable que representa el estado
+        @return: Diccionario con el estado del cubo
+        """
+        estado = {}
+        for cara, matriz_cara in estado_hasheable:
+            # Convertimos la tupla de tuplas de vuelta a una lista de listas
+            estado[cara] = [list(fila) for fila in matriz_cara]
+        
+        return estado
+    
     def costo_local(self, estado, accion):
         """
         Determina el costo de aplicar una acción en un estado.
@@ -586,13 +627,19 @@ class CuboRubik(busquedas.ModeloBusqueda):
         @return: True si el cubo está resuelto, False en caso contrario
         
         """
+        
+        # Por esta madre no dormí
+        if isinstance(estado, tuple):
+            estado = self.hasheable_a_estado(estado)
+            
         # Un cubo está resuelto cuando cada cara tiene un solo color
         for cara, matriz in estado.items():
-            color = matriz[0][0]    # Color de referencia
+            color = matriz[0][0] # Color de referencia
             for fila in matriz:
                 for celda in fila:
                     if celda != color:
                         return False
+                    
         return True
     
     def mezclar_cubo(self, n_movimientos=20):
@@ -621,10 +668,33 @@ class CuboRubik(busquedas.ModeloBusqueda):
 class PblCuboRubik(busquedas.ProblemaBusqueda):
     """
     El problema a resolver es establecer un plan para resolver el cubo de rubik.
+    
+    Se parte de un cubo mezclado y se busca llegar al estado resuelto aplicando una
+    secuencia óptima de movimientos.
 
     """
-    def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+    def __init__(self, estado_inicial=None, n_mezcla=20):
+        """
+        Inicializa el problema del cubo de Rubik.
+        
+        @param estado_inicial: Estado inicial del ubo
+        @oaram n_mezcla: Número de movimientos para mezclar el cubo si no se da
+        estado_inicial
+        
+        """
+        
+        # Creamos el modelo
+        modelo = CuboRubik()
+        
+        # En caso de no proporcionar estado inicial, mezclamos el cubo
+        if estado_inicial is None:
+            estado_inicial = modelo.mezclar_cubo(n_mezcla)
+        
+        # Verificamos si el cubo está resuelto
+        meta = modelo.es_estado_final
+        
+        # Inicializamos la clase padre
+        super().__init__(estado_inicial, meta, modelo)
  
 
 # ------------------------------------------------------------
@@ -632,12 +702,40 @@ class PblCuboRubik(busquedas.ProblemaBusqueda):
 # ------------------------------------------------------------
 def h_1_problema_1(nodo):
     """
-    DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN
-    PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
+    Heurística basada en el número de piezas mal colocadas.
+    
+    Esta heurística cuenta cuántas piezas (esquinas, aristas y centros)
+    no están en su posición correcta respecto al estado resuelto.
+    
+    Es admisible porque:
+    1. Cada pieza mal colocada requiere al menos un movimiento para colocarla.
+    2. En realidad, mover una pieza a su posición correcta generalmente
+       descoloca otras piezas, así que el costo real será mayor.
+    3. Por lo tanto, esta heurística nunca sobreestima el costo real.
+    
+    @param nodo: Nodo actual en el árbol de búsqueda
+    @return: Estimación del costo mínimo para resolver el cubo
 
     """
-    return 0
-
+    estado = nodo.estado
+    modelo = nodo.problema.modelo
+    
+    # Estado resuelto para comparar
+    estado_resuelto = modelo.estado_inicial()
+    
+    # Contamos las piezas mal colocadas
+    piezas_incorrectas = 0
+    
+    # Verificamos las caras
+    for cara in estado.keys():
+        for i in range(3):
+            for j in range(3):
+                # Si el color no coincide con el estado resuelto
+                if estado[cara][i][j] != estado_resuelto[cara][i][j]:
+                    piezas_incorrectas += 1
+    
+    # Cada pieza mal colocadas requiere al menos un movimiento
+    return piezas_incorrectas // 4 # Dividimos entre 4 para hacerla más informativa, pero seguir siendo admisible
 
 # ------------------------------------------------------------
 #  Desarrolla otra política admisible.
@@ -646,12 +744,29 @@ def h_1_problema_1(nodo):
 # ------------------------------------------------------------
 def h_2_problema_1(nodo):
     """
-    DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN
-    PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
-
+    Heurística basada en la cantidad de stickers mal colocados,
+    normalizada según cuantos stickers mueve cada acción (~8).
+    
+    Es admisible porque:
+    1. Cada movimiento puede corregir hasta 8 stickers
+    2. Nunca sobreestima el costo real.
+    
+    @param nodo: Nodo actual en el árbol de búsqueda
+    @return: Estimación del costo mínimo para resolver el cubo 
+    
     """
-    return 0
-
+    estado = nodo.estado
+    errores = 0
+    
+    for cara, matriz in estado.items():
+        color_objetivo = matriz[1][1]
+        for i in range(3):
+            for j in range(3):
+                if (i, j) != (1, 1):
+                    if matriz[i][j] != color_objetivo:
+                        errores += 1
+                        
+    return errores // 8
 
 
 def compara_metodos(problema, heuristica_1, heuristica_2):
@@ -689,11 +804,11 @@ if __name__ == "__main__":
 
     # Compara los métodos de búsqueda para el problema del camión mágico
     # con las heurísticas que desarrollaste
-    problema = PblCamionMágico( XXXXXXXXXX )  # <--- PONLE LOS PARÁMETROS QUE NECESITES
+    problema = PblCamionMágico(100)  # <--- PONLE LOS PARÁMETROS QUE NECESITES
     compara_metodos(problema, h_1_camion_magico, h_2_camion_magico)
     
     # Compara los métodos de búsqueda para el problema del cubo de rubik
     # con las heurísticas que desarrollaste
-    problema = PblCuboRubik( XXXXXXXXXX )  # <--- PONLE LOS PARÁMETROS QUE NECESITES
+    problema = PblCuboRubik(n_mezcla=5)  # <--- PONLE LOS PARÁMETROS QUE NECESITES
     compara_metodos(problema, h_1_problema_1, h_2_problema_1)
     
