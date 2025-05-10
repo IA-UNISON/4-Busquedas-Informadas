@@ -269,7 +269,6 @@ def busqueda_costo_uniforme(problema):
 #
 # ---------------------------------------------------------------------
 
-
 def busqueda_A_estrella(problema, heuristica):
     """
     Búsqueda A*
@@ -283,5 +282,69 @@ def busqueda_A_estrella(problema, heuristica):
     @return Un objeto tipo Nodo con la estructura completa
 
     """
-    raise NotImplementedError('Hay que hacerlo de tarea \
-                              (problema 2 en el archivo busquedas.py)')
+    frontera = []
+    nodo_inicial = Nodo(problema.x0)
+    
+    # Referencia al problema
+    nodo_inicial.problema = problema
+    
+    # Tupla (f(n), nodo) donde f(n) = g(n) + h(n)
+    f_inicial = nodo_inicial.costo + heuristica(nodo_inicial)
+    heapq.heappush(frontera, (f_inicial, nodo_inicial))
+    
+    # Intentamos convertir el estado inicial a una forma hasheable si es posible
+    try:
+        # Verificamos si el estado es un diccionario y si el modelo tiene método estado_a_hasheable
+        if isinstance(problema.x0, dict) and hasattr(problema.modelo, 'estado_a_hasheable'):
+            estado_inicial_hash = problema.modelo.estado_a_hasheable(problema.x0)
+        else:
+            estado_inicial_hash = problema.x0
+    except:
+        # Si hay algún error, usamos la representación str como fallback
+        estado_inicial_hash = str(problema.x0)
+    
+    # Diccionario para los registros de estados visitados con los costos mínimos
+    visitados = {estado_inicial_hash: 0}
+    
+    while frontera:
+        # El nodo con el f(n) menor
+        _, nodo = heapq.heappop(frontera)
+        
+        # Revisamos si llegamos a la meta
+        if problema.es_meta(nodo.estado):
+            nodo.nodos_visitados = problema.num_nodos
+            return nodo
+        
+        # Expandimos el nodo actual
+        for hijo in nodo.expande(problema.modelo):
+            # La referencia del problema para el hijo
+            hijo.problema = problema
+            
+            # Convertimos el estado a una forma hasheable
+            try:
+                # Verificamos si el estado es un diccionario y si el modelo tiene método estado_a_hasheable
+                if isinstance(hijo.estado, dict) and hasattr(problema.modelo, 'estado_a_hasheable'):
+                    estado_hijo_hash = problema.modelo.estado_a_hasheable(hijo.estado)
+                else:
+                    estado_hijo_hash = hijo.estado
+            except:
+                # Si hay algún error, usamos la representación str como fallback
+                estado_hijo_hash = str(hijo.estado)
+            
+            # O es un camino más eficiente o no he pasado por ahí
+            if(estado_hijo_hash not in visitados or visitados[estado_hijo_hash] > hijo.costo):
+                
+                # Actualizamos el costo mínimo para llegar al estado
+                visitados[estado_hijo_hash] = hijo.costo
+                
+                # El cálculo de f(n) = g(n) + h(n)
+                f_n = hijo.costo + heuristica(hijo)
+                
+                # Añadimos la frontera como prioridad f(n)
+                heapq.heappush(frontera, (f_n, hijo))
+        
+    return None
+                
+
+    
+    
