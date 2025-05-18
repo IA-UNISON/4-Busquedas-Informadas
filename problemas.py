@@ -156,17 +156,47 @@ def h_2_camion_magico(nodo):
 
 class CuboRubik(busquedas.ModeloBusqueda):
     """
-    La clase para el modelo de cubo de rubik, documentación, no olvides poner
-    la documentación de forma clara y concisa.
-    
-    https://en.wikipedia.org/wiki/Rubik%27s_Cube
-    
+    Estado = tuple de 54 caracteres ('U','L','F','R','B','D') en orden Singmaster.
+
+    Índices de referencia (fila x columna):
+                0  1  2
+                3  4  5
+                6  7  8        ← U
+
+      9 10 11   18 19 20   27 28 29   36 37 38
+     12 13 14   21 22 23   30 31 32   39 40 41  ← L F R B
+     15 16 17   24 25 26   33 34 35   42 43 44
+
+               45 46 47
+               48 49 50
+               51 52 53        ← D
     """
-    def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+
+
+    CARAS = ('U', 'L', 'F', 'R', 'B', 'D')
+
+    def __init__(self, estado_inicial=None):
+        # Cubo resuelto si no se indica lo contrario
+        if estado_inicial is None:
+            self.estado_inicial = tuple(
+                cara for cara in self.CARAS for _ in range(9)
+            )
+        else:
+            if len(estado_inicial) != 54:
+                raise ValueError("El estado debe tener 54 stickers.")
+            self.estado_inicial = tuple(estado_inicial)
 
     def acciones_legales(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        acciones = (
+        "U", "U'",
+        "D", "D'",
+        "L", "L'",
+        "R", "R'",
+        "F", "F'",
+        "B", "B'",
+    )
+        
+        return list(acciones)
 
     def sucesor(self, estado, accion):
         raise NotImplementedError('Hay que hacerlo de tarea')
@@ -176,15 +206,43 @@ class CuboRubik(busquedas.ModeloBusqueda):
 
     @staticmethod
     def bonito(estado):
-        """
-        El prettyprint de un estado dado
+        if len(estado) != 54:
+            raise ValueError("Estado inválido (se esperaban 54 stickers)")
 
-        """
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        def fila(idxs):
+            return " ".join(estado[i] for i in idxs)
+
+        # Cara U
+        print("      " + fila([0, 1, 2]))
+        print("      " + fila([3, 4, 5]))
+        print("      " + fila([6, 7, 8]))
+
+        # Cinturón L‑F‑R‑B
+        filas_cinturon = [
+            [ 9,10,11,  18,19,20,  27,28,29,  36,37,38],
+            [12,13,14,  21,22,23,  30,31,32,  39,40,41],
+            [15,16,17,  24,25,26,  33,34,35,  42,43,44],
+        ]
+        for r in filas_cinturon:
+            print(
+                fila(r[0:3]) + "  " + fila(r[3:6]) + "  "
+                + fila(r[6:9]) + "  " + fila(r[9:12])
+            )
+
+        # Cara D
+        print("      " + fila([45,46,47]))
+        print("      " + fila([48,49,50]))
+        print("      " + fila([51,52,53]))
  
  # ------------------------------------------------------------
 #  Desarrolla el problema del Cubo de Rubik
 # ------------------------------------------------------------
+
+def test():
+    cubo = CuboRubik()
+    print(cubo.acciones_legales(cubo.estado_inicial))
+    CuboRubik.bonito(cubo.estado_inicial)
+
 
 class PblCuboRubik(busquedas.ProblemaBusqueda):
     """
@@ -250,14 +308,16 @@ def compara_metodos(problema, heuristica_1, heuristica_2):
 if __name__ == "__main__":
 
 
-    # Compara los métodos de búsqueda para el problema del camión mágico
-    # con las heurísticas que desarrollaste
-    n = 20
-    problema = PblCamionMágico(20)  # <--- PONLE LOS PARÁMETROS QUE NECESITES
-    compara_metodos(problema, h_1_camion_magico, h_2_camion_magico)
-    
-    # # Compara los métodos de búsqueda para el problema del cubo de rubik
+    # # Compara los métodos de búsqueda para el problema del camión mágico
     # # con las heurísticas que desarrollaste
-    # problema = PblCuboRubik( XXXXXXXXXX )  # <--- PONLE LOS PARÁMETROS QUE NECESITES
-    # compara_metodos(problema, h_1_problema_1, h_2_problema_1)
+    # n = 20
+    # problema = PblCamionMágico(20)  # <--- PONLE LOS PARÁMETROS QUE NECESITES
+    # compara_metodos(problema, h_1_camion_magico, h_2_camion_magico)
+    
+    # # # Compara los métodos de búsqueda para el problema del cubo de rubik
+    # # # con las heurísticas que desarrollaste
+    # # problema = PblCuboRubik( XXXXXXXXXX )  # <--- PONLE LOS PARÁMETROS QUE NECESITES
+    # # compara_metodos(problema, h_1_problema_1, h_2_problema_1)
+
+    test()
     
