@@ -199,10 +199,94 @@ class CuboRubik(busquedas.ModeloBusqueda):
         return list(acciones)
 
     def sucesor(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        """Aplica la acción sobre el estado y devuelve el nuevo estado."""
+        if accion not in self.acciones_legales(estado):
+            raise ValueError(f"Acción no permitida: {accion}")
+        
+        antihorario = accion.endswith("'")
+        cara = accion[0]
+        nuevo = estado
+
+        if cara == "U":
+            nuevo = self._rotar_cara(nuevo, self._U_FACE, antihorario)
+            nuevo = self._ciclo4(nuevo, self._U_GRUPOS, antihorario)
+        else:
+            raise NotImplementedError("Por ahora solo U y U' están implementadas.")
+
+        return nuevo
+
+    @staticmethod
+    def _rotar_cara(stickers, idxs, antihorario=False):
+        """Rota una cara (8 stickers externos, horario por defecto)."""
+        s = list(stickers)
+        paso = -2 if antihorario else 2
+        for i in range(0, 8, 2):
+            s[idxs[i]] = stickers[idxs[(i+paso) % 8]]
+            s[idxs[i+1]] = stickers[idxs[(i+paso+1) % 8]]
+        return tuple(s)
+
+    @staticmethod
+    def _ciclo4(stickers, grupos, antihorario=False):
+        """Cicla los 4 grupos de stickers al rededor de una cara."""
+        s = list(stickers)
+        if antihorario:
+            temp = [stickers[i] for i in grupos[0]]
+            for i in range(3):
+                for j in range(len(grupos[i])):
+                    s[grupos[i][j]] = stickers[grupos[i+1][j]]
+            for j in range(len(grupos[3])):
+                s[grupos[3][j]] = temp[j]
+        else:
+            temp = [stickers[i] for i in grupos[3]]
+            for i in range(3, 0, -1):
+                for j in range(len(grupos[i])):
+                    s[grupos[i][j]] = stickers[grupos[i-1][j]]
+            for j in range(len(grupos[0])):
+                s[grupos[0][j]] = temp[j]
+        return tuple(s)
+
+    # Índices para el movimiento U
+    _U_FACE = [0, 1, 2, 5, 8, 7, 6, 3]
+    _U_GRUPOS = [
+        [9, 10, 11],    # L
+        [18, 19, 20],   # F
+        [27, 28, 29],   # R
+        [36, 37, 38],   # B
+    ]
+
 
     def costo_local(self, estado, accion):
         raise NotImplementedError('Hay que hacerlo de tarea')
+
+        # ───────────────────────────── helpers internos
+    @staticmethod
+    def _rotar_cara(stickers, idxs, antihorario=False):
+        """
+        Rota una cara 90° (horario por defecto) intercambiando los 8
+        stickers que rodean el centro, cuyos índices vienen en `idxs`
+        (ordenados en sentido horario).
+        """
+        s = list(stickers)
+        paso = -2 if antihorario else 2   # mover 2 posiciones en el ciclo
+        for i in range(0, 8, 2):
+            s[idxs[i]] = stickers[idxs[(i+paso) % 8]]
+            s[idxs[i+1]] = stickers[idxs[(i+paso+1) % 8]]
+        return tuple(s)
+
+    @staticmethod
+    def _ciclo4(stickers, grupos, antihorario=False):
+        """
+        Cicla los 4 grupos (listas de índices) que corresponden a los bordes
+        de la cara que se gira.  Copia completa (no solo referencias).
+        """
+        s = list(stickers)
+        g = grupos[::-1] if antihorario else grupos
+        for i in range(4):
+            origen = grupos[(i - 1) % 4] if antihorario else grupos[(i + 1) % 4]
+            for dst, src in zip(grupos[i], origen):
+                s[dst] = stickers[src]
+        return tuple(s)
+
 
     @staticmethod
     def bonito(estado):
@@ -242,6 +326,15 @@ def test():
     cubo = CuboRubik()
     print(cubo.acciones_legales(cubo.estado_inicial))
     CuboRubik.bonito(cubo.estado_inicial)
+
+    nuevo_estado = cubo.sucesor(cubo.estado_inicial, "U")
+    print("\nDespués de U:")
+    CuboRubik.bonito(nuevo_estado)
+
+    nuevo_estado2 = cubo.sucesor(nuevo_estado, "U'")
+    print("\nDespués de U seguido de U':")
+    CuboRubik.bonito(nuevo_estado2)
+
 
 
 class PblCuboRubik(busquedas.ProblemaBusqueda):
