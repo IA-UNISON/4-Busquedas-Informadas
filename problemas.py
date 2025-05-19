@@ -199,21 +199,36 @@ class CuboRubik(busquedas.ModeloBusqueda):
         return list(acciones)
 
     def sucesor(self, estado, accion):
-        """Aplica la acción sobre el estado y devuelve el nuevo estado."""
-        if accion not in self.acciones_legales(estado):
-            raise ValueError(f"Acción no permitida: {accion}")
-        
-        antihorario = accion.endswith("'")
         cara = accion[0]
-        nuevo = estado
+        antihorario = len(accion) > 1 and accion[1] == "'"
+        nuevo = list(estado)
 
         if cara == "U":
             nuevo = self._rotar_cara(nuevo, self._U_FACE, antihorario)
             nuevo = self._ciclo4(nuevo, self._U_GRUPOS, antihorario)
-        else:
-            raise NotImplementedError("Por ahora solo U y U' están implementadas.")
 
-        return nuevo
+        elif cara == "D":
+            nuevo = self._rotar_cara(nuevo, self._D_FACE, antihorario)
+            nuevo = self._ciclo4(nuevo, self._D_GRUPOS, not antihorario)
+
+        elif cara == "L":
+            nuevo = self._rotar_cara(nuevo, self._L_FACE, antihorario)
+            nuevo = self._ciclo4(nuevo, self._L_GRUPOS, antihorario)
+        
+        elif cara == "R":
+            nuevo = self._rotar_cara(nuevo, self._R_FACE, antihorario)
+            nuevo = self._ciclo4(nuevo, self._R_GRUPOS, antihorario)
+
+        elif cara == "F":
+            nuevo = self._rotar_cara(nuevo, self._F_FACE, antihorario)
+            nuevo = self._ciclo4(nuevo, self._F_GRUPOS, antihorario)
+
+        elif cara == "B":
+            nuevo = self._rotar_cara(nuevo, self._B_FACE, antihorario)
+            nuevo = self._ciclo4(nuevo, self._B_GRUPOS, antihorario)
+
+        return tuple(nuevo)
+
 
     @staticmethod
     def _rotar_cara(stickers, idxs, antihorario=False):
@@ -252,6 +267,52 @@ class CuboRubik(busquedas.ModeloBusqueda):
         [18, 19, 20],   # F
         [27, 28, 29],   # R
         [36, 37, 38],   # B
+    ]
+
+    # índices para el movimiento D
+    _D_FACE = [45, 46, 47, 50, 53, 52, 51, 48]
+    _D_GRUPOS = [
+        [24, 25, 26],   # F (fila inferior)
+        [33, 34, 35],   # R
+        [42, 43, 44],   # B
+        [15, 16, 17],   # L
+    ]
+
+    #índices para el movimiento L
+    _L_FACE = [9, 10, 11, 14, 17, 16, 15, 12]
+    _L_GRUPOS = [
+        [0, 3, 6],     # U (columna izquierda)
+        [18, 21, 24],  # F
+        [45, 48, 51],  # D
+        [44, 41, 38],  # B (columna derecha, en orden inverso)
+    ]
+
+
+    # índices para el movimiento R
+    _R_FACE = [27, 28, 29, 32, 35, 34, 33, 30]
+    _R_GRUPOS = [
+        [2, 5, 8],      # U (columna derecha)
+        [20, 23, 26],   # F
+        [47, 50, 53],   # D
+        [42, 39, 36],   # B (columna izquierda, orden invertido)
+    ]
+
+        # ────────────── índices para el movimiento F
+    _F_FACE = [18, 19, 20, 23, 26, 25, 24, 21]
+    _F_GRUPOS = [
+        [6, 7, 8],      # U (fila inferior)
+        [27, 30, 33],   # R (columna izquierda)
+        [45, 46, 47],   # D (fila superior, en orden)
+        [17, 14, 11],   # L (columna derecha, en orden inverso)
+    ]
+
+    # ────────────── índices para el movimiento B
+    _B_FACE = [36, 37, 38, 41, 44, 43, 42, 39]
+    _B_GRUPOS = [
+        [0, 1, 2],      # U (fila superior)
+        [9, 12, 15],    # L (columna izquierda)
+        [51, 52, 53],   # D (fila inferior, en orden)
+        [35, 32, 29],   # R (columna derecha, en orden inverso)
     ]
 
 
@@ -334,6 +395,51 @@ def test():
     nuevo_estado2 = cubo.sucesor(nuevo_estado, "U'")
     print("\nDespués de U seguido de U':")
     CuboRubik.bonito(nuevo_estado2)
+
+    d1 = cubo.sucesor(cubo.estado_inicial, "D")
+    print("\nDespués de D:")
+    CuboRubik.bonito(d1)
+
+    regreso = cubo.sucesor(d1, "D'")
+    print("\nDespués de D seguido de D':")
+    CuboRubik.bonito(regreso)
+
+        # ------------------- prueba L y L'
+    l1 = cubo.sucesor(cubo.estado_inicial, "L")
+    print("\nDespués de L:")
+    CuboRubik.bonito(l1)
+
+    regreso_l = cubo.sucesor(l1, "L'")
+    print("\nDespués de L seguido de L':")
+    CuboRubik.bonito(regreso_l)
+
+        # ------------------- prueba R y R'
+    r1 = cubo.sucesor(cubo.estado_inicial, "R")
+    print("\nDespués de R:")
+    CuboRubik.bonito(r1)
+
+    regreso_r = cubo.sucesor(r1, "R'")
+    print("\nDespués de R seguido de R':")
+    CuboRubik.bonito(regreso_r)
+
+
+        # ------------------- prueba F y F'
+    f1 = cubo.sucesor(cubo.estado_inicial, "F")
+    print("\nDespués de F:")
+    CuboRubik.bonito(f1)
+
+    regreso_f = cubo.sucesor(f1, "F'")
+    print("\nDespués de F seguido de F':")
+    CuboRubik.bonito(regreso_f)
+
+    # ------------------- prueba B y B'
+    b1 = cubo.sucesor(cubo.estado_inicial, "B")
+    print("\nDespués de B:")
+    CuboRubik.bonito(b1)
+
+    regreso_b = cubo.sucesor(b1, "B'")
+    print("\nDespués de B seguido de B':")
+    CuboRubik.bonito(regreso_b)
 
 
 
