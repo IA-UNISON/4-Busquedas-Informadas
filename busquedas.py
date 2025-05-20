@@ -283,5 +283,21 @@ def busqueda_A_estrella(problema, heuristica):
     @return Un objeto tipo Nodo con la estructura completa
 
     """
-    raise NotImplementedError('Hay que hacerlo de tarea \
-                              (problema 2 en el archivo busquedas.py)')
+    frontera = []
+    heapq.heappush(frontera, (0, Nodo(problema.x0)))  # (costo estimado, nodo)
+    costos = {problema.x0: 0}  # Guarda el costo real del mejor camino a cada nodo
+
+    while frontera:
+        _, nodo = heapq.heappop(frontera)
+
+        if problema.es_meta(nodo.estado):
+            nodo.nodos_visitados = problema.num_nodos
+            return nodo  # Se encontró la solución
+
+        for hijo in nodo.expande(problema.modelo):
+            nuevo_costo = hijo.costo
+            if hijo.estado not in costos or nuevo_costo < costos[hijo.estado]:
+                costos[hijo.estado] = nuevo_costo
+                heapq.heappush(frontera, (nuevo_costo + heuristica(hijo), hijo))
+
+    return None  # No se encontró solución
