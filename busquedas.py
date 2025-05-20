@@ -284,6 +284,7 @@ def busqueda_A_estrella(problema, heuristica):
 
     """
     
+    problema.num_nodos = 0
     nodo_inicial = Nodo(problema.x0)
     # Cola de prioridad
     frontera = []
@@ -302,6 +303,7 @@ def busqueda_A_estrella(problema, heuristica):
             return nodo
 
         for hijo in nodo.expande(problema.modelo):
+            hijo.nodos_visitados = nodo.nodos_visitados + 1
             if (hijo.estado not in visitados or
                 visitados[hijo.estado] > hijo.costo + heuristica(hijo)):
                 heapq.heappush(frontera, (hijo.costo + heuristica(hijo), hijo))
