@@ -9,7 +9,7 @@ con diferentes métodos de búsqueda
 
 """
 
-__author__ = 'juliowaissman'
+__author__ = "juliowaissman"
 
 
 import busquedas
@@ -36,16 +36,19 @@ class Modelo8puzzle(busquedas.ModeloBusqueda):
     Las acciones posibles son A = {N,S,E,O}
 
     """
+
     def __init__(self):
-        self.acciones = {0: ['S', 'E'],
-                         1: ['S', 'E', 'O'],
-                         2: ['S', 'O'],
-                         3: ['N', 'S', 'E'],
-                         4: ['N', 'S', 'E', 'O'],
-                         5: ['N', 'S', 'O'],
-                         6: ['N', 'E'],
-                         7: ['N', 'E', 'O'],
-                         8: ['N', 'O']}
+        self.acciones = {
+            0: ["S", "E"],
+            1: ["S", "E", "O"],
+            2: ["S", "O"],
+            3: ["N", "S", "E"],
+            4: ["N", "S", "E", "O"],
+            5: ["N", "S", "O"],
+            6: ["N", "E"],
+            7: ["N", "E", "O"],
+            8: ["N", "O"],
+        }
 
     def acciones_legales(self, estado):
         return self.acciones[estado[-1]]
@@ -53,10 +56,9 @@ class Modelo8puzzle(busquedas.ModeloBusqueda):
     def sucesor(self, estado, accion):
         s = list(estado)
         ind = s[-1]
-        bias = (-3 if accion == 'N' else
-                3 if accion == 'S' else
-                -1 if accion == 'O' else
-                1)
+        bias = (
+            -3 if accion == "N" else 3 if accion == "S" else -1 if accion == "O" else 1
+        )
         s[ind], s[ind + bias] = s[ind + bias], s[ind]
         s[-1] += bias
         return tuple(s)
@@ -79,14 +81,13 @@ class Modelo8puzzle(busquedas.ModeloBusqueda):
 
 
 class Ocho_puzzle(busquedas.ProblemaBusqueda):
-
     def __init__(self, pos_ini, pos_meta=None):
         if pos_meta is None:
             pos_meta = (0, 1, 2, 3, 4, 5, 6, 7, 8, 0)
 
-        super().__init__(pos_ini + (pos_ini.index(0),),
-                         lambda pos: pos == pos_meta,
-                         Modelo8puzzle())
+        super().__init__(
+            pos_ini + (pos_ini.index(0),), lambda pos: pos == pos_meta, Modelo8puzzle()
+        )
 
 
 def h_1(nodo):
@@ -107,9 +108,13 @@ def h_2(nodo):
     de los numeros mal colocados.
 
     """
-    return sum([abs(i % 3 - nodo.estado[i] % 3) +
-                abs(i // 3 - nodo.estado[i] // 3)
-                for i in range(9) if nodo.estado[i] != 0])
+    return sum(
+        [
+            abs(i % 3 - nodo.estado[i] % 3) + abs(i // 3 - nodo.estado[i] // 3)
+            for i in range(9)
+            if nodo.estado[i] != 0
+        ]
+    )
 
 
 def probando(pos_ini):
@@ -171,7 +176,6 @@ def probando(pos_ini):
 
 
 if __name__ == "__main__":
-
     probando((1, 0, 2, 3, 4, 5, 6, 7, 8))
 
     print("\n\n\ny con otro problema de 8 puzzle")
