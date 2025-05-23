@@ -10,7 +10,7 @@ completamente observables
 
 """
 
-__author__ = 'juliowaissman'
+__author__ = "juliowaissman"
 
 from collections import deque
 import heapq
@@ -26,6 +26,7 @@ class ModeloBusqueda:
         3) Una función de costo local
 
     """
+
     def acciones_legales(self, estado):
         """
         Lista de acciones legales en un estado dado.
@@ -74,6 +75,7 @@ class ProblemaBusqueda:
         c) Un modelo para la búsqueda
 
     """
+
     def __init__(self, x0, meta, modelo):
         """
         Inicializa el problema de búsqueda
@@ -86,9 +88,11 @@ class ProblemaBusqueda:
         @param modelo: Un objeto de la clase ModeloBusqueda
 
         """
+
         def es_meta(estado):
             self.num_nodos += 1
             return meta(estado)
+
         self.es_meta = es_meta
 
         self.x0 = x0
@@ -101,13 +105,14 @@ class Nodo:
     Clase para implementar un árbol como estructura de datos.
 
     """
+
     def __init__(self, estado, accion=None, padre=None, costo_local=0):
         """
         Inicializa un nodo como una estructura
 
         """
-        self.estado = estado
-        self.accion = accion
+        self.estado = estado  # Estado actual
+        self.accion = accion  # Accion tomada para llegar al estado actual
         self.padre = padre
         self.costo = 0 if not padre else padre.costo + costo_local
         self.profundidad = 0 if not padre else padre.profundidad + 1
@@ -124,22 +129,28 @@ class Nodo:
         """
         return (
             Nodo(
-                modelo.sucesor(self.estado, a),
-                a,
-                self,
-                modelo.costo_local(self.estado, a))
-            for a in modelo.acciones_legales(self.estado))
+                modelo.sucesor(self.estado, a),  # estado
+                a,  # accion
+                self,  # nodo padre
+                modelo.costo_local(self.estado, a),
+            )  # costo local
+            for a in modelo.acciones_legales(self.estado)
+        )
 
     def genera_plan(self):
         """
         Genera el plan (parcial o completo) que representa el nodo.
 
-        @return: Una lista [(x0, c0), a1, (x1, c1), a2, (x2, c2), ..., aT, (xT, cT)], donde los x0, x1, ..., xT son tuplas con los estados a cada paso del plan, c0, c1, ..., cT es el costo total hasta ese momento del plan, a1, a2, ..., aT son las acciónes que hay que implementar para llegar desde el estado inicial x0 hasta el testado final xT
+        @return: Una lista [(x0, c0), a1, (x1, c1), a2, (x2, c2), ..., aT, (xT, cT)], donde los x0, x1, ..., xT son
+        tuplas con los estados a cada paso del plan, c0, c1, ..., cT es el costo total hasta ese momento del plan, a1, a2, ..., aT
+        son las acciónes que hay que implementar para llegar desde el estado inicial x0 hasta el testado final xT
 
         """
-        return ([(self.estado, self.costo)] if not self.padre else
-                (self.padre.genera_plan() 
-                 + [self.accion, (self.estado, self.costo)]))
+        return (
+            [(self.estado, self.costo)]  # TODO: No deberia estar dentro del if?
+            if not self.padre
+            else (self.padre.genera_plan() + [self.accion, (self.estado, self.costo)])
+        )
 
     def __str__(self):
         """
@@ -147,15 +158,22 @@ class Nodo:
 
         """
         plan = self.genera_plan()
-        return (f"Costo: {self.costo}\n" +
-                f"Profundidad: {self.profundidad}\n" +
-                f"Trayectoria:\n" +
-                "".join([f"en {x[0]} hace {a} y va a {xp[0]} con costo {xp[1]},\n"
-                         for (x, a, xp)
-                         in zip(plan[:-1:2], plan[1::2], plan[2::2])]))
+        return (
+            f"Costo: {self.costo}\n"
+            + f"Profundidad: {self.profundidad}\n"
+            + f"Trayectoria:\n"
+            + "".join(
+                [
+                    f"en {x[0]} hace {a} y va a {xp[0]} con costo {xp[1]},\n"
+                    for (x, a, xp) in zip(plan[:-1:2], plan[1::2], plan[2::2])
+                ]
+            )
+        )
 
     # Este método de sobrecarga del operador < es necesario
     # para poder utilizar los nodos en la heapq
+    # TODO: para utilizar en la heapq o en la deque
+    # TODO: No deberia cambiarse para el A*, ordenandolos por f(n) = c(n) + h(n)?
     def __lt__(self, other):
         return self.profundidad < other.profundidad
 
@@ -175,7 +193,7 @@ def busqueda_ancho(problema):
     frontera = deque([Nodo(problema.x0)])
     visitados = {problema.x0}
 
-    while frontera:
+    while frontera:  # while frontera?
         nodo = frontera.popleft()
         for hijo in nodo.expande(problema.modelo):
             if hijo.estado in visitados:
@@ -210,8 +228,10 @@ def busqueda_profundo(problema, max_profundidad=None):
             continue
         for hijo in nodo.expande(problema.modelo):
             # or visitados[hijo.estado] > hijo.profundidad:
-            if (hijo.estado not in visitados or
-                visitados[hijo.estado] > hijo.profundidad):
+            if (
+                hijo.estado not in visitados
+                or visitados[hijo.estado] > hijo.profundidad
+            ):
                 frontera.append(hijo)
                 visitados[hijo.estado] = hijo.profundidad
     return None
@@ -244,7 +264,7 @@ def busqueda_costo_uniforme(problema):
 
     """
     frontera = []
-    heapq.heappush(frontera, (0, Nodo(problema.x0)))
+    heapq.heappush(frontera, (0, Nodo(problema.x0)))  # TODO: No ocupamos guardar heapq?
     visitados = {problema.x0: 0}
 
     while frontera:
@@ -253,11 +273,11 @@ def busqueda_costo_uniforme(problema):
             nodo.nodos_visitados = problema.num_nodos
             return nodo
         for hijo in nodo.expande(problema.modelo):
-            if (hijo.estado not in visitados or
-                visitados[hijo.estado] > hijo.costo):
+            if hijo.estado not in visitados or visitados[hijo.estado] > hijo.costo:
                 heapq.heappush(frontera, (hijo.costo, hijo))
                 visitados[hijo.estado] = hijo.costo
     return None
+
 
 # ---------------------------------------------------------------------
 #
@@ -283,5 +303,18 @@ def busqueda_A_estrella(problema, heuristica):
     @return Un objeto tipo Nodo con la estructura completa
 
     """
-    raise NotImplementedError('Hay que hacerlo de tarea \
-                              (problema 2 en el archivo busquedas.py)')
+    frontera = []
+    s0 = Nodo(problema.x0)
+    heapq.heappush(frontera, (heuristica(s0), s0))  # TODO: No ocupamos guardar heapq?
+    visitados = {problema.x0: heuristica(s0)}
+
+    while frontera:
+        (_, nodo) = heapq.heappop(frontera)
+        if problema.es_meta(nodo.estado):
+            nodo.nodos_visitados = problema.num_nodos
+            return nodo
+        for hijo in nodo.expande(problema.modelo):
+            if hijo.estado not in visitados or visitados[hijo.estado] > hijo.costo + heuristica(hijo):
+                heapq.heappush(frontera, (hijo.costo + heuristica(hijo), hijo))
+                visitados[hijo.estado] = hijo.costo + heuristica(hijo)
+    return None
