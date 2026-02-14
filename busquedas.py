@@ -9,14 +9,11 @@ búsquedas en entornos determinísticos conocidos discretos
 completamente observables
 
 """
-
-__author__ = 'juliowaissman'
-
 from collections import deque
 import heapq
 
 
-class ModeloBusqueda:
+class ProblemaBusqueda:
     """
     Clase genérica de un modelo de búsqueda.
 
@@ -26,16 +23,15 @@ class ModeloBusqueda:
         3) Una función de costo local
 
     """
-    def acciones_legales(self, estado):
+    def acciones(self, estado):
         """
         Lista de acciones legales en un estado dado.
 
         @param estado: Una tupla con un estado válido.
-
         @return: Una lista de acciones legales.
 
         """
-        raise NotImplementedError("No implementado todavía.")
+        raise NotImplementedError("No implementado todavía el método acciones.")
 
     def sucesor(self, estado, accion):
         """
@@ -43,60 +39,25 @@ class ModeloBusqueda:
 
         @param estado: Una tupla con un estado válido.
         @param accion: Una acción legal en el estado.
-
-        @return: Una tupla con el estado sucesor de estado cuando
-                 se aplica la acción.
+        @return: estado_sucesor, costo_local. 
+                 Una tupla con el estado sucesor y 
+                 un número con el costo local de realizar la acción en el estado.
 
         """
-        raise NotImplementedError("No implementado todavía.")
+        raise NotImplementedError("No implementado todavía el método sucesor.")
 
-    def costo_local(self, estado, accion):
+    def terminal(self, estado):
         """
-        Calcula el costo de realizar una acción en un estado.
+        Determina si un estado es terminal o no.
 
         @param estado: Una tupla con un estado válido.
-        @param acción: Una acción legal en estado.
-
-        @return: Un número positivo con el costo de realizar
-                 la acción en el estado.
+        @return: True si el estado es terminal, False en caso contrario.
 
         """
-        return 1
+        raise NotImplementedError("No implementado todavía el método terminal.")
 
 
-class ProblemaBusqueda:
-    """
-    Clase genérica de un problema de búsqueda.
-
-    Todo problema de búsqueda debe de tener:
-        a) Un estado inicial
-        b) Una función que diga si un estado es una meta o no
-        c) Un modelo para la búsqueda
-
-    """
-    def __init__(self, x0, meta, modelo):
-        """
-        Inicializa el problema de búsqueda
-
-        @param x0: Una tupla con un estado válido del
-                   problema (estado inicial).
-        @param meta: Una función meta(s) --> bool,
-                     donde meta(s) devuelve True solo
-                     si el estado s es un estado objetivo.
-        @param modelo: Un objeto de la clase ModeloBusqueda
-
-        """
-        def es_meta(estado):
-            self.num_nodos += 1
-            return meta(estado)
-        self.es_meta = es_meta
-
-        self.x0 = x0
-        self.modelo = modelo
-        self.num_nodos = 0  # Solo para efectos medición
-
-
-class Nodo:
+class NodoBusqueda:
     """
     Clase para implementar un árbol como estructura de datos.
 
@@ -111,35 +72,39 @@ class Nodo:
         self.padre = padre
         self.costo = 0 if not padre else padre.costo + costo_local
         self.profundidad = 0 if not padre else padre.profundidad + 1
-        self.nodos_visitados = 0
 
-    def expande(self, modelo):
+    def expande(self, pb_busqueda):
         """
-        Expande un nodo en todos sus nodos hijos de acuerdo al problema pb
+        Expande un nodo en todos sus nodos hijos de acuerdo al problema pb_busqueda
 
-        @param modelo: Un objeto de una clase heredada de ModeloBusqueda
-
-        @return: Una lista de posibles nodos sucesores
+        @param pb_busqueda: Un objeto de una clase heredada de ProblemaBusqueda
+        @return: Un generador de posibles nodos sucesores
 
         """
-        return (
-            Nodo(
-                modelo.sucesor(self.estado, a),
+        for a in pb_busqueda.acciones(self.estado):
+            estado_sucesor, costo_local = pb_busqueda.sucesor(self.estado, a)
+            yield NodoBusqueda(
+                estado_sucesor,
                 a,
                 self,
-                modelo.costo_local(self.estado, a))
-            for a in modelo.acciones_legales(self.estado))
+                costo_local)
 
     def genera_plan(self):
         """
         Genera el plan (parcial o completo) que representa el nodo.
 
-        @return: Una lista [(x0, c0), a1, (x1, c1), a2, (x2, c2), ..., aT, (xT, cT)], donde los x0, x1, ..., xT son tuplas con los estados a cada paso del plan, c0, c1, ..., cT es el costo total hasta ese momento del plan, a1, a2, ..., aT son las acciónes que hay que implementar para llegar desde el estado inicial x0 hasta el testado final xT
+        @return: Una lista [(x0, a0, c0), (x1, a1, c1), ..., (xT-1, aT-1, cT-1), (xT, None, None)],
+                    donde xi es el estado i-ésimo, ai es la acción que se realizara el estado xi
+                    para llegar al estado xi+1, y ci es el costo acumulado de realizar las acciones a0 a ai.
+                    El último elemento de la lista representa el estado final del plan, por lo que no tiene
+                    acción ni costo asociado. 
 
         """
-        return ([(self.estado, self.costo)] if not self.padre else
-                (self.padre.genera_plan() 
-                 + [self.accion, (self.estado, self.costo)]))
+        return (
+            [(self.estado, None, None)] if self.padre is None else
+             self.padre.genera_plan()[:-1] + [(self.padre.estado, self.accion, self.costo), 
+                                              (self.estado, None, None)]
+        )
 
     def __str__(self):
         """
@@ -150,17 +115,16 @@ class Nodo:
         return (f"Costo: {self.costo}\n" +
                 f"Profundidad: {self.profundidad}\n" +
                 f"Trayectoria:\n" +
-                "".join([f"en {x[0]} hace {a} y va a {xp[0]} con costo {xp[1]},\n"
-                         for (x, a, xp)
-                         in zip(plan[:-1:2], plan[1::2], plan[2::2])]))
+                "".join([f"en {x} hace {a} con costo acumulado {c},\n"
+                         for (x, a, c) in plan[:-1]] + [f'{plan[-1][0]} es el estado final.']))
 
-    # Este método de sobrecarga del operador < es necesario
-    # para poder utilizar los nodos en la heapq
+    
     def __lt__(self, other):
+        "Ordena nodos por su profundidad sobrecargando <"
         return self.profundidad < other.profundidad
 
 
-def busqueda_ancho(problema):
+def busqueda_ancho(problema, s0):
     """
     Búsqueda a lo ancho para un problema de búsquedas dado
 
@@ -169,26 +133,27 @@ def busqueda_ancho(problema):
     @return Un objeto tipo Nodo con un plan completo
 
     """
-    if problema.es_meta(problema.x0):
-        return Nodo(problema.x0)
+    nodos_visitados = 1
+    if problema.terminal(s0):
+        return NodoBusqueda(s0)
 
-    frontera = deque([Nodo(problema.x0)])
-    visitados = {problema.x0}
+    frontera = deque([NodoBusqueda(s0)])
+    estados_visitados = {s0}
 
     while frontera:
-        nodo = frontera.popleft()
-        for hijo in nodo.expande(problema.modelo):
-            if hijo.estado in visitados:
+        plan = frontera.popleft()
+        for hijo in plan.expande(problema):
+            if hijo.estado in estados_visitados:
                 continue
-            if problema.es_meta(hijo.estado):
-                hijo.nodos_visitados = problema.num_nodos
-                return hijo
+            nodos_visitados += 1
+            if problema.terminal(hijo.estado):
+                return hijo, nodos_visitados
             frontera.append(hijo)
-            visitados.add(hijo.estado)
-    return None
+            estados_visitados.add(hijo.estado)
+    return None, nodos_visitados
 
 
-def busqueda_profundo(problema, max_profundidad=None):
+def busqueda_profundo(problema, s0, max_profundidad=None):
     """
     Búsqueda a lo profundo para un problema de búsquedas dado
 
@@ -198,43 +163,44 @@ def busqueda_profundo(problema, max_profundidad=None):
     @return Un objeto tipo Nodo con la estructura completa
 
     """
-    frontera = deque([Nodo(problema.x0)])
-    visitados = {problema.x0: 0}
+    frontera = deque([NodoBusqueda(s0)])
+    visitados = {s0}
+    nodos_visitados = 0
 
     while frontera:
-        nodo = frontera.pop()
-        if problema.es_meta(nodo.estado):
-            nodo.nodos_visitados = problema.num_nodos
-            return nodo
-        if max_profundidad is not None and max_profundidad == nodo.profundidad:
+        plan = frontera.pop()
+        nodos_visitados += 1
+        if problema.terminal(plan.estado):
+            return plan, nodos_visitados
+        if max_profundidad is not None and max_profundidad == plan.profundidad:
             continue
-        for hijo in nodo.expande(problema.modelo):
+        for hijo in plan.expande(problema):
             # or visitados[hijo.estado] > hijo.profundidad:
-            if (hijo.estado not in visitados or
-                visitados[hijo.estado] > hijo.profundidad):
+            if (hijo.estado not in visitados):
                 frontera.append(hijo)
-                visitados[hijo.estado] = hijo.profundidad
-    return None
+                visitados.add(hijo.estado)
+    return None, nodos_visitados
 
 
-def busqueda_profundidad_iterativa(problema, max_profundidad=20):
+def busqueda_profundidad_iterativa(problema, s0, max_profundidad=20):
     """
     Búsqueda por profundidad iterativa dado
 
     @param problema: Un objeto de una clase heredada de ProblemaBusqueda
     @param max_profundidad: Máxima profundidad de búsqueda
-
     @return Un objeto tipo Nodo con la estructura completa
 
     """
-    for profundidad in range(max_profundidad):
-        resultado = busqueda_profundo(problema, profundidad)
-        if resultado is not None:
-            return resultado
-    return None
+    nodos_visitados = 0
+    for profundidad in range(1, max_profundidad + 1):
+        plan, nodos = busqueda_profundo(problema, s0, profundidad)
+        nodos_visitados += nodos
+        if plan is not None:
+            return plan, nodos_visitados
+    return None, nodos_visitados
 
 
-def busqueda_costo_uniforme(problema):
+def busqueda_costo_uniforme(problema, s0):
     """
     Búsqueda por costo uniforme
 
@@ -244,20 +210,20 @@ def busqueda_costo_uniforme(problema):
 
     """
     frontera = []
-    heapq.heappush(frontera, (0, Nodo(problema.x0)))
-    visitados = {problema.x0: 0}
+    heapq.heappush(frontera, (0, NodoBusqueda(s0)))
+    visitados = {s0: 0}
+    nodos_visitados = 0
 
     while frontera:
-        (_, nodo) = heapq.heappop(frontera)
-        if problema.es_meta(nodo.estado):
-            nodo.nodos_visitados = problema.num_nodos
-            return nodo
-        for hijo in nodo.expande(problema.modelo):
-            if (hijo.estado not in visitados or
-                visitados[hijo.estado] > hijo.costo):
+        _, plan = heapq.heappop(frontera)
+        nodos_visitados += 1
+        if problema.terminal(plan.estado):
+            return plan, nodos_visitados
+        for hijo in plan.expande(problema):
+            if (hijo.estado not in visitados or visitados[hijo.estado] > hijo.costo):
                 heapq.heappush(frontera, (hijo.costo, hijo))
                 visitados[hijo.estado] = hijo.costo
-    return None
+    return None, nodos_visitados
 
 # ---------------------------------------------------------------------
 #
