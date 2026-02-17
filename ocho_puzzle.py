@@ -15,7 +15,7 @@ __author__ = 'juliowaissman'
 import busquedas
 
 
-class Modelo8puzzle(busquedas.ModeloBusqueda):
+class Pb8Puzzle(busquedas.ProblemaBusqueda):
     """
     El problema del 8 puzzle.
 
@@ -33,11 +33,14 @@ class Modelo8puzzle(busquedas.ModeloBusqueda):
        | 6 | 7 | 8 |
        ------------
 
+    El último número es la posición del espacio vacío, es decir, el índice del 0.
+
     Las acciones posibles son A = {N,S,E,O}
 
     """
-    def __init__(self):
-        self.acciones = {0: ['S', 'E'],
+    def __init__(self, meta = (1, 2, 3, 4, 5, 6, 7, 8, 0)):
+        self.meta = meta[:]
+        self.acciones_legales = {0: ['S', 'E'],
                          1: ['S', 'E', 'O'],
                          2: ['S', 'O'],
                          3: ['N', 'S', 'E'],
@@ -47,11 +50,12 @@ class Modelo8puzzle(busquedas.ModeloBusqueda):
                          7: ['N', 'E', 'O'],
                          8: ['N', 'O']}
 
-    def acciones_legales(self, estado):
-        return self.acciones[estado[-1]]
+    def acciones(self, estado):
+        return self.acciones_legales[estado[-1]]
 
     def sucesor(self, estado, accion):
-        s = list(estado)
+        costo_local = 1
+        s = list(estado[:])
         ind = s[-1]
         bias = (-3 if accion == 'N' else
                 3 if accion == 'S' else
@@ -59,7 +63,10 @@ class Modelo8puzzle(busquedas.ModeloBusqueda):
                 1)
         s[ind], s[ind + bias] = s[ind + bias], s[ind]
         s[-1] += bias
-        return tuple(s)
+        return tuple(s), costo_local
+    
+    def terminal(self, estado):
+        return estado[:-1] == self.meta
 
     @staticmethod
     def dibuja(estado):
@@ -78,21 +85,9 @@ class Modelo8puzzle(busquedas.ModeloBusqueda):
         return cadena
 
 
-class Ocho_puzzle(busquedas.ProblemaBusqueda):
-
-    def __init__(self, pos_ini, pos_meta=None):
-        if pos_meta is None:
-            pos_meta = (0, 1, 2, 3, 4, 5, 6, 7, 8, 0)
-
-        super().__init__(pos_ini + (pos_ini.index(0),),
-                         lambda pos: pos == pos_meta,
-                         Modelo8puzzle())
-
-
 def h_1(nodo):
     """
     Primer heurística para el 8-puzzle:
-
     Regresa el número de piezas mal colocadas.
 
     """
@@ -102,9 +97,7 @@ def h_1(nodo):
 def h_2(nodo):
     """
     Segunda heurística para el 8-puzzle:
-
-    Regresa la suma de las distancias de manhattan
-    de los numeros mal colocados.
+    Regresa la suma de las distancias de manhattan de los numeros mal colocados.
 
     """
     return sum([abs(i % 3 - nodo.estado[i] % 3) +
@@ -125,47 +118,39 @@ def probando(pos_ini):
     muy lentas.
 
     """
-    print(Modelo8puzzle.dibuja(pos_ini))
+    print(Pb8Puzzle.dibuja(pos_ini))
+    problema = Pb8Puzzle()
+    s0 = pos_ini[:] + (pos_ini.index(0),)  # Agrega la posición del espacio vacío al estado inicial
 
-    # ------- BFS -----------
     print("---------- Utilizando BFS -------------")
-    problema = Ocho_puzzle(pos_ini)
-    solucion = busquedas.busqueda_ancho(problema)
-    print(solucion)
-    print("Explorando {} nodos\n\n".format(solucion.nodos_visitados))
+    plan, nodos_visitados = busquedas.busqueda_ancho(problema, s0)
+    print(plan)
+    print(f"Explorando {nodos_visitados} nodos\n\n")
 
-    # ------- DFS -----------
     print("---------- Utilizando DFS -------------")
-    problema = Ocho_puzzle(pos_ini)
-    solucion = busquedas.busqueda_profundo(problema, 50)
-    print(solucion)
-    print("Explorando {} nodos\n\n".format(solucion.nodos_visitados))
+    plan, nodos_visitados = busquedas.busqueda_profundo(problema, s0, 50)
+    print(plan)
+    print(f"Explorando {nodos_visitados} nodos\n\n")
 
     # ------- IDS -----------
     print("---------- Utilizando IDS -------------")
-    problema = Ocho_puzzle(pos_ini)
-    solucion = busquedas.busqueda_profundidad_iterativa(problema, 50)
-    print(solucion)
-    print("Explorando {} nodos\n\n".format(solucion.nodos_visitados))
+    plan, nodos_visitados = busquedas.busqueda_profundidad_iterativa(problema, s0, 50)
+    print(plan)
+    print(f"Explorando {nodos_visitados} nodos\n\n")
 
     # ------- UCS -----------
     print("---------- Utilizando UCS -------------")
-    problema = Ocho_puzzle(pos_ini)
-    solucion = busquedas.busqueda_costo_uniforme(problema)
-    print(solucion)
-    print("Explorando {} nodos\n\n".format(solucion.nodos_visitados))
+    plan, nodos_visitados = busquedas.busqueda_costo_uniforme(problema, s0)
+    print(plan)
+    print(f"Explorando {nodos_visitados} nodos\n\n")
 
-    # # ------- A* con h1 -----------
     # print("---------- Utilizando A* con h1 -------------")
-    # problema = Ocho_puzzle(pos_ini)
-    # solucion = busquedas.busqueda_A_estrella(problema, h_1)
+    # solucion = busquedas.busqueda_A_estrella(problema, s0, h_1)
     # print(solucion)
     # print("Explorando {} nodos".format(solucion.nodos_visitados))
 
-    # # ------- A* con h2 -----------
     # print("---------- Utilizando A* con h2 -------------")
-    # problema = Ocho_puzzle(pos_ini)
-    # solucion = busquedas.busqueda_A_estrella(problema, h_2)
+    # solucion = busquedas.busqueda_A_estrella(problema, s0, h_2)
     # print(solucion)
     # print("Explorando {} nodos".format(solucion.nodos_visitados))
 

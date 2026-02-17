@@ -16,8 +16,8 @@ import busquedas
 #  Desarrolla el modelo del Camión mágico
 # ------------------------------------------------------------
 
-class CamionMagico.busquedas.ModeloBusqueda):
-     """
+class PbCamionMagico(busquedas.ProblemaBusqueda):
+    """
     ---------------------------------------------------------------------------------
      Supongamos que quiero trasladarme desde la posición discreta $1$ hasta 
      la posicion discreta $N$ en una vía recta usando un camión mágico. 
@@ -34,13 +34,13 @@ class CamionMagico.busquedas.ModeloBusqueda):
     def __init__(self):
         raise NotImplementedError('Hay que hacerlo de tarea')
 
-    def acciones_legales(self, estado):
+    def acciones(self, estado):
         raise NotImplementedError('Hay que hacerlo de tarea')
 
     def sucesor(self, estado, accion):
         raise NotImplementedError('Hay que hacerlo de tarea')
 
-    def costo_local(self, estado, accion):
+    def terminal(self, estado):
         raise NotImplementedError('Hay que hacerlo de tarea')
 
     @staticmethod
@@ -51,19 +51,6 @@ class CamionMagico.busquedas.ModeloBusqueda):
         """
         raise NotImplementedError('Hay que hacerlo de tarea')
  
-# ------------------------------------------------------------
-#  Desarrolla el problema del Camión mágico
-# ------------------------------------------------------------
-
-class PblCamionMágico(busquedas.ProblemaBusqueda):
-    """
-    El problema a resolver es establecer un plan para ir desde el 
-    punto $1$ hasta el punto $N$ en el menor tiempo posible.
-
-    """
-    def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
-    
 
 # ------------------------------------------------------------
 #  Desarrolla una política admisible.
@@ -96,7 +83,7 @@ def h_2_camion_magico(nodo):
 #  Desarrolla el modelo del cubo de Rubik
 # ------------------------------------------------------------
 
-class CuboRubik.busquedas.ModeloBusqueda):
+class PbCuboRubik(busquedas.ProblemaBusqueda):
     """
     La clase para el modelo de cubo de rubik, documentación, no olvides poner
     la documentación de forma clara y concisa.
@@ -107,13 +94,13 @@ class CuboRubik.busquedas.ModeloBusqueda):
     def __init__(self):
         raise NotImplementedError('Hay que hacerlo de tarea')
 
-    def acciones_legales(self, estado):
+    def acciones(self, estado):
         raise NotImplementedError('Hay que hacerlo de tarea')
 
     def sucesor(self, estado, accion):
         raise NotImplementedError('Hay que hacerlo de tarea')
 
-    def costo_local(self, estado, accion):
+    def terminal(self, estado):
         raise NotImplementedError('Hay que hacerlo de tarea')
 
     @staticmethod
@@ -122,18 +109,6 @@ class CuboRubik.busquedas.ModeloBusqueda):
         El prettyprint de un estado dado
 
         """
-        raise NotImplementedError('Hay que hacerlo de tarea')
- 
- # ------------------------------------------------------------
-#  Desarrolla el problema del Cubo de Rubik
-# ------------------------------------------------------------
-
-class PblCuboRubik(busquedas.ProblemaBusqueda):
-    """
-    El problema a resolver es establecer un plan para resolver el cubo de rubik.
-
-    """
-    def __init__(self):
         raise NotImplementedError('Hay que hacerlo de tarea')
  
 
@@ -164,46 +139,43 @@ def h_2_problema_1(nodo):
 
 
 
-def compara_metodos(problema, heuristica_1, heuristica_2):
+def compara_metodos(problema, pos_inicial, heuristica_1, heuristica_2):
     """
     Compara en un cuadro lo nodos expandidos y el costo de la solución
     de varios métodos de búsqueda
 
+    @param problema: Un objeto del tipo ProblemaBusqueda
     @param pos_inicial: Una tupla con una posicion inicial
     @param heuristica_1: Una función de heurística
     @param heuristica_2: Una función de heurística
 
-    @return None (no regresa nada, son puros efectos colaterales)
-
-    Si la búsqueda no informada es muy lenta, posiblemente tendras que quitarla
-    de la función
-
     """
-    solucion1 = busquedas.busqueda_A_estrella(problema, heuristica_1)
-    solucion2 = busquedas.busqueda_A_estrella(problema, heuristica_2)
+    solucion1 = busquedas.busqueda_A_estrella(problema, heuristica_1, pos_inicial)
+    solucion2 = busquedas.busqueda_A_estrella(problema, heuristica_2, pos_inicial)
     
     print('-' * 50)
     print('Método'.center(12) + 'Costo'.center(18) + 'Nodos visitados'.center(20))
-    print('-' * 50 + '\n\n')
+    print('-' * 50 + '\n')
     print('A* con h1'.center(12) 
           + str(solucion1.costo).center(18) 
           + str(solucion1.nodos_visitados))
     print('A* con h2'.center(12) 
           + str(solucion2.costo).center(20) 
           + str(solucion2.nodos_visitados))
-    print('-' * 50 + '\n\n')
+    print('-' * 50 + '\n')
 
 
 if __name__ == "__main__":
 
-
     # Compara los métodos de búsqueda para el problema del camión mágico
     # con las heurísticas que desarrollaste
-    problema = PblCamionMágico( XXXXXXXXXX )  # <--- PONLE LOS PARÁMETROS QUE NECESITES
-    compara_metodos(problema, h_1_camion_magico, h_2_camion_magico)
+    pos_inicial = XXXXXXXXXX  # <--- PONLE LA POSICIÓN INICIAL QUE QUIERAS
+    problema = PbCamionMagico( XXXXXXXXXX )  # <--- PONLE LOS PARÁMETROS QUE NECESITES
+    compara_metodos(problema, pos_inicial, h_1_camion_magico, h_2_camion_magico)
     
     # Compara los métodos de búsqueda para el problema del cubo de rubik
     # con las heurísticas que desarrollaste
-    problema = PblCuboRubik( XXXXXXXXXX )  # <--- PONLE LOS PARÁMETROS QUE NECESITES
+    pos_inicial = XXXXXXXXXX  # <--- PONLE LA POSICIÓN INICIAL QUE QUIERAS
+    problema = PbCuboRubik( XXXXXXXXXX )  # <--- PONLE LOS PARÁMETROS QUE NECESITES
     compara_metodos(problema, h_1_problema_1, h_2_problema_1)
     

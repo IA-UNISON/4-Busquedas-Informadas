@@ -164,7 +164,7 @@ def busqueda_profundo(problema, s0, max_profundidad=None):
 
     """
     frontera = deque([NodoBusqueda(s0)])
-    visitados = {s0}
+    visitados = {s0: 0}
     nodos_visitados = 0
 
     while frontera:
@@ -175,10 +175,9 @@ def busqueda_profundo(problema, s0, max_profundidad=None):
         if max_profundidad is not None and max_profundidad == plan.profundidad:
             continue
         for hijo in plan.expande(problema):
-            # or visitados[hijo.estado] > hijo.profundidad:
-            if (hijo.estado not in visitados):
+            if hijo.estado not in visitados or visitados[hijo.estado] > hijo.profundidad:
                 frontera.append(hijo)
-                visitados.add(hijo.estado)
+                visitados[hijo.estado] = hijo.profundidad
     return None, nodos_visitados
 
 

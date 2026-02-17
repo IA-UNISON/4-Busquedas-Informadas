@@ -26,8 +26,9 @@ class PbDosBotes(busquedas.ProblemaBusqueda):
     Se guarda el valor de x0_max y x1_max)
 
     """
-    def __init__(self, x0_max, x1_max):
+    def __init__(self, x0_max, x1_max, meta=0):
         self.maximos = (x0_max, x1_max)
+        self.meta = meta
 
     def acciones(self, estado):
         return [
@@ -54,9 +55,12 @@ class PbDosBotes(busquedas.ProblemaBusqueda):
     
     def calculo_costo_local(self, estado, accion):
         return 1
+    
+    def terminal(self, estado):
+        return self.meta in estado
 
 
-class PbDosBotesCostoAgua(ModeloDosBotes):
+class PbDosBotesCostoAgua(PbDosBotes):
     def calculo_costo_local(self, estado, accion):
         a, i = accion
         costo = 0.01
@@ -67,7 +71,7 @@ class PbDosBotesCostoAgua(ModeloDosBotes):
 
 def el_problema_mas_largo(max_cubo):
     def costo_solucion(x):
-        plan, _ = busquedas.busqueda_ancho(PbDosBotes(x[0], x[1], x[2]))
+        plan, _ = busquedas.busqueda_ancho(PbDosBotes(x[0], x[1], x[2]), (0, 0))
         return 0 if plan is None else plan.costo
 
     return max(((i, j, x) for i in range(2, max_cubo + 1)
@@ -77,8 +81,8 @@ def el_problema_mas_largo(max_cubo):
 
 def el_problema_mas_antiecologico(max_cubo):
     def costo_solucion(x):
-        sol = busquedas.busqueda_costo_uniforme(PblDosBotes(x[0], x[1], x[2]))
-        return 0 if sol is None else sol.costo
+        plan, _ = busquedas.busqueda_costo_uniforme(PbDosBotesCostoAgua(x[0], x[1], x[2]), (0, 0))
+        return 0 if plan is None else plan.costo
 
     return max(((i, j, x) for i in range(2, max_cubo + 1)
                 for j in range(1, i) for x in range(1, i)),
@@ -89,14 +93,16 @@ if __name__ == "__main__":
 
     print("Vamos a ver como se resuleve el problema")
     print("de un bote de 7, otro de 5, si queremos tener 3 litros al final")
-    print(busquedas.busqueda_ancho(PblDosBotes(7, 5, 3)))
+    plan, nodos_visitados = busquedas.busqueda_ancho(PbDosBotes(7, 5, 4), (0, 0))
+    print(f"Plan: {plan}")
+    print(f"Nodos visitados: {nodos_visitados}")
 
     a, b, x = el_problema_mas_largo(15)
     print("\n\nEl problema que más pasos tiene uno que hacer")
-    print("si el bote mayor puede tener 15 litros es de")
-    print(f"un cubo de {a}, otro de {b}, y tener {x} en uno")
+    print("si el cubo mayor puede tener hasta 15 litros es de")
+    print(f"un cubo de {a} litros, otro de {b} litros, y tener {x} en alguno de los cubos al final")
 
     a, b, x = el_problema_mas_antiecologico(15)
     print("\n\nEl problema que más agua gasta")
-    print("si el bote mayor puede tener 15 litros es de")
-    print(f"un cubo de {a}, otro de {b}, y tener {x} en uno")
+    print("si el cubo mayor puede tener hasta 15 litros es de")
+    print(f"un cubo de {a} litros, otro de {b} litros, y tener al final {x} en alguno de los cubos")
