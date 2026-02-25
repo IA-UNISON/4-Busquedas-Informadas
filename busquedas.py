@@ -234,8 +234,7 @@ def busqueda_costo_uniforme(problema, s0):
 #
 # ---------------------------------------------------------------------
 
-
-def busqueda_A_estrella(problema, heuristica):
+def busqueda_A_estrella(problema, s0, heuristica):
     """
     Búsqueda A*
 
@@ -245,8 +244,44 @@ def busqueda_A_estrella(problema, heuristica):
                        o igual a cero con el costo esperado desde nodo hasta
                        un nodo cuyo estado final sea méta.
 
-    @return Un objeto tipo Nodo con la estructura completa
+    @return None si no se encontro solucion, si se encontró,
+            un objeto tipo Nodo con la estructura completa
 
     """
-    raise NotImplementedError('Hay que hacerlo de tarea \
-                              (problema 2 en el archivo busquedas.py)')
+    # segui el pseudocodigo de este artículo: https://www.geeksforgeeks.org/dsa/a-search-algorithm/
+    
+    open_list = []
+    open_dict = {}  
+    closed_dict = {}  
+
+    nodo_inicial = NodoBusqueda(s0)
+    heapq.heappush(open_list, (0, nodo_inicial))
+    open_dict[s0] = 0
+
+    while open_list:
+        _, nodo = heapq.heappop(open_list)
+
+        if nodo.estado in closed_dict and closed_dict[nodo.estado] <= nodo.costo:
+            continue
+
+        if problema.terminal(nodo.estado):
+            return nodo
+
+        closed_dict[nodo.estado] = nodo.costo
+
+        for hijo in nodo.expande(problema):
+
+            g = hijo.costo
+            h = heuristica(hijo)
+            f = g + h
+
+            if hijo.estado in open_dict and open_dict[hijo.estado] <= g:
+                continue
+
+            if hijo.estado in closed_dict and closed_dict[hijo.estado] <= g:
+                continue
+
+            open_dict[hijo.estado] = g
+            heapq.heappush(open_list, (f, hijo))
+
+    return None
