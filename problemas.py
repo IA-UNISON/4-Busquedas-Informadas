@@ -8,7 +8,11 @@ Tarea sobre búsquedas, donde lo que es importante es crear nuevas heurísticas
 
 """
 
+from math import log2
+import math
+import numpy as np
 import busquedas
+
 
 
 
@@ -31,17 +35,31 @@ class PbCamionMagico(busquedas.ProblemaBusqueda):
     ----------------------------------------------------------------------------------
     
     """
-    def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+    def __init__(self,s,a,s0=1,N=100):
+        self.N=N
+        self.s0=s0
+        self.s=np.arange(s0,N+1)
+        self.a=['caminar','camion']
 
     def acciones(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        if estado == self.s[-1]:
+            return []
+        else:
+            acciones = ['caminar']
+            if 2*estado in self.s:
+                acciones.append('camion')
+            return acciones
 
     def sucesor(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        if accion == 'caminar':
+            return estado + 1
+        elif accion == 'camion':
+            return 2 * estado
+        
 
     def terminal(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        if estado == self.s[-1]:
+            return True
 
     @staticmethod
     def bonito(estado):
@@ -49,7 +67,7 @@ class PbCamionMagico(busquedas.ProblemaBusqueda):
         El prettyprint de un estado dado
 
         """
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return print('Posición actual: {}'.format(estado))
  
 
 # ------------------------------------------------------------
@@ -61,8 +79,21 @@ def h_1_camion_magico(nodo):
     DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
+        La heurística que propongo es la siguiente:
+        h(n) = log2(N / nodo.estado)
+
+        La idea detrás de esta heurística es que el camión mágico puede llevarnos 
+        a la posición 2x en un tiempo de 2 minutos, lo que significa que cada vez 
+        que usamos el camión, podemos avanzar significativamente. La función 
+        logarítmica refleja esta capacidad de avanzar rápidamente, ya que a 
+        medida que nos acercamos a N, el valor de h(n) disminuye, indicando
+        que estamos más cerca del objetivo.
+
     """
-    return 0
+    if nodo.estado >= nodo.problema.N:
+        return 0
+    else:
+        return math.log2(nodo.problema.N / nodo.estado)   
 
 
 # ------------------------------------------------------------
@@ -76,8 +107,20 @@ def h_2_camion_magico(nodo):
     DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
+        La heurística que propongo es la siguiente:
+        h(n) = N - nodo.estado
+
+        Esta heurística es admisible porque siempre sobreestima el costo real para llegar a la meta. 
+        En el peor de los casos, si solo pudiéramos caminar, el costo sería exactamente N - nodo.estado, 
+        lo que significa que esta heurística nunca sobrepasa la meta. Sin embargo, no es dominante 
+        respecto a la primera porque no tiene en cuenta la capacidad del camión mágico para avanzar rápidamente
+        por que puede llevar a sobrestimar significativamente el costo real.
     """
-    return 0
+    if nodo.estado >= nodo.problema.N:
+        return 0
+    else:
+        return nodo.problema.N - nodo.estado
+
 
 # ------------------------------------------------------------
 #  Desarrolla el modelo del cubo de Rubik
