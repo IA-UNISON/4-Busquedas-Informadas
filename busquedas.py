@@ -248,5 +248,51 @@ def busqueda_A_estrella(problema, heuristica):
     @return Un objeto tipo Nodo con la estructura completa
 
     """
-    raise NotImplementedError('Hay que hacerlo de tarea \
-                              (problema 2 en el archivo busquedas.py)')
+    
+    frontera = []
+
+    nodo_inicial = NodoBusqueda(problema.estado_inicial)
+
+    # f(n) = g(n) + h(n)
+    f_inicial = nodo_inicial.costo + heuristica(nodo_inicial)
+
+    # Metemos el nodo inicial a la frontera
+    heapq.heappush(frontera, (f_inicial, nodo_inicial))
+
+    # Guarda el menor costo con el que se ha llegado a cada estado
+    visitados = {nodo_inicial.estado: nodo_inicial.costo}
+
+    # Contador de nodos visitados
+    nodos_visitados = 0
+
+    # Mientras haya nodos por explorar
+    while frontera:
+
+        # Sacamos el nodo con menor f(n)
+        _, nodo_actual = heapq.heappop(frontera)
+        nodos_visitados += 1
+
+        # Si el estado es terminal, regresamos la solucion
+        if problema.terminal(nodo_actual.estado):
+            return nodo_actual, nodos_visitados
+
+        # Expandimos el nodo actual
+        for hijo in nodo_actual.expande(problema):
+
+            # Costo acumulado g(n)
+            costo_hijo = hijo.costo
+
+            # Si el estado no ha sido visitado o encontramos un camino mas barato
+            if (hijo.estado not in visitados or
+                    visitados[hijo.estado] > costo_hijo):
+
+                # Actualizamos el mejor costo encontrado
+                visitados[hijo.estado] = costo_hijo
+
+                # Calculamos f(n) = g(n) + h(n)
+                f_hijo = costo_hijo + heuristica(hijo)
+
+                # Agregamos el hijo a la frontera
+                heapq.heappush(frontera, (f_hijo, hijo))
+
+    return None, nodos_visitados
