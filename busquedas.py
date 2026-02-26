@@ -250,8 +250,17 @@ def busqueda_A_estrella(problema,s0, heuristica):
     """
     frontera = []
     heapq.heappush(frontera, (0, NodoBusqueda(s0)))
-    nodos_visitados = {s0: 0}
+    visitados = {s0: 0}
+    nodos_visitados = 0
 
     while frontera:
-        _, nodo = heapq.heappop(frontera)
-        if problema.terminal(nodo.estado):
+        _, plan = heapq.heappop(frontera)
+        nodos_visitados += 1
+        if problema.terminal(plan.estado):
+            return plan, nodos_visitados
+        for hijo in plan.expande(problema):
+            if (hijo.estado not in visitados or
+                visitados[hijo.estado] > hijo.costo + heuristica(hijo)):
+                heapq.heappush(frontera, (hijo.costo + heuristica(hijo), hijo))
+                visitados[hijo.estado] = hijo.costo + heuristica(hijo)
+    return None, nodos_visitados            
