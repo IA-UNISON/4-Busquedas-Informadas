@@ -11,7 +11,6 @@ Tarea sobre búsquedas, donde lo que es importante es crear nuevas heurísticas
 import busquedas
 
 
-
 # ------------------------------------------------------------
 #  Desarrolla el modelo del Camión mágico
 # ------------------------------------------------------------
@@ -31,17 +30,25 @@ class PbCamionMagico(busquedas.ProblemaBusqueda):
     ----------------------------------------------------------------------------------
     
     """
-    def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+    def __init__(self, N):
+        self.N = N
 
     def acciones(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        acciones = []
+        if estado + 1 <= self.N:
+            acciones.append(('pie', estado + 1))
+        if estado * 2 <= self.N:
+            acciones.append(('camion', estado * 2))
+        return acciones
 
     def sucesor(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        if accion[0] == 'pie':
+            return (accion[1], 1)
+        elif accion[0] == 'camion':
+            return (accion[1], 2)
 
     def terminal(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return estado == self.N
 
     @staticmethod
     def bonito(estado):
@@ -49,8 +56,8 @@ class PbCamionMagico(busquedas.ProblemaBusqueda):
         El prettyprint de un estado dado
 
         """
-        raise NotImplementedError('Hay que hacerlo de tarea')
- 
+        return f"Estado: {estado}"
+
 
 # ------------------------------------------------------------
 #  Desarrolla una política admisible.
@@ -58,8 +65,10 @@ class PbCamionMagico(busquedas.ProblemaBusqueda):
 
 def h_1_camion_magico(nodo):
     """
-    DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN
-    PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
+    Se me hace correcta esta primer heurística ya que nunca
+    sobrestima el costo real para llegar al objetivo, y pues 
+    el costo real para cualquier estado siempre es menor o igual
+    que 0.
 
     """
     return 0
