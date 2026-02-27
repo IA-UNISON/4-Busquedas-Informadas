@@ -253,6 +253,7 @@ def busqueda_A_estrella(problema, s0, heuristica):
 
     # Estado inicial del problema
     nodo_inicial = NodoBusqueda(s0)
+    nodo_inicial.problema = problema  # Agrega el problema al nodo inicial para que la heurística pueda acceder a él en problemas.py
 
     # Agrega el nodo inicial a la frontera con su valor 
     f0 = nodo_inicial.costo + heuristica(nodo_inicial)
@@ -273,6 +274,7 @@ def busqueda_A_estrella(problema, s0, heuristica):
 
         # Expandir el nodo actual
         for hijo in plan.expande(problema):
+            hijo.problema = problema
             if (hijo.estado not in visitados or
                 visitados[hijo.estado] > hijo.costo):
 
