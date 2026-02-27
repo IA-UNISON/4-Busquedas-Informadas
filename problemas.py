@@ -9,7 +9,7 @@ Tarea sobre búsquedas, donde lo que es importante es crear nuevas heurísticas
 """
 
 import busquedas
-
+import math
 
 
 # ------------------------------------------------------------
@@ -17,40 +17,37 @@ import busquedas
 # ------------------------------------------------------------
 
 class PbCamionMagico(busquedas.ProblemaBusqueda):
-    """
-    ---------------------------------------------------------------------------------
-     Supongamos que quiero trasladarme desde la posición discreta $1$ hasta 
-     la posicion discreta $N$ en una vía recta usando un camión mágico. 
-    
-     Puedo trasladarme de dos maneras:
-      1. A pie, desde el punto $x$ hasta el punto $x + 1$ en un tiempo de 1 minuto.
-      2. Usando un camión mágico, desde el punto $x$ hasta el punto $2x$ con un tiempo 
-         de 2 minutos.
 
-     Desarrollar la clase del modelo del camión mágico
-    ----------------------------------------------------------------------------------
-    
-    """
-    def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+    def __init__(self, N):
+        self.N = N
+        self.x0 = 1
 
     def acciones(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+
+        acciones = []
+
+        if estado + 1 <= self.N:
+            acciones.append("caminar")
+
+        if estado * 2 <= self.N:
+            acciones.append("camion")
+
+        return acciones
 
     def sucesor(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+
+        if accion == "caminar":
+            return estado + 1, 1
+
+        elif accion == "camion":
+            return estado * 2, 2
 
     def terminal(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return estado == self.N
 
     @staticmethod
     def bonito(estado):
-        """
-        El prettyprint de un estado dado
-
-        """
-        raise NotImplementedError('Hay que hacerlo de tarea')
- 
+        return f"Posición actual: {estado}" 
 
 # ------------------------------------------------------------
 #  Desarrolla una política admisible.
@@ -139,7 +136,7 @@ def h_2_problema_1(nodo):
 
 
 
-def compara_metodos(problema, pos_inicial, heuristica_1, heuristica_2):
+def compara_metodos(problema, heuristica_1, heuristica_2):
     """
     Compara en un cuadro lo nodos expandidos y el costo de la solución
     de varios métodos de búsqueda
@@ -150,8 +147,8 @@ def compara_metodos(problema, pos_inicial, heuristica_1, heuristica_2):
     @param heuristica_2: Una función de heurística
 
     """
-    solucion1 = busquedas.busqueda_A_estrella(problema, heuristica_1, pos_inicial)
-    solucion2 = busquedas.busqueda_A_estrella(problema, heuristica_2, pos_inicial)
+    solucion1 = busquedas.busqueda_A_estrella(problema, heuristica_1)
+    solucion2 = busquedas.busqueda_A_estrella(problema, heuristica_2)
     
     print('-' * 50)
     print('Método'.center(12) + 'Costo'.center(18) + 'Nodos visitados'.center(20))
@@ -169,13 +166,13 @@ if __name__ == "__main__":
 
     # Compara los métodos de búsqueda para el problema del camión mágico
     # con las heurísticas que desarrollaste
-    pos_inicial = XXXXXXXXXX  # <--- PONLE LA POSICIÓN INICIAL QUE QUIERAS
-    problema = PbCamionMagico( XXXXXXXXXX )  # <--- PONLE LOS PARÁMETROS QUE NECESITES
-    compara_metodos(problema, pos_inicial, h_1_camion_magico, h_2_camion_magico)
+    pos_inicial = 1  # <--- PONLE LA POSICIÓN INICIAL QUE QUIERAS
+    problema = PbCamionMagico(1000)  # <--- PONLE LOS PARÁMETROS QUE NECESITES
+    compara_metodos(problema, h_1_camion_magico, h_2_camion_magico)
     
     # Compara los métodos de búsqueda para el problema del cubo de rubik
     # con las heurísticas que desarrollaste
-    pos_inicial = XXXXXXXXXX  # <--- PONLE LA POSICIÓN INICIAL QUE QUIERAS
-    problema = PbCuboRubik( XXXXXXXXXX )  # <--- PONLE LOS PARÁMETROS QUE NECESITES
-    compara_metodos(problema, h_1_problema_1, h_2_problema_1)
+    #pos_inicial = XXXXXXXXXX  # <--- PONLE LA POSICIÓN INICIAL QUE QUIERAS
+    #problema = PbCuboRubik( XXXXXXXXXX )  # <--- PONLE LOS PARÁMETROS QUE NECESITES
+    #compara_metodos(problema, h_1_problema_1, h_2_problema_1)
     
