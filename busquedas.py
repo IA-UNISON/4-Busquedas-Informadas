@@ -235,7 +235,7 @@ def busqueda_costo_uniforme(problema, s0):
 # ---------------------------------------------------------------------
 
 
-def busqueda_A_estrella(problema,s0, heuristica):
+def busqueda_A_estrella(problema, heuristica, s0):
     """
     Búsqueda A*
 

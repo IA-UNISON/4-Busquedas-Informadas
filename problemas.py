@@ -31,17 +31,25 @@ class PbCamionMagico(busquedas.ProblemaBusqueda):
     ----------------------------------------------------------------------------------
     
     """
-    def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+    def __init__(self, N:int):
+        #Guardamos la meta N ala que queremos llegar
+        if not isinstance(N, int) or N < 1:
+            raise ValueError("N debe ser un entero >= 1")
+        self.N = N
 
     def acciones(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        acciones = []
+        if(estado + 1 <= self.N):
+            acciones.append("caminar")
+        if(estado * 2 <= self.N):
+            acciones.append("camion")
+        return acciones        
 
     def sucesor(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return (estado+1) if (accion=="caminar") else (estado*2)
 
     def terminal(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return int(estado) == self.N
 
     @staticmethod
     def bonito(estado):
@@ -49,8 +57,7 @@ class PbCamionMagico(busquedas.ProblemaBusqueda):
         El prettyprint de un estado dado
 
         """
-        raise NotImplementedError('Hay que hacerlo de tarea')
- 
+        return f"Posición: {int(estado)}"
 
 # ------------------------------------------------------------
 #  Desarrolla una política admisible.
