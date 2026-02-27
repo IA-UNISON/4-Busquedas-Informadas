@@ -235,7 +235,7 @@ def busqueda_costo_uniforme(problema, s0):
 # ---------------------------------------------------------------------
 
 
-def busqueda_A_estrella(problema, heuristica):
+def busqueda_A_estrella(problema, s0, heuristica):
     """
     Búsqueda A*
 
@@ -251,7 +251,7 @@ def busqueda_A_estrella(problema, heuristica):
     
     frontera = []
 
-    nodo_inicial = NodoBusqueda(problema.estado_inicial)
+    nodo_inicial = NodoBusqueda(s0)
 
     # f(n) = g(n) + h(n)
     f_inicial = nodo_inicial.costo + heuristica(nodo_inicial)
