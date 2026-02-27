@@ -244,7 +244,7 @@ def busqueda_A_estrella(problema, heuristica, s0):
                        o igual a cero con el costo esperado desde nodo hasta
                        un nodo cuyo estado final sea méta.
 
-    @return Un objeto tipo Nodo con la estructura completa
+    @return Un objeto tipo Nodo con la estructura completa.
 
     """
     frontera = []
