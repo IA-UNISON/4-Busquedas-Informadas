@@ -7,7 +7,6 @@ busquedas.py
 Clases y algoritmos necesarios para desarrollar agentes de
 búsquedas en entornos determinísticos conocidos discretos
 completamente observables
-
 """
 from collections import deque
 import heapq
@@ -235,7 +234,7 @@ def busqueda_costo_uniforme(problema, s0):
 # ---------------------------------------------------------------------
 
 
-def busqueda_A_estrella(problema, heuristica):
+def busqueda_A_estrella(problema, heuristica, s0):
     """
     Búsqueda A*
 
@@ -248,5 +247,22 @@ def busqueda_A_estrella(problema, heuristica):
     @return Un objeto tipo Nodo con la estructura completa
 
     """
-    raise NotImplementedError('Hay que hacerlo de tarea \
-                              (problema 2 en el archivo busquedas.py)')
+    frontera = []
+    nodo_inicial = NodoBusqueda(s0)
+    heapq.heappush(frontera, (heuristica(nodo_inicial), nodo_inicial))
+    visitados = {s0: 0}
+    nodos_visitados = 0
+
+    while frontera:
+        _, plan = heapq.heappop(frontera)
+        nodos_visitados += 1
+        if problema.terminal(plan.estado):
+            return plan, nodos_visitados
+        for hijo in plan.expande(problema):
+            if (hijo.estado not in visitados or visitados[hijo.estado] > hijo.costo):
+                visitados[hijo.estado] = hijo.costo
+                f_hijo = hijo.costo + heuristica(hijo)
+                heapq.heappush(frontera, (f_hijo, hijo))
+
+    return None, nodos_visitados
+
