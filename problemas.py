@@ -65,10 +65,9 @@ class PbCamionMagico(busquedas.ProblemaBusqueda):
 
 def h_1_camion_magico(nodo):
     """
-    Se me hace correcta esta primer heurística ya que nunca
-    sobrestima el costo real para llegar al objetivo, y pues 
-    el costo real para cualquier estado siempre es menor o igual
-    que 0.
+    Esta heurística siempre devueve 0, ya que el costo real
+    nunca puede ser negativo. Así que sí es admisible, porque
+    nunca sobrestima el costo real para llegar al objetivo.
 
     """
     return 0
@@ -82,11 +81,18 @@ def h_1_camion_magico(nodo):
 
 def h_2_camion_magico(nodo):
     """
-    DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN
-    PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
+    Esta heurística calcula (N - x) / 2. Donde x es el estado
+    actual y N es la objetivo. Como en el mejor de los casos falta
+    N - x unidades para llegar al objetivo, pero podríamos avanzar
+    dos unidades usando el camión mágico, entonces (N - x) / 2 es
+    una estimación más precisa. 
+    Y sigue siendo admisible ya que nunca sobrestima el costo real 
+    para llegar al objetivo.
 
     """
-    return 0
+    x = nodo.estado
+    N = nodo.problema.N
+    return max(0, (nodo.problema.N - x) / 2)
 
 # ------------------------------------------------------------
 #  Desarrolla el modelo del cubo de Rubik
