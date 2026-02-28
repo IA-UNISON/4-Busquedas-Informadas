@@ -145,7 +145,7 @@ def probando(pos_ini):
     print(f"Explorando {nodos_visitados} nodos\n\n")
 
     # print("---------- Utilizando A* con h1 -------------")
-    # solucion = busquedas.busqueda_A_estrella(problema, s0, h_1)
+solucion = busquedas.busqueda_A_estrella(problema, h_1, s0)
     # print(solucion)
     # print("Explorando {} nodos".format(solucion.nodos_visitados))
 
