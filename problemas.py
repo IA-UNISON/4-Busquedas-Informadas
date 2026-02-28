@@ -120,6 +120,13 @@ def h_1_camion_magico(nodo):
     A* con h1          13                 61         
     A* con h2          13                 32         
     --------------------------------------------------
+    
+    Con:
+    pos_inicial = 1  
+    problema = PbCamionMagico( 100 )
+    
+    Lo que si mientras mas se acerca la posición inicial a la meta, mas eficiente es esta heurística, 
+    ya que se pueden hacer mas duplicaciones completas, lo que hace que h1 le pueda competir e igualar a h2.
     """
     
     problema = nodo.problema
@@ -153,6 +160,36 @@ def h_2_camion_magico(nodo):
     Como en el problema real a veces es necesario caminar y no siempre se
     puede duplicar perfectamente, el costo real nunca será menor que esta
     estimación ideal Por lo tanto, no sobreestima el costo y es admisible.
+    
+    Esta es dominante respecto a h1 porque requiere aproximadamente la mitad de nodos visitados 
+    para encontrar la solución óptima, aunque ambas heurísticas encuentran la misma solución óptima 
+    con el mismo costo, h2 es más eficiente en términos de nodos visitados cuando la posicion inicial
+    esta mas lejos de la meta.
+    
+    Ej. de ejecucion
+    --------------------------------------------------
+    Método         Costo         Nodos visitados   
+    --------------------------------------------------
+
+    A* con h1          9                  30         
+    A* con h2          9                  10         
+    --------------------------------------------------
+    
+    Con:
+    pos_inicial = 99  
+    problema = PbCamionMagico( 1600 )
+    
+    --------------------------------------------------
+    Método         Costo         Nodos visitados   
+    --------------------------------------------------
+
+    A* con h1          30                 31         
+    A* con h2          30                 31         
+    --------------------------------------------------
+    
+    Con:
+    pos_inicial = 70  
+    problema = PbCamionMagico( 100 )
     """
     
     problema = nodo.problema
@@ -257,29 +294,36 @@ class PbCuboRubik(busquedas.ProblemaBusqueda):
 #  Desarrolla una política admisible.
 # ------------------------------------------------------------
 def h_1_problema_1(nodo):
+    
     """
     Heurística simple para el problema del Cubo de Rubik 3x3.
 
     Se define como:
 
-        h(s) = número de stickers de colores fuera de su posición objetivo
+        h(s) = número de stickers de colores fuera de su posición objetivo / 8
 
     donde s es el estado actual del cubo.
 
-    La heurística cuenta cuántos stickers de colores no coinciden con el color
-    que deberían tener en el estado meta.
+    La heurística cuenta cuántos stickers no coinciden con el color
+    que deberían tener en el estado meta y divide ese valor entre 8,
+    ya que un solo movimiento del cubo puede afectar como máximo
+    8 stickers.
 
-    Esta heurística es admisible porque nunca sobreestima el costo real
-    para llegar a la meta. Cada movimiento del cubo puede corregir varios
-    stickers al mismo tiempo, por lo que el número de stickers de colores mal
-    colocados siempre es una cota inferior del número real de movimientos
-    necesarios para resolver el cubo.
+    Esta heurística es admisible porque en el mejor caso cada movimiento
+    podría corregir simultáneamente hasta 8 stickers mal colocados.
+    Por lo tanto, el número de movimientos necesarios para resolver el
+    cubo nunca puede ser menor que el número total de stickers mal
+    colocados dividido entre 8.
+
+    Como esta estimación nunca sobreestima el número real de movimientos
+    requeridos, es admisible.
     """
+    
     problema = nodo.problema
     estado = nodo.estado
 
     return sum(1 for i in range(54)
-               if estado[i] != problema.meta[i])
+               if estado[i] != problema.meta[i]) / 8
 
 
 # ------------------------------------------------------------
@@ -289,11 +333,53 @@ def h_1_problema_1(nodo):
 # ------------------------------------------------------------
 def h_2_problema_1(nodo):
     """
-    DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN
-    PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
+    Heurística basada en aristas y esquinas para el Cubo de Rubik 3x3.
 
+    Se define como:
+
+        h(s) = (aristas fuera de lugar / 4) + (esquinas fuera de lugar / 4)
+
+    donde se cuentan únicamente las piezas (no los stickers).
+
+    Un movimiento del cubo puede afectar como máximo 4 aristas y 4 esquinas.
+    Por lo tanto, el número mínimo de movimientos necesarios no puede ser
+    menor que el número de piezas mal colocadas dividido entre 4.
+
+    Esta heurística es admisible porque nunca sobreestima el número real
+    de movimientos requeridos para alcanzar el estado meta.
+    
+    Y además es dominante sobre a h1 porque es mas informada y por lo tanto requiere menos 
+    nodos visitados para encontrar la solución óptima.
     """
-    return 0
+
+    problema = nodo.problema
+    estado = nodo.estado
+
+    # Índices de aristas 
+    bordes = [1, 3, 5, 7,
+              10, 12, 14, 16,
+              19, 21, 23, 25,
+              28, 30, 32, 34,
+              37, 39, 41, 43,
+              46, 48, 50, 52]
+
+    # Índices de esquinas 
+    esquinas = [0, 2, 6, 8,
+                9, 11, 15, 17,
+                18, 20, 24, 26,
+                27, 29, 33, 35,
+                36, 38, 42, 44,
+                45, 47, 51, 53]
+
+    bordes_fuera_lugar = sum(
+        1 for i in bordes if estado[i] != problema.meta[i]
+    )
+
+    esquinas_fuera_lugar = sum(
+        1 for i in esquinas if estado[i] != problema.meta[i]
+    )
+
+    return (bordes_fuera_lugar / 4) + (esquinas_fuera_lugar / 4)
 
 
 
@@ -327,13 +413,14 @@ if __name__ == "__main__":
 
     # Compara los métodos de búsqueda para el problema del camión mágico
     # con las heurísticas que desarrollaste
-    pos_inicial = 1  # <--- PONLE LA POSICIÓN INICIAL QUE QUIERAS
+    pos_inicial = 70  # <--- PONLE LA POSICIÓN INICIAL QUE QUIERAS
     problema = PbCamionMagico( 100 )  # <--- PONLE LOS PARÁMETROS QUE NECESITES
     compara_metodos(problema, pos_inicial, h_1_camion_magico, h_2_camion_magico)
     
     # Compara los métodos de búsqueda para el problema del cubo de rubik
     # con las heurísticas que desarrollaste
-    # pos_inicial = XXXXXXXXXX  # <--- PONLE LA POSICIÓN INICIAL QUE QUIERAS
-    # problema = PbCuboRubik( XXXXXXXXXX )  # <--- PONLE LOS PARÁMETROS QUE NECESITES
-    # compara_metodos(problema, h_1_problema_1, h_2_problema_1)
+    pos_inicial = (0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,4,4,4,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,5,5,5,4,4,4,4,4,4,
+                   1,1,1,5,5,5,5,5,5)  # <--- PONLE LA POSICIÓN INICIAL QUE QUIERAS
+    problema = PbCuboRubik( pos_inicial )  # <--- PONLE LOS PARÁMETROS QUE NECESITES
+    compara_metodos(problema, pos_inicial, h_1_problema_1, h_2_problema_1)
     
