@@ -31,17 +31,45 @@ class PbCamionMagico(busquedas.ProblemaBusqueda):
     ----------------------------------------------------------------------------------
     
     """
-    def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+    def __init__(self, pos_inicial=1, meta=50):
+        inicio_seguro = int(pos_inicial)
+        meta_segura = int(meta)
+
+        if inicio_seguro >= meta_segura:
+            raise ValueError("Error: La meta debe ser mayor a la posición inicial.")
+
+        if inicio_seguro < 1:
+            raise ValueError("Error: La posición inicial debe ser al menos 1.")
+
+        self.estado_inicial = (inicio_seguro, meta_segura)
+        self.meta = meta_segura
 
     def acciones(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        posicion_actual, meta = estado
+        acciones = []
+
+        if posicion_actual < meta:
+            acciones.append("A pie")
+
+        if (posicion_actual * 2) <= meta:
+            acciones.append("Camion magico")
+
+        return acciones
 
     def sucesor(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        posicion_actual, meta = estado
+
+        if accion == 'A pie':
+            return (posicion_actual + 1, meta), 1
+
+        if accion == 'Camion magico':
+            return (posicion_actual * 2, meta), 2
+
+        raise ValueError(f"Accion no válida: {accion}")
 
     def terminal(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        posicion_actual, meta = estado
+        return posicion_actual == meta
 
     @staticmethod
     def bonito(estado):
@@ -49,7 +77,8 @@ class PbCamionMagico(busquedas.ProblemaBusqueda):
         El prettyprint de un estado dado
 
         """
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        posicion_actual, meta = estado
+        return f"Posicion actual: {posicion_actual} | Meta: {meta}"
  
 
 # ------------------------------------------------------------
@@ -150,18 +179,18 @@ def compara_metodos(problema, pos_inicial, heuristica_1, heuristica_2):
     @param heuristica_2: Una función de heurística
 
     """
-    solucion1 = busquedas.busqueda_A_estrella(problema, heuristica_1, pos_inicial)
-    solucion2 = busquedas.busqueda_A_estrella(problema, heuristica_2, pos_inicial)
+    solucion1, visitados1 = busquedas.busqueda_A_estrella(problema, heuristica_1, pos_inicial)
+    solucion2, visitados2 = busquedas.busqueda_A_estrella(problema, heuristica_2, pos_inicial)
     
     print('-' * 50)
     print('Método'.center(12) + 'Costo'.center(18) + 'Nodos visitados'.center(20))
     print('-' * 50 + '\n')
     print('A* con h1'.center(12) 
-          + str(solucion1.costo).center(18) 
-          + str(solucion1.nodos_visitados))
+          + str(solucion1.costo).center(18)
+          + str(visitados1).center(20))
     print('A* con h2'.center(12) 
           + str(solucion2.costo).center(20) 
-          + str(solucion2.nodos_visitados))
+          + str(visitados2).center(20))
     print('-' * 50 + '\n')
 
 
@@ -169,13 +198,13 @@ if __name__ == "__main__":
 
     # Compara los métodos de búsqueda para el problema del camión mágico
     # con las heurísticas que desarrollaste
-    pos_inicial = XXXXXXXXXX  # <--- PONLE LA POSICIÓN INICIAL QUE QUIERAS
-    problema = PbCamionMagico( XXXXXXXXXX )  # <--- PONLE LOS PARÁMETROS QUE NECESITES
+    pos_inicial = (1,50) # <--- PONLE LA POSICIÓN INICIAL QUE QUIERAS
+    problema = PbCamionMagico(pos_inicial=1, meta=50)  # <--- PONLE LOS PARÁMETROS QUE NECESITES
     compara_metodos(problema, pos_inicial, h_1_camion_magico, h_2_camion_magico)
     
     # Compara los métodos de búsqueda para el problema del cubo de rubik
     # con las heurísticas que desarrollaste
-    pos_inicial = XXXXXXXXXX  # <--- PONLE LA POSICIÓN INICIAL QUE QUIERAS
-    problema = PbCuboRubik( XXXXXXXXXX )  # <--- PONLE LOS PARÁMETROS QUE NECESITES
-    compara_metodos(problema, h_1_problema_1, h_2_problema_1)
+    #pos_inicial = XXXXXXXXXX  # <--- PONLE LA POSICIÓN INICIAL QUE QUIERAS
+    #problema = PbCuboRubik( XXXXXXXXXX )  # <--- PONLE LOS PARÁMETROS QUE NECESITES
+    #compara_metodos(problema, h_1_problema_1, h_2_problema_1)
     
