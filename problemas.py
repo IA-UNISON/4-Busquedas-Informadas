@@ -424,3 +424,6 @@ if __name__ == "__main__":
     problema = PbCuboRubik( pos_inicial )  # <--- PONLE LOS PARÁMETROS QUE NECESITES
     compara_metodos(problema, pos_inicial, h_1_problema_1, h_2_problema_1)
     
+    # En teoria deberia de jalar pero el cubo de rubik es un problema muy grande y trone mi arch en el intento de correrlo
+    # en local entonces confio en que en teoria estoy bien pq las heuristicas son admisibles y h2 es mas informada que h1
+    # pero no lo puedo correr.
