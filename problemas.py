@@ -119,11 +119,27 @@ def h_1_problema_1(nodo):
 # ------------------------------------------------------------
 def h_2_problema_1(nodo):
     """
-    DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN
-    PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
-
+    Heurística 2:
+    Distancia Manhattan total en el grid 3x3.
+    
+    Es admisible porque cada movimiento mueve
+    una pieza como máximo una posición.
     """
-    return 0
+    estado = nodo.estado
+    meta_pos = {1:(0,0),2:(0,1),3:(0,2),
+                4:(1,0),5:(1,1),6:(1,2),
+                7:(2,0),8:(2,1),9:(2,2)}
+
+    total = 0
+    for idx, valor in enumerate(estado):
+        fila_actual = idx // 3
+        col_actual = idx % 3
+
+        fila_meta, col_meta = meta_pos[valor]
+
+        total += abs(fila_actual - fila_meta) + abs(col_actual - col_meta)
+
+    return total
 
 
 
