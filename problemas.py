@@ -18,38 +18,38 @@ import busquedas
 
 class PbCamionMagico(busquedas.ProblemaBusqueda):
     """
-    ---------------------------------------------------------------------------------
-     Supongamos que quiero trasladarme desde la posición discreta $1$ hasta 
-     la posicion discreta $N$ en una vía recta usando un camión mágico. 
-    
-     Puedo trasladarme de dos maneras:
-      1. A pie, desde el punto $x$ hasta el punto $x + 1$ en un tiempo de 1 minuto.
-      2. Usando un camión mágico, desde el punto $x$ hasta el punto $2x$ con un tiempo 
-         de 2 minutos.
-
-     Desarrollar la clase del modelo del camión mágico
-    ----------------------------------------------------------------------------------
-    
+    Modelo del camión mágico.
+    Estado: entero que representa la posición actual.
+    Objetivo: llegar exactamente a N.
     """
-    def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+
+    def __init__(self, N):
+        self.N = N
 
     def acciones(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        acciones = []
+
+        if estado + 1 <= self.N:
+            acciones.append("caminar")
+
+        if estado * 2 <= self.N:
+            acciones.append("camion")
+
+        return acciones
 
     def sucesor(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        if accion == "caminar":
+            return estado + 1, 1
+        elif accion == "camion":
+            return estado * 2, 2
 
     def terminal(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return estado == self.N
 
     @staticmethod
     def bonito(estado):
-        """
-        El prettyprint de un estado dado
-
-        """
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return f"Posición actual: {estado}"
+    
  
 
 # ------------------------------------------------------------
@@ -115,14 +115,13 @@ class PbCuboRubik(busquedas.ProblemaBusqueda):
 # ------------------------------------------------------------
 #  Desarrolla una política admisible.
 # ------------------------------------------------------------
-def h_1_problema_1(nodo):
+def h_1_camion_magico(nodo):
     """
-    DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN
-    PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
-
+    Heurística 1:
+    Heurística trivial (siempre 0).
+    Es admisible porque nunca sobreestima el costo real.
     """
     return 0
-
 
 # ------------------------------------------------------------
 #  Desarrolla otra política admisible.
