@@ -10,60 +10,46 @@ Tarea sobre búsquedas, donde lo que es importante es crear nuevas heurísticas
 
 import busquedas
 
-
+import math
 
 # ------------------------------------------------------------
 #  Desarrolla el modelo del Camión mágico
 # ------------------------------------------------------------
 
 class PbCamionMagico(busquedas.ProblemaBusqueda):
-    """
-    Modelo del camión mágico.
-    Estado: entero que representa la posición actual.
-    Objetivo: llegar exactamente a N.
-    """
 
     def __init__(self, N):
         self.N = N
-
+        PbCamionMagico.N_GLOBAL = N
     def acciones(self, estado):
         acciones = []
-
         if estado + 1 <= self.N:
             acciones.append("caminar")
-
         if estado * 2 <= self.N:
             acciones.append("camion")
-
         return acciones
 
     def sucesor(self, estado, accion):
         if accion == "caminar":
-            return estado + 1, 1
+            return (estado + 1, 1)   # ← ahora regresa tupla
         elif accion == "camion":
-            return estado * 2, 2
+            return (estado * 2, 2)   # ← ahora regresa tupla
 
     def terminal(self, estado):
         return estado == self.N
 
     @staticmethod
     def bonito(estado):
-        return f"Posición actual: {estado}"
-    
- 
+        return f"Posición: {estado}"
 
 # ------------------------------------------------------------
 #  Desarrolla una política admisible.
 # ------------------------------------------------------------
 
 def h_1_camion_magico(nodo):
-    """
-    DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN
-    PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
-
-    """
-    return 0
-
+    estado = nodo.estado
+    N = PbCamionMagico.N_GLOBAL
+    return N - estado
 
 # ------------------------------------------------------------
 #  Desarrolla otra política admisible.
@@ -72,12 +58,14 @@ def h_1_camion_magico(nodo):
 # ------------------------------------------------------------
 
 def h_2_camion_magico(nodo):
-    """
-    DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN
-    PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
+    estado = nodo.estado
+    N = PbCamionMagico.N_GLOBAL
 
-    """
-    return 0
+    if estado >= N:
+        return 0
+
+    # Mejor caso: alternar duplicar y caminar
+    return (N - estado) // 2
 
 # ------------------------------------------------------------
 #  Desarrolla el modelo del cubo de Rubik
@@ -115,13 +103,14 @@ class PbCuboRubik(busquedas.ProblemaBusqueda):
 # ------------------------------------------------------------
 #  Desarrolla una política admisible.
 # ------------------------------------------------------------
-def h_1_camion_magico(nodo):
+def h_1_problema_1(nodo):
     """
-    Heurística 1:
-    Heurística trivial (siempre 0).
-    Es admisible porque nunca sobreestima el costo real.
+    DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN
+    PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
+
     """
     return 0
+
 
 # ------------------------------------------------------------
 #  Desarrolla otra política admisible.
@@ -166,15 +155,12 @@ def compara_metodos(problema, pos_inicial, heuristica_1, heuristica_2):
 
 if __name__ == "__main__":
 
-    # Compara los métodos de búsqueda para el problema del camión mágico
-    # con las heurísticas que desarrollaste
-    pos_inicial = XXXXXXXXXX  # <--- PONLE LA POSICIÓN INICIAL QUE QUIERAS
-    problema = PbCamionMagico( XXXXXXXXXX )  # <--- PONLE LOS PARÁMETROS QUE NECESITES
+    # Camión mágico
+    pos_inicial = 1
+    problema = PbCamionMagico(100)
     compara_metodos(problema, pos_inicial, h_1_camion_magico, h_2_camion_magico)
-    
-    # Compara los métodos de búsqueda para el problema del cubo de rubik
-    # con las heurísticas que desarrollaste
-    pos_inicial = XXXXXXXXXX  # <--- PONLE LA POSICIÓN INICIAL QUE QUIERAS
-    problema = PbCuboRubik( XXXXXXXXXX )  # <--- PONLE LOS PARÁMETROS QUE NECESITES
-    compara_metodos(problema, h_1_problema_1, h_2_problema_1)
-    
+
+    # Cubo Rubik (lo hacemos después)
+    # pos_inicial = ...
+    # problema = PbCuboRubik(...)
+    # compara_metodos(problema, h_1_problema_1, h_2_problema_1)
