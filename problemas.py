@@ -134,17 +134,137 @@ class PbCuboRubik(busquedas.ProblemaBusqueda):
     https://en.wikipedia.org/wiki/Rubik%27s_Cube
     
     """
-    def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+    #Constantes de caras
+    F=0 #Front
+    U=1 #Up
+    R=2 #Right
+    B=3 #Back
+    D=4 #Down
+    L=5 #Left
+
+
+    Colores = {
+        0: 'BL', #blanco 
+        1: 'RO', #rojo
+        2: 'AZ', #azul
+        3: 'AM', #amarillo
+        4: 'NA', #naranja
+        5: 'VE' #verde
+    }
+
+
+    def __init__(self,s0):
+        #estado inicial, acciones, etc
+        self.meta=np.zeros((6,3,3), dtype=int) 
+        for i in range(6):
+            self.meta[i,:,:] = i
+
+        self.s0 = s0
+        self.a = ['F', 'U', 'R', 'B', 'D', 'L']  # Front, Up, Right, Back, Down, Left
 
     def acciones(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return self.a
+        #Todas las acciones son posibles en cualquier estado.
 
     def sucesor(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        #Aquí se implementaría la lógica para rotar las caras del cubo según la acción dada.
+        #Esto es bastante complejo y requiere una representación adecuada del estado del cubo.
+        movimientos = {
+            'F': self.rotar_frontal,
+            'U': self.rotar_superior,
+            'R': self.rotar_derecha,
+            'B': self.rotar_trasera,
+            'D': self.rotar_inferior,
+            'L': self.rotar_izquierda
+        }
+
+        return movimientos[accion](estado)
+    
+    def rotar_frontal(self, estado):
+        # Implementa la lógica para rotar la cara frontal del cubo
+        nuevo_estado = np.copy(estado)
+
+        #rotar la cara frontal
+        nuevo_estado[self.F] = np.rot90(nuevo_estado[self.F], -1)  # Rotar la cara frontal en sentido horario
+
+        #rotar las filas/columnas adyacentes
+        nuevo_estado[self.U][2, :] = estado[self.L][:, 2][::-1]  # La fila inferior de U se convierte en la columna derecha de L (invertida)
+        nuevo_estado[self.R][:, 0] = estado[self.U][2, :]
+        nuevo_estado[self.D][0, :] = estado[self.R][:, 0]
+        nuevo_estado[self.L][:, 2] = estado[self.D][0, :][::-1]  # Invertir la fila inferior de D antes de asignarla a L
+        return nuevo_estado
+
+    def rotar_superior(self, estado):
+        # Implementa la lógica para rotar la cara superior del cubo
+        nuevo_estado = np.copy(estado)
+        #rotar la cara frontal
+        nuevo_estado[self.U] = np.rot90(nuevo_estado[self.U], -1)  # Rotar la cara superior en sentido horario
+
+        #rotar las filas/columnas adyacentes
+        temp = estado[self.F][0, :].copy()
+
+        nuevo_estado[self.F][0, :] = estado[self.R][0, :]
+        nuevo_estado[self.R][0, :] = estado[self.B][0, :]
+        nuevo_estado[self.B][0, :] = estado[self.L][0, :]
+        nuevo_estado[self.L][0, :] = temp
+        return nuevo_estado
+    
+    def rotar_derecha(self, estado):
+        # Implementa la lógica para rotar la cara derecha del cubo
+        nuevo_estado = np.copy(estado)
+        #rotar la cara derecha
+        nuevo_estado[self.R] = np.rot90(nuevo_estado[self.R], -1)
+
+    
+        #rotar las filas/columnas adyacentes
+        temp = estado[self.U][:, 2].copy()
+
+        nuevo_estado[self.U][:, 2] = estado[self.B][:, 0][::-1]
+        nuevo_estado[self.B][:, 0] = estado[self.D][:, 2][::-1]
+        nuevo_estado[self.D][:, 2] = estado[self.F][:, 2]
+        nuevo_estado[self.F][:, 2] = temp
+        return nuevo_estado
+    
+    def rotar_trasera(self, estado):
+        # Implementa la lógica para rotar la cara trasera del cubo
+        nuevo_estado = np.copy(estado)
+        #rotar la cara trasera
+        nuevo_estado[self.B] = np.rot90(nuevo_estado[self.B], -1)
+        #rotar las filas/columnas adyacentes
+        nuevo_estado[self.U][0, :] = estado[self.R][2, :][::-1]  # Invertir la fila inferior de R antes de asignarla a U
+        nuevo_estado[self.L][:, 0] = estado[self.U][0, :]
+        nuevo_estado[self.D][2, :] = estado[self.L][:, 0][::-1]  # Invertir la columna izquierda de L antes de asignarla a D
+        nuevo_estado[self.R][2, :] = estado[self.D][2, :]
+        return nuevo_estado
+    
+    def rotar_inferior(self, estado):
+        # Implementa la lógica para rotar la cara inferior del cubo
+        nuevo_estado = np.copy(estado)
+        #rotar la cara inferor
+        nuevo_estado[self.D] = np.rot90(nuevo_estado[self.D], -1)
+        #rotar las filas/columnas adyacentes
+        nuevo_estado[self.F][2, :] = estado[self.L][2, :]
+        nuevo_estado[self.R][2, :] = estado[self.F][2, :]
+        nuevo_estado[self.B][2, :] = estado[self.R][2, :]
+        nuevo_estado[self.L][2, :] = estado[self.B][2, :]
+        return nuevo_estado
+    
+    def rotar_izquierda(self, estado):
+        # Implementa la lógica para rotar la cara izquierda del cubo
+        nuevo_estado = np.copy(estado)
+        #rotar la cara izquierda
+        nuevo_estado[self.L] = np.rot90(nuevo_estado[self.L], -1)
+        #rotar las filas/columnas adyacentes
+        nuevo_estado[self.U][:, 0] = estado[self.B][:, 2][::-1]  # Invertir la columna derecha de B antes de asignarla a U
+        nuevo_estado[self.F][:, 0] = estado[self.U][:, 0]
+        nuevo_estado[self.D][:, 0] = estado[self.F][:, 0]
+        nuevo_estado[self.B][:, 2] = estado[self.D][:, 0][::-1]  # Invertir la columna izquierda de D antes de asignarla a B
+        return nuevo_estado
+        
 
     def terminal(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        if np.array_equal(estado, self.meta):
+            return True
 
     @staticmethod
     def bonito(estado):
