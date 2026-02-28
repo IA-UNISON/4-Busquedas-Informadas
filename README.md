@@ -1,5 +1,72 @@
 ![](ia.png)
 
+Análisis de Heurísticas
+1. Formalización
+Camión Mágico
+
+Estados: enteros de 1 a N.
+
+Inicial: 1.
+
+Meta: N.
+
+Acciones:
+
+caminar (+1, costo 1)
+
+camion (×2, costo 2)
+
+Cubo Rubik Simplificado
+
+Estados: tuplas 3x3.
+
+Inicial: generado desde la meta.
+
+Meta: (1,2,3,4,5,6,7,8,9)
+
+Acciones: {R, L, U, D}
+
+Costo: 1 por movimiento.
+
+2. Admisibilidad
+Camión Mágico
+
+h1(n) = N − estado
+Nunca sobreestima porque representa el caso mínimo usando solo “caminar”.
+
+h2(n) = (N − estado) // 2
+No sobreestima ya que considera el mejor caso usando duplicaciones.
+
+Ambas son admisibles.
+
+Cubo Rubik
+
+h1: número de piezas fuera de lugar.
+Cada pieza incorrecta requiere al menos un movimiento → admisible.
+
+h2: distancia Manhattan total.
+Cada movimiento desplaza una pieza a lo sumo una posición → admisible.
+
+3. Comparación
+
+Camión:
+
+h1: 12 nodos
+
+h2: 13 nodos
+No hay dominancia clara.
+
+Cubo:
+
+h1: 16 nodos
+
+h2: 7 nodos
+h2 explora menos nodos manteniendo optimalidad, por lo que domina empíricamente.
+
+4. Conclusión
+
+Heurísticas más informadas reducen nodos explorados sin perder optimalidad, confirmando la efectividad de A*.
+
 # Búsquedas
 
 ## Objetivos
