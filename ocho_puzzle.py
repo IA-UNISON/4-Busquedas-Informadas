@@ -9,7 +9,7 @@ con diferentes métodos de búsqueda
 
 """
 
-__author__ = 'juliowaissman'
+__author__ = "Javier Leonardo Miranda Sanchez"
 
 
 import busquedas
