@@ -31,25 +31,41 @@ class PbCamionMagico(busquedas.ProblemaBusqueda):
     ----------------------------------------------------------------------------------
     
     """
-    def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+    def __init__(self, N):
+        if N < 1:
+            raise ValueError("N debe ser mayor o igual a 1")
+        self.N = N
 
     def acciones(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
-
+        x = estado
+        if x < self.N and 2 * x <= self.N:
+            return['caminar', 'camion']
+        elif x < self.N:
+            return['caminar']
+        elif 2 * x <= self.N:
+            return['camion']
+        else: return[]
+    
     def sucesor(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        x = estado
 
+        acciones = {'caminar:' (x + 1, 1), 'camion:' (2 * x, 2)}
+
+        if accion in acciones:
+            return acciones[accion]
+        else:
+            raise ValueError(f"Accion inválida: {accion}")
+    
     def terminal(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
-
+        return estado == self.N
+    
     @staticmethod
     def bonito(estado):
         """
         El prettyprint de un estado dado
 
         """
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return f"Posición: {estado}"
  
 
 # ------------------------------------------------------------
