@@ -248,26 +248,29 @@ def busqueda_A_estrella(problema, s0, heuristica):
             un objeto tipo Nodo con la estructura completa
 
     """
-    # segui el pseudocodigo de este artículo: https://www.geeksforgeeks.org/dsa/a-search-algorithm/
     
-    open_list = []
-    open_dict = {}  
-    closed_dict = {}  
+    frontera = []
+    mejor_costo = {}  
+    explorados = {}  
+    nodos_visitados = 0
 
     nodo_inicial = NodoBusqueda(s0)
-    heapq.heappush(open_list, (0, nodo_inicial))
-    open_dict[s0] = 0
+    f0 = heuristica(nodo_inicial)
+    heapq.heappush(frontera, (f0, nodo_inicial))
+    mejor_costo[s0] = 0
 
-    while open_list:
-        _, nodo = heapq.heappop(open_list)
+    while frontera:
+        _, nodo = heapq.heappop(frontera)
+        nodos_visitados += 1
 
-        if nodo.estado in closed_dict and closed_dict[nodo.estado] <= nodo.costo:
+        if nodo.estado in explorados and explorados[nodo.estado] <= nodo.costo:
             continue
 
         if problema.terminal(nodo.estado):
+            nodo.nodos_visitados = nodos_visitados
             return nodo
 
-        closed_dict[nodo.estado] = nodo.costo
+        explorados[nodo.estado] = nodo.costo
 
         for hijo in nodo.expande(problema):
 
@@ -275,13 +278,13 @@ def busqueda_A_estrella(problema, s0, heuristica):
             h = heuristica(hijo)
             f = g + h
 
-            if hijo.estado in open_dict and open_dict[hijo.estado] <= g:
+            if hijo.estado in mejor_costo and mejor_costo[hijo.estado] <= g:
                 continue
 
-            if hijo.estado in closed_dict and closed_dict[hijo.estado] <= g:
+            if hijo.estado in explorados and explorados[hijo.estado] <= g:
                 continue
 
-            open_dict[hijo.estado] = g
-            heapq.heappush(open_list, (f, hijo))
+            mejor_costo[hijo.estado] = g
+            heapq.heappush(frontera, (f, hijo))
 
     return None

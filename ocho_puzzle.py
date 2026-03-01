@@ -104,6 +104,28 @@ def h_2(nodo):
                 abs(i // 3 - nodo.estado[i] // 3)
                 for i in range(9) if nodo.estado[i] != 0])
 
+# use esta heuristica porque A* con h_2 da resultados casi iguales a UCS
+# sigue siendo la suma de las distancias de manhattan pero esta consigue 
+# 1717 nodos en el ultimo problema, en vez de 97308 usando h_2
+def h_3(nodo):
+    distancia = 0
+    estado = nodo.estado
+
+    for i in range(9):
+        valor = estado[i]
+
+        if valor != 0:
+            fila_actual = i // 3
+            col_actual = i % 3
+
+            objetivo = valor - 1
+            fila_obj = objetivo // 3
+            col_obj = objetivo % 3
+
+            distancia += abs(fila_actual - fila_obj) + abs(col_actual - col_obj)
+
+    return distancia
+
 
 def probando(pos_ini):
     """
@@ -144,15 +166,16 @@ def probando(pos_ini):
     print(plan)
     print(f"Explorando {nodos_visitados} nodos\n\n")
 
-    # print("---------- Utilizando A* con h1 -------------")
-    # solucion = busquedas.busqueda_A_estrella(problema, s0, h_1)
-    # print(solucion)
-    # print("Explorando {} nodos".format(solucion.nodos_visitados))
+    # ------- A* -----------
+    print("---------- Utilizando A* con h2 -------------")
+    solucion = busquedas.busqueda_A_estrella(problema, s0, h_2)
+    print(solucion)
+    print("Explorando {} nodos".format(solucion.nodos_visitados))
 
-    # print("---------- Utilizando A* con h2 -------------")
-    # solucion = busquedas.busqueda_A_estrella(problema, s0, h_2)
-    # print(solucion)
-    # print("Explorando {} nodos".format(solucion.nodos_visitados))
+    print("---------- Utilizando A* con h3 -------------")
+    solucion = busquedas.busqueda_A_estrella(problema, s0, h_3)
+    print(solucion)
+    print("Explorando {} nodos".format(solucion.nodos_visitados))
 
 
 if __name__ == "__main__":
