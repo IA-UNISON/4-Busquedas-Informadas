@@ -118,9 +118,11 @@ def probando(pos_ini):
     muy lentas.
 
     """
+
     print(Pb8Puzzle.dibuja(pos_ini))
     problema = Pb8Puzzle()
     s0 = pos_ini[:] + (pos_ini.index(0),)  # Agrega la posición del espacio vacío al estado inicial
+    problema.x0 = s0
 
     print("---------- Utilizando BFS -------------")
     plan, nodos_visitados = busquedas.busqueda_ancho(problema, s0)
@@ -144,15 +146,15 @@ def probando(pos_ini):
     print(plan)
     print(f"Explorando {nodos_visitados} nodos\n\n")
 
-    # print("---------- Utilizando A* con h1 -------------")
-    # solucion = busquedas.busqueda_A_estrella(problema, s0, h_1)
-    # print(solucion)
-    # print("Explorando {} nodos".format(solucion.nodos_visitados))
+    print("---------- Utilizando A* con h1 -------------")
+    plan, nodos_visitados = busquedas.busqueda_A_estrella(problema,  h_1)
+    print(plan)
+    print(f"Explorando {nodos_visitados} nodos\n")
 
-    # print("---------- Utilizando A* con h2 -------------")
-    # solucion = busquedas.busqueda_A_estrella(problema, s0, h_2)
-    # print(solucion)
-    # print("Explorando {} nodos".format(solucion.nodos_visitados))
+    print("---------- Utilizando A* con h2 -------------")
+    plan, nodos_visitados = busquedas.busqueda_A_estrella(problema, h_2)
+    print(plan)
+    print(f"Explorando {nodos_visitados} nodos\n")
 
 
 if __name__ == "__main__":
