@@ -261,7 +261,8 @@ def busqueda_A_estrella(problema, heuristica):
         nodos_visitados += 1
 
         if problema.terminal(nodo.estado):
-            return nodo, nodos_visitados
+            nodo.nodos_visitados = nodos_visitados
+            return nodo
         
         for hijo in nodo.expande(problema):
             g = hijo.costo
@@ -270,4 +271,4 @@ def busqueda_A_estrella(problema, heuristica):
                 contador += 1
                 f = g + heuristica(hijo)
                 heapq.heappush(frontera, (f,contador, hijo))
-    return None, nodos_visitados
+    return None
