@@ -55,6 +55,16 @@ class ProblemaBusqueda:
 
         """
         raise NotImplementedError("No implementado todavía el método terminal.")
+    
+    def clave_estado(self, estado):
+        """
+        Devuelve una clave hash para un estado dado, esto es, un valor que sea igual para estados iguales y diferente para estados diferentes.
+
+        @param estado: Una tupla con un estado válido.
+        @return: Un valor hash del estado.
+
+        """
+        return estado
 
 
 class NodoBusqueda:
@@ -235,7 +245,7 @@ def busqueda_costo_uniforme(problema, s0):
 # ---------------------------------------------------------------------
 
 
-def busqueda_A_estrella(problema, heuristica):
+def busqueda_A_estrella(problema, heuristica, pos_inicial):
     """
     Búsqueda A*
 
@@ -248,5 +258,47 @@ def busqueda_A_estrella(problema, heuristica):
     @return Un objeto tipo Nodo con la estructura completa
 
     """
-    raise NotImplementedError('Hay que hacerlo de tarea \
-                              (problema 2 en el archivo busquedas.py)')
+
+    nodo_inicial = NodoBusqueda(pos_inicial, None, None, 0)
+
+    #los nodos que hemos explorado, con su costo mínimo encontrado hasta el momento
+    clave_inicial = problema.clave_estado(nodo_inicial.estado)
+    visitados = {clave_inicial: 0}
+    nodos_visitados = 0
+    #frontera de nodos a explorar, con su costo total esperado (costo acumulado + heuristica)
+    frontera = []
+
+    #comenzamos con el costo total esperado de la posición inicial, que es su costo gnóstico más la heurística de la posición inicial
+    f_inicial=heuristica(nodo_inicial)
+
+    heapq.heappush(frontera, (f_inicial, nodo_inicial))
+
+    while frontera:
+        #obtenemos el nodo con el menor costo total esperado
+        _, plan = heapq.heappop(frontera)
+
+        #si el nodo es terminal, regresamos el plan
+        if problema.terminal(plan.estado):
+            return plan, nodos_visitados
+
+        #exploramos los hijos del nodo
+        for hijo in plan.expande(problema):
+            #calculamos el costo g del hijo, que es el costo acumulado hasta el padre más el costo local de la acción para llegar al hijo
+            clave_hijo = problema.clave_estado(hijo.estado)
+            g_hijo = hijo.costo
+
+            #si el hijo no ha sido visitado o encontramos un camino más barato para llegar al hijo
+            if (clave_hijo not in visitados or visitados[clave_hijo] > g_hijo):
+                #calculamos el costo total esperado f del hijo, que es su costo g más la heurística del hijo
+                f_hijo = g_hijo + heuristica(hijo)
+
+                #agregamos el hijo a la frontera con su costo total esperado
+                heapq.heappush(frontera, (f_hijo, hijo))
+
+                #actualizamos el costo mínimo encontrado para llegar al estado del hijo
+                visitados[clave_hijo] = g_hijo
+                nodos_visitados += 1
+
+    return None, nodos_visitados
+
+
