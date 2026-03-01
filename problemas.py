@@ -77,11 +77,10 @@ def h_1_camion_magico(nodo):
     DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
-    La heurística se basa en suponer que siempre usaré el camión, ya que es la forma más rápida de crecer proque 
-    duplica la posición. Entonces estimo cuántas duplicaciones necesito para alcanzar o superar la meta y eso eso 
-    como estimación del tiempo estantes.
-    Es admisible porque asume un escenario muy optimista, donde nunca necesito caminar. Como mi estimación siempre 
-    es menor o igual que el tiempo real, nunca eestoy exagerando el costo.
+    La heurística considera usar el camión varias veces y después caminar 
+    lo necesario para llegar exactamente a la meta, tomando el menor costo 
+    posible entre esas combinaciones, lo cual es admisible.
+    Esta heurística domina a h_2 porque usa más infromación del problema
     """
 
     x = nodo.estado
@@ -89,8 +88,14 @@ def h_1_camion_magico(nodo):
 
     if x >= N:
         return 0
-    d = N -x
-    return 2 * ((d + x - 1) // x)
+    mejor = float("inf")
+    pos = x
+    k = 0
+    while pos <= N:
+        mejor = min(mejor, 2*k + (N - pos))
+        pos *= 2
+        k += 1
+    return mejor
 
 # ------------------------------------------------------------
 #  Desarrolla otra política admisible.
