@@ -49,7 +49,7 @@ class PbCamionMagico(busquedas.ProblemaBusqueda):
     def sucesor(self, estado, accion):
         x = estado
 
-        acciones = {'caminar:' (x + 1, 1), 'camion:' (2 * x, 2)}
+        acciones = {'caminar': (x + 1, 1), 'camion': (2 * x, 2)}
 
         if accion in acciones:
             return acciones[accion]
