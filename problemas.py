@@ -91,7 +91,32 @@ def h_1_camion_magico(nodo):
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
     """
-    return 0
+    x, meta = nodo.estado
+
+    h_caminar = meta - x
+
+    x_temp = x
+    costo = 0
+
+    while x_temp * 2 <= meta:
+        x_temp *= 2
+        costo += 2
+
+    costo += (meta - x_temp)
+
+    return min(h_caminar, costo)
+
+    """
+    Justificación:
+    La heurística estima el costo restante considerando dos escenarios: caminar toda la distancia hasta la meta o seguir 
+    un plan en el que se usa el camión mágico mientras sea posible y luego se camina lo que falta, entonces, al tomar 
+    el menor de ambos valores, se obtiene una estimación del tiempo mínimo bajo condiciones ideales.
+    
+    ¿Por qué es admisible?
+    La política de las heurísticas se basa en que no sobreestime el costo real mínimo, y en ambas estimaciones son cotas
+    inferiores al costo real: caminar nunca sobreestima y el plan con camión asume decisiones perfectas, por ende, como
+    se toma el mínimo entre ellas, el valor resultante nunca supera el costo óptimo, por lo que no sobreestima.
+    """
 
 
 # ------------------------------------------------------------
@@ -106,7 +131,23 @@ def h_2_camion_magico(nodo):
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
     """
-    return 0
+
+    x, meta = nodo.estado
+    return (meta - x) // max(1, x)
+
+    """
+        Justificación:
+        En esta heurística se piensa que mientras mas grande es x menos acciones faltan, es decir, estima cuántos 
+        avances grandes, faltan para llegar a la meta, ya que, cuando la posicion es grande el camión hace que
+        avance mas rápido, por lo tanto, los pasos disminuyen. La división calcula una aproximación
+        del número mínimo de acciones necesarias.
+        
+
+        ¿Por qué es admisible?
+        Porque solo toma en cuenta una proporción de la distancia restante e ignora dar pasos innecesarios entonces
+        nunca sobreestima el tiempo para llegar a la meta haciendo que el valor calculado sea menor o igual al costo 
+        real en todos los casos
+        """
 
 # ------------------------------------------------------------
 #  Desarrolla el modelo del cubo de Rubik
