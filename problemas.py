@@ -10,7 +10,9 @@ Tarea sobre búsquedas, donde lo que es importante es crear nuevas heurísticas
 
 import busquedas
 
-
+# lo hard codee porque las heuristicas solo reciben el nodo
+# y no quise mover mucho la estructura de los metodos
+META_CAMION = 160
 
 # ------------------------------------------------------------
 #  Desarrolla el modelo del Camión mágico
@@ -31,26 +33,37 @@ class PbCamionMagico(busquedas.ProblemaBusqueda):
     ----------------------------------------------------------------------------------
     
     """
-    def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+    def __init__(self, N):
+        self.meta = N
 
     def acciones(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        acciones = []
+
+        if estado + 1 <= self.meta:
+            acciones.append('caminar')
+
+        if estado * 2 <= self.meta:
+            acciones.append('camion')
+
+        return acciones
 
     def sucesor(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        if accion == 'caminar':
+            return estado + 1, 1
+        elif accion == 'camion':
+            return estado * 2, 2
 
     def terminal(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return estado == self.meta
 
-    @staticmethod
-    def bonito(estado):
+    # no entendi para que tendria que ser estatico entonces lo quite, 
+    # aparte queria usar self.meta
+    def bonito(self, estado):
         """
         El prettyprint de un estado dado
 
         """
-        raise NotImplementedError('Hay que hacerlo de tarea')
- 
+        return f"Posición actual: {estado}, meta: {self.meta}, faltan {self.meta - estado} metros"
 
 # ------------------------------------------------------------
 #  Desarrolla una política admisible.
@@ -62,7 +75,7 @@ def h_1_camion_magico(nodo):
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
     """
-    return 0
+    return max(0, META_CAMION - nodo.estado)
 
 
 # ------------------------------------------------------------
@@ -77,7 +90,7 @@ def h_2_camion_magico(nodo):
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
     """
-    return 0
+    return (META_CAMION - nodo.estado) / 2
 
 # ------------------------------------------------------------
 #  Desarrolla el modelo del cubo de Rubik
@@ -150,8 +163,8 @@ def compara_metodos(problema, pos_inicial, heuristica_1, heuristica_2):
     @param heuristica_2: Una función de heurística
 
     """
-    solucion1 = busquedas.busqueda_A_estrella(problema, heuristica_1, pos_inicial)
-    solucion2 = busquedas.busqueda_A_estrella(problema, heuristica_2, pos_inicial)
+    solucion1 = busquedas.busqueda_A_estrella(problema, pos_inicial, heuristica_1)
+    solucion2 = busquedas.busqueda_A_estrella(problema, pos_inicial, heuristica_2)
     
     print('-' * 50)
     print('Método'.center(12) + 'Costo'.center(18) + 'Nodos visitados'.center(20))
@@ -169,13 +182,13 @@ if __name__ == "__main__":
 
     # Compara los métodos de búsqueda para el problema del camión mágico
     # con las heurísticas que desarrollaste
-    pos_inicial = XXXXXXXXXX  # <--- PONLE LA POSICIÓN INICIAL QUE QUIERAS
-    problema = PbCamionMagico( XXXXXXXXXX )  # <--- PONLE LOS PARÁMETROS QUE NECESITES
+    pos_inicial = 1  # <--- PONLE LA POSICIÓN INICIAL QUE QUIERAS
+    problema = PbCamionMagico( META_CAMION )  # <--- PONLE LOS PARÁMETROS QUE NECESITES
     compara_metodos(problema, pos_inicial, h_1_camion_magico, h_2_camion_magico)
     
     # Compara los métodos de búsqueda para el problema del cubo de rubik
     # con las heurísticas que desarrollaste
-    pos_inicial = XXXXXXXXXX  # <--- PONLE LA POSICIÓN INICIAL QUE QUIERAS
-    problema = PbCuboRubik( XXXXXXXXXX )  # <--- PONLE LOS PARÁMETROS QUE NECESITES
-    compara_metodos(problema, h_1_problema_1, h_2_problema_1)
+    # pos_inicial = XXXXXXXXXX  # <--- PONLE LA POSICIÓN INICIAL QUE QUIERAS
+    # problema = PbCuboRubik( XXXXXXXXXX )  # <--- PONLE LOS PARÁMETROS QUE NECESITES
+    # compara_metodos(problema, h_1_problema_1, h_2_problema_1)
     
