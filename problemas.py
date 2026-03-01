@@ -176,196 +176,254 @@ def h_2_camion_magico(nodo):
     return best
 
 # ------------------------------------------------------------
-#  Desarrolla el modelo del cubo de Rubik
+#  Cubo de Rubik 3D (3x3x3)
 # ------------------------------------------------------------
+
+_MOVIMIENTOS = {
+    # U (cara superior, horario visto desde arriba)
+    'U': [
+        (0, 6, 8, 2), (1, 3, 7, 5),
+        (9, 45, 36, 18), (10, 48, 37, 19), (11, 51, 38, 20)
+    ],
+    # D (cara inferior, horario visto desde abajo)
+    'D': [
+        (27, 29, 35, 33), (28, 32, 34, 30),
+        (18, 36, 45, 15), (19, 39, 46, 16), (20, 42, 47, 17)
+    ],
+    # F (cara frontal, horario visto desde el frente)
+    'F': [
+        (18, 24, 26, 20), (19, 21, 25, 23),
+        (6, 9, 29, 44), (7, 12, 28, 41), (8, 15, 27, 38)
+    ],
+    # B (cara trasera, horario visto desde atrás)
+    'B': [
+        (45, 47, 53, 51), (46, 48, 52, 50),
+        (2, 36, 33, 17), (1, 39, 34, 14), (0, 42, 35, 11)
+    ],
+    # R (cara derecha, horario visto desde la derecha)
+    'R': [
+        (9, 15, 17, 11), (10, 12, 16, 14),
+        (2, 20, 29, 47), (5, 23, 32, 50), (8, 26, 35, 53)
+    ],
+    # L (cara izquierda, horario visto desde la izquierda)
+    'L': [
+        (36, 38, 44, 42), (37, 41, 43, 39),
+        (0, 27, 45, 18), (3, 30, 48, 21), (6, 33, 51, 24)
+    ],
+}
+
+# Aquí precalculo las permutaciones completas (arreglos de 54 posiciones)
+# para cada movimiento y su inverso, así calcular el sucesor es rápido.
+
+def _ciclos_a_permutacion(ciclos):
+    """Convierte la lista de ciclos en una permutación de 54 elementos."""
+    perm = list(range(54))
+    for ciclo in ciclos:
+        if len(ciclo) == 4:
+            a, b, c, d = ciclo
+            perm[a], perm[b], perm[c], perm[d] = d, a, b, c
+    return tuple(perm)
+
+def _inversa_permutacion(perm):
+    inv = [0] * 54
+    for i, p in enumerate(perm):
+        inv[p] = i
+    return tuple(inv)
+
+def _aplicar_perm(estado, perm):
+    return tuple(estado[perm[i]] for i in range(54))
+
+# Construir tabla de permutaciones
+_PERMS = {}
+for _nombre, _ciclos in _MOVIMIENTOS.items():
+    _p = _ciclos_a_permutacion(_ciclos)
+    _PERMS[_nombre] = _p
+    _PERMS[_nombre + "'"] = _inversa_permutacion(_p)
+
+_ESTADO_RESUELTO = tuple(
+    color for color in range(6) for _ in range(9)
+)
+
+_ACCIONES_RUBIK = list(_PERMS.keys())   # 12 movimientos: uno horario y uno antihorario por cada cara
+
 
 class PbCuboRubik(busquedas.ProblemaBusqueda):
     """
-    Problema del Cubo de Rubik simplificado en 2D.
+    Problema del Cubo de Rubik 3x3x3.
 
-    Es un tablero 3x3 con piezas numeradas del 1 al 9. Se pueden
-    mover rotando filas hacia la derecha o columnas hacia abajo,
-    de forma cíclica (lo que se sale por un lado entra por el otro).
-    El objetivo es ordenar las piezas: (1, 2, 3, 4, 5, 6, 7, 8, 9).
+    El estado es una tupla de 54 números (0 a 5), uno por cada cuadrito
+    del cubo. Están ordenados por cara: Arriba(0-8), Derecha(9-17),
+    Frente(18-26), Abajo(27-35), Izquierda(36-44), Atrás(45-53).
+    El cubo está resuelto cuando todos los cuadritos de cada cara
+    tienen el mismo color.
 
-    El estado se representa como una tupla de 9 enteros.
+    Las acciones son los 12 movimientos posibles: girar cada una de las
+    6 caras en sentido horario o antihorario (U, U', D, D', F, F',
+    B, B', R, R', L, L'). Cada movimiento cuesta 1.
 
     """
+
     def __init__(self, meta=None):
         """
-        Inicializa el problema del cubo de Rubik 2D.
+        Inicializa el problema del Cubo de Rubik.
 
-        El estado es una tupla de 9 numeros que representan el tablero 3x3::
-
-            (c0, c1, c2,
-             c3, c4, c5,
-             c6, c7, c8)
-
-        La meta por defecto es tenerlos ordenados: (1, 2, 3, 4, 5, 6, 7, 8, 9).
-
-        @param meta: tuple o None, configuración objetivo (por defecto ordenada).
-
+        @param meta: tupla de 54 enteros o None (por defecto, cubo resuelto).
         """
-        self.meta = tuple(meta) if meta is not None else (1, 2, 3, 4, 5, 6, 7, 8, 9)
+        self.meta = tuple(meta) if meta is not None else _ESTADO_RESUELTO
 
     def acciones(self, estado):
         """
-        Devuelve la lista de acciones legales.
+        Devuelve los 12 movimientos que se pueden hacer.
 
-        Las acciones que puedo hacer son 6:
-        - 'F0', 'F1', 'F2': rotar la fila 0, 1 o 2 hacia la derecha.
-        - 'C0', 'C1', 'C2': rotar la columna 0, 1 o 2 hacia abajo.
-        Todas son cíclicas (lo que se sale por un lado entra por el otro).
-
-        @param estado: tuple, el estado actual del tablero.
-        @return: list, lista con las 6 acciones posibles.
-
+        @param estado: tupla de 54 enteros.
+        @return: lista con las 12 acciones posibles.
         """
-        return ['F0', 'F1', 'F2', 'C0', 'C1', 'C2']
+        return _ACCIONES_RUBIK
 
     def sucesor(self, estado, accion):
         """
-        Aplica una rotación y devuelve el nuevo estado con costo 1.
+        Aplica el movimiento al cubo y devuelve el nuevo estado con costo 1.
 
-        Las filas rotan a la derecha y las columnas hacia abajo, de
-        forma cíclica en el tablero 3x3.
-
-        @param estado: tuple, estado actual (tupla de 9 enteros).
-        @param accion: str, una de 'F0','F1','F2','C0','C1','C2'.
-        @return: tuple (estado_sucesor, costo_local), con costo_local = 1.
-
+        @param estado: tupla de 54 enteros.
+        @param accion: str, uno de los 12 movimientos.
+        @return: (tupla, entero).
         """
-        s = list(estado)
-
-        if accion[0] == 'F':
-            fila = int(accion[1])
-            i = 3 * fila
-            s[i], s[i + 1], s[i + 2] = s[i + 2], s[i], s[i + 1]
-
-        elif accion[0] == 'C':
-            col = int(accion[1])
-            i0, i1, i2 = col, col + 3, col + 6
-            s[i0], s[i1], s[i2] = s[i2], s[i0], s[i1]
-        else:
+        if accion not in _PERMS:
             raise ValueError(f"Acción desconocida: {accion}")
-
-        return tuple(s), 1
+        return _aplicar_perm(estado, _PERMS[accion]), 1
 
     def terminal(self, estado):
         """
-        Revisa si ya llegué al estado meta.
+        Revisa si el cubo ya está resuelto.
 
-        @param estado: tuple, estado actual del tablero.
-        @return: bool, True si el estado coincide con la meta.
-
+        @param estado: tupla de 54 enteros.
+        @return: bool, True si ya se armó el cubo.
         """
-        return tuple(estado) == self.meta
+        return estado == self.meta
 
     @staticmethod
     def bonito(estado):
         """
-        Representación bonita del tablero 3x3.
+        Muestra el cubo desplegado como una cruz para que se vea bonito.
 
-        @param estado: tuple, estado actual (tupla de 9 enteros).
-        @return: str, el tablero formateado en 3 filas.
+                Arriba
+        Izq  Frente  Der  Atrás
+                Abajo
 
+        @param estado: tupla de 54 enteros.
+        @return: str con el dibujo del cubo.
         """
-        c0, c1, c2, c3, c4, c5, c6, c7, c8 = estado
-        return (f"{c0} {c1} {c2}\n"
-                f"{c3} {c4} {c5}\n"
-                f"{c6} {c7} {c8}")
- 
+        nombres = ['🟨', '🟥', '🟩', '🟦', '🟧', '⬜']
+        c = [nombres[v] for v in estado]
+        u = c[0:9]
+        r = c[9:18]
+        f = c[18:27]
+        d = c[27:36]
+        l = c[36:45]
+        b = c[45:54]
+        lineas = []
+        for i in range(3):
+            lineas.append('      ' + ' '.join(u[3*i:3*i+3]))
+        for i in range(3):
+            lineas.append(
+                ' '.join(l[3*i:3*i+3]) + '  ' +
+                ' '.join(f[3*i:3*i+3]) + '  ' +
+                ' '.join(r[3*i:3*i+3]) + '  ' +
+                ' '.join(b[3*i:3*i+3])
+            )
+        for i in range(3):
+            lineas.append('      ' + ' '.join(d[3*i:3*i+3]))
+        return '\n'.join(lineas)
+
 
 # ------------------------------------------------------------
-#  Desarrolla una política admisible.
+#  Heurística 1: cuadritos mal puestos / 8
 # ------------------------------------------------------------
+
 def h_1_problema_1(nodo):
     """
-    Primera heurística admisible para el Cubo de Rubik 2D.
+    Primera heurística admisible para el Cubo de Rubik.
 
-    Lo que hago es contar cuántas piezas están fuera de su lugar y divido
-    entre 3. La razón es que cada acción (rotar una fila o columna) mueve
-    3 piezas a la vez. Entonces, en el mejor de los casos, con una sola
-    acción podría acomodar 3 piezas de golpe.
+    Lo que hago es contar cuántos cuadritos tienen un color que no
+    corresponde a su cara y divido entre 8. Cada movimiento mueve 20
+    cuadritos (8 de la cara que giras más 12 de las caras vecinas),
+    así que en el mejor caso un solo movimiento podría arreglar hasta
+    8 cuadritos mal puestos. Por eso dividir entre 8 nunca da un valor
+    mayor al real, o sea que es admisible.
 
-    Es admisible porque estoy suponiendo lo más optimista posible: que cada
-    movimiento arregla 3 piezas al mismo tiempo. En la práctica casi nunca
-    pasa eso, así que el costo real siempre va a ser igual o mayor.
+    Los centros de cada cara (posiciones 4, 13, 22, 31, 40, 49) nunca
+    se mueven, así que siempre están bien puestos.
 
-    @param nodo: NodoBusqueda, el nodo actual (nodo.estado es una tupla de 9 enteros).
-    @return: int, estimación del número mínimo de acciones para resolver el cubo.
-
+    @param nodo: NodoBusqueda, nodo.estado es tupla de 54 enteros.
+    @return: int, estimación por abajo del número de movimientos.
     """
     estado = nodo.estado
-    meta = (1, 2, 3, 4, 5, 6, 7, 8, 9)
-    mal = sum(1 for i in range(9) if estado[i] != meta[i])
-    return math.ceil(mal / 3)
+    meta = _ESTADO_RESUELTO
+    mal = sum(1 for i in range(54) if estado[i] != meta[i])
+    return math.ceil(mal / 8)
 
 
 # ------------------------------------------------------------
-#  Desarrolla otra política admisible.
-#  Analiza y di porque piensas que es (o no es) dominante una
-#  respecto otra política
+#  Heurística 2: distancia entre caras de cada cuadrito / 4
 # ------------------------------------------------------------
+_CARA_DE = [i // 9 for i in range(54)]   # cara a la que pertenece el cuadrito i cuando está resuelto
+
+_DISTANCIA_CARAS = [
+    # U  R  F  D  L  B
+    [0, 1, 1, 2, 1, 1],  # U
+    [1, 0, 1, 1, 2, 1],  # R
+    [1, 1, 0, 1, 1, 2],  # F
+    [2, 1, 1, 0, 1, 1],  # D
+    [1, 2, 1, 1, 0, 1],  # L
+    [1, 1, 2, 1, 1, 0],  # B
+]
+
 def h_2_problema_1(nodo):
     """
-    Segunda heurística admisible para el Cubo de Rubik 2D.
+    Segunda heurística admisible para el Cubo de Rubik.
 
-    Aquí uso una especie de distancia Manhattan adaptada al tablero cíclico.
-    Para cada pieza calculo cuántas rotaciones de fila (a la derecha) y de
-    columna (hacia abajo) necesitaría para llevarla a su posición correcta.
-    Como el tablero es 3x3 y las rotaciones son cíclicas, uso módulo 3.
-    Sumo todas esas distancias y divido entre 3, porque cada acción mueve
-    3 piezas una posición.
+    Para cada cuadrito veo en qué cara está ahorita y en cuál debería
+    estar según su color. La distancia entre caras puede ser 0 (es la
+    misma cara), 1 (son caras vecinas) o 2 (son caras opuestas). Sumo
+    todas esas distancias y divido entre 4, porque un movimiento puede
+    acercar a lo mucho 4 cuadritos un paso hacia donde deben ir.
 
-    Es admisible porque cada movimiento, en el mejor caso, acerca 3 piezas
-    un paso hacia su meta. Entonces la suma total de distancias dividida
-    entre 3 nunca va a ser mayor que el costo real.
+    Esta heurística domina a h_1 porque cuando un cuadrito está en una
+    cara opuesta a donde debería estar, aquí cuenta 2, mientras que en
+    h_1 solo cuenta 1. Entonces h_2 siempre da valores iguales o más
+    altos que h_1, lo que hace que se exploren menos nodos.
 
-    Creo que domina a h_1 porque si una pieza está fuera de lugar, su
-    distancia es al menos 1. Entonces la suma de distancias siempre es
-    mayor o igual al número de piezas mal colocadas. Al dividir ambas
-    entre 3, h_2 sigue siendo mayor o igual que h_1. En las pruebas se
-    nota claro: h_2 explora muchos menos nodos (27 vs 187 en el cubo).
-
-    @param nodo: NodoBusqueda, el nodo actual (nodo.estado es una tupla de 9 enteros).
-    @return: int, estimación del número mínimo de acciones para resolver el cubo.
-
+    @param nodo: NodoBusqueda, nodo.estado es tupla de 54 enteros.
+    @return: int, estimación por abajo del número de movimientos.
     """
     estado = nodo.estado
     total = 0
-    for pos in range(9):
-        val = estado[pos]
-        target = val - 1
-        r1, c1 = pos // 3, pos % 3
-        r2, c2 = target // 3, target % 3
-        total += (r2 - r1) % 3 + (c2 - c1) % 3
-    return math.ceil(total / 3)
+    for i in range(54):
+        cara_actual = _CARA_DE[i]        # cara donde está el cuadrito ahorita
+        cara_correcta = estado[i]        # el color dice a qué cara pertenece
+        total += _DISTANCIA_CARAS[cara_actual][cara_correcta]
+    return math.ceil(total / 4)
 
 
+# ------------------------------------------------------------
+#  Utilidad de comparación
+# ------------------------------------------------------------
 
 def compara_metodos(problema, pos_inicial, heuristica_1, heuristica_2):
     """
-    Compara A* con dos heurísticas distintas, mostrando el costo de la
-    solución y la cantidad de nodos visitados de cada una.
-
-    @param problema: ProblemaBusqueda, el problema a resolver.
-    @param pos_inicial: el estado inicial del problema.
-    @param heuristica_1: function, primera heurística h(nodo) -> número.
-    @param heuristica_2: function, segunda heurística h(nodo) -> número.
-
+    Compara A* con dos heurísticas distintas.
     """
     solucion1, nodos1 = busquedas.busqueda_A_estrella(problema, pos_inicial, heuristica_1)
     solucion2, nodos2 = busquedas.busqueda_A_estrella(problema, pos_inicial, heuristica_2)
-    
+
     print('-' * 50)
     print('Método'.center(12) + 'Costo'.center(18) + 'Nodos visitados'.center(20))
     print('-' * 50 + '\n')
-    print('A* con h1'.center(12) 
-          + str(solucion1.costo).center(18) 
+    print('A* con h1'.center(12)
+          + str(solucion1.costo).center(18)
           + str(nodos1).center(20))
-    print('A* con h2'.center(12) 
-          + str(solucion2.costo).center(18) 
+    print('A* con h2'.center(12)
+          + str(solucion2.costo).center(18)
           + str(nodos2).center(20))
     print('-' * 50 + '\n')
 
@@ -380,8 +438,40 @@ if __name__ == "__main__":
     compara_metodos(problema, pos_inicial, h_1_camion_magico, h_2_camion_magico)
 
     print("=" * 50)
-    print("  PROBLEMA DEL CUBO DE RUBIK 2D")
+    print("  PROBLEMA DEL CUBO DE RUBIK 3D (3x3x3)")
     print("=" * 50)
-    pos_inicial = (3, 1, 2, 6, 4, 5, 9, 7, 8)
-    problema = PbCuboRubik()
-    compara_metodos(problema, pos_inicial, h_1_problema_1, h_2_problema_1)
+    pb = PbCuboRubik()
+
+    # Aplicamos 4 movimientos para crear un estado inicial revuelto
+    movimientos_revuelto = ['F', 'R', 'U', 'L']
+    s = _ESTADO_RESUELTO
+    for mv in movimientos_revuelto:
+        s, _ = pb.sucesor(s, mv)
+    pos_inicial = s
+
+    print("Cubo resuelto (meta):")
+    print(PbCuboRubik.bonito(_ESTADO_RESUELTO))
+    print()
+    print(f"Cubo revuelto (estado inicial, después de {' → '.join(movimientos_revuelto)}):")
+    print(PbCuboRubik.bonito(pos_inicial))
+    print()
+
+    # Comparar heurísticas
+    compara_metodos(pb, pos_inicial, h_1_problema_1, h_2_problema_1)
+
+    # Mostrar la solución paso a paso usando h_2 (la mejor heurística)
+    print("=" * 50)
+    print("  SOLUCIÓN PASO A PASO (A* con h2)")
+    print("=" * 50)
+    solucion, _ = busquedas.busqueda_A_estrella(pb, pos_inicial, h_2_problema_1)
+    plan = solucion.genera_plan()
+
+    for i, (estado, accion, costo) in enumerate(plan):
+        if i == 0:
+            print(f"Paso 0 — Estado inicial:")
+        elif accion is None:
+            print(f"Paso {i} — ¡Cubo resuelto! (costo total: {plan[i-1][2]})")
+        else:
+            print(f"Paso {i} — Movimiento: {accion}  (costo acumulado: {costo})")
+        print(PbCuboRubik.bonito(estado))
+        print()
