@@ -77,9 +77,20 @@ def h_1_camion_magico(nodo):
     DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
+    La heurística se basa en suponer que siempre usaré el camión, ya que es la forma más rápida de crecer proque 
+    duplica la posición. Entonces estimo cuántas duplicaciones necesito para alcanzar o superar la meta y eso eso 
+    como estimación del tiempo estantes.
+    Es admisible porque asume un escenario muy optimista, donde nunca necesito caminar. Como mi estimación siempre 
+    es menor o igual que el tiempo real, nunca eestoy exagerando el costo.
     """
-    return 0
 
+    x = nodo.estado
+    N = nodo.problema.N
+
+    if x >= N:
+        return 0
+    d = N -x
+    return 2 * ((d + x - 1) // x)
 
 # ------------------------------------------------------------
 #  Desarrolla otra política admisible.
@@ -92,8 +103,27 @@ def h_2_camion_magico(nodo):
     DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
+    En esta heurística me enfoco en únicamente en el efecto del camión. La idea es contar
+    cuántas veces tendría que duplicar la posición actual x para alcanzar o superar la meta N.
+    Si después de k duplicaciones llego a x*2^k >= N, entonces estimo el costo restante como 2*k, 
+    ya que cada uso del camión cuesta 2min.
+    Es admisible porque supone un escenario ideal donde solo uso el camión. Caminar puede ser necesario, 
+    pero eso aumentaría el costo real. Como esta estimación nunca sobreestima el costo mínimo, cumple
+    la condición de admisibilidad.
     """
-    return 0
+
+    x = nodo.estado
+    N = nodo.problema.N
+
+    if x >= N:
+        return 0
+    potencia = 1
+    k = 0
+
+    while x * potencia < N:
+        potencia *= 2
+        k += 1
+    return 2 * k
 
 # ------------------------------------------------------------
 #  Desarrolla el modelo del cubo de Rubik
