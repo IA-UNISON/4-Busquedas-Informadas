@@ -9,7 +9,7 @@ Tarea sobre búsquedas, donde lo que es importante es crear nuevas heurísticas
 """
 
 import busquedas
-
+import math
 
 
 # ------------------------------------------------------------
@@ -68,7 +68,6 @@ class PbCamionMagico(busquedas.ProblemaBusqueda):
 
         """
         return f"Posicion actual: {estado}"
- 
 
 # ------------------------------------------------------------
 #  Desarrolla una política admisible.
@@ -125,7 +124,7 @@ def h_2_camion_magico(nodo):
 #  Desarrolla el modelo del cubo de Rubik
 # ------------------------------------------------------------
 
-#class PbCuboRubik(busquedas.ProblemaBusqueda):
+class PbCuboRubik(busquedas.ProblemaBusqueda):
     """
     La clase para el modelo de cubo de rubik, documentación, no olvides poner
     la documentación de forma clara y concisa.
@@ -133,17 +132,37 @@ def h_2_camion_magico(nodo):
     https://en.wikipedia.org/wiki/Rubik%27s_Cube
     
     """
-    def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+    def __init__(self, estado_inicial):
+        # Tenemos 6 caras
+        self.meta = (True, True, True, True, True, True)
+        self.inicial = estado_inicial
 
     def acciones(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
-
+        return ["giro_F", "giro_R", "giro_U"]
+    
     def sucesor(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        nuevo_estado = list(estado)
+
+        #Cada giro funciona como un toggle
+        if accion == "giro_F":
+            nuevo_estado[0] = not nuevo_estado[0]
+            nuevo_estado[1] = not nuevo_estado[1]
+            nuevo_estado[2] = not nuevo_estado[2]
+
+        elif accion == "giro_R":
+            nuevo_estado[2] = not nuevo_estado[2]
+            nuevo_estado[3] = not nuevo_estado[3]
+            nuevo_estado[4] = not nuevo_estado[4]
+
+        elif accion == "giro_U":
+            nuevo_estado[4] = not nuevo_estado[4]
+            nuevo_estado[5] = not nuevo_estado[5]
+            nuevo_estado[0] = not nuevo_estado[0]
+
+        return tuple(nuevo_estado), 1
 
     def terminal(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return estado == self.meta
 
     @staticmethod
     def bonito(estado):
@@ -151,19 +170,22 @@ def h_2_camion_magico(nodo):
         El prettyprint de un estado dado
 
         """
-        raise NotImplementedError('Hay que hacerlo de tarea')
- 
-
+        caras = ["F", "B", "L", "R", "U", "D"]
+        return " | ".join(f"{c}:{e}" for c, e in zip(caras, estado))
+    
 # ------------------------------------------------------------
 #  Desarrolla una política admisible.
 # ------------------------------------------------------------
-#def h_1_problema_1(nodo):
+def h_1_problema_1(nodo):
     """
-    DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN
-    PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
+    Cuenta cuantas caras estan en False.
+    
+    Es admisible porque cada movimiento puede corregir
+    como maximo 3 caras a la vez. pero nunca sobreestima
+    el costo minimo real.
 
     """
-    return 0
+    return sum(1 for cara in nodo.estado if not cara)
 
 
 # ------------------------------------------------------------
@@ -171,15 +193,20 @@ def h_2_camion_magico(nodo):
 #  Analiza y di porque piensas que es (o no es) dominante una
 #  respecto otra política
 # ------------------------------------------------------------
-#def h_2_problema_1(nodo):
+def h_2_problema_1(nodo):
     """
-    DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN
-    PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
+    Divide las caras malas entre 3, porque cada giro
+    afecta exactamente 3 caras.
+
+    Es admisible porque en el mejor caso, cada movimiento
+    corrige las 3 caras a la vez.
 
     """
-    return 0
+    caras_mal = sum(1 for cara in nodo.estado if not cara)
+    return math.ceil(caras_mal / 3)
 
-
+# h1 domina a h2 porque h1 es siempre mayor o igual y h1 da una estimacion
+# mas informativa
 
 def compara_metodos(problema, pos_inicial, heuristica_1, heuristica_2):
     """
@@ -221,7 +248,7 @@ if __name__ == "__main__":
     
     # Compara los métodos de búsqueda para el problema del cubo de rubik
     # con las heurísticas que desarrollaste
-    #pos_inicial = XXXXXXXXXX  # <--- PONLE LA POSICIÓN INICIAL QUE QUIERAS
-    #problema = PbCuboRubik( XXXXXXXXXX )  # <--- PONLE LOS PARÁMETROS QUE NECESITES
-    #compara_metodos(problema, h_1_problema_1, h_2_problema_1)
+    pos_inicial = (False, False, False, True, True, True)  # <--- PONLE LA POSICIÓN INICIAL QUE QUIERAS
+    problema = PbCuboRubik(pos_inicial)  # <--- PONLE LOS PARÁMETROS QUE NECESITES
+    compara_metodos(problema, pos_inicial, h_1_problema_1, h_2_problema_1)
     
