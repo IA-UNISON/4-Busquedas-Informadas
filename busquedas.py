@@ -235,7 +235,7 @@ def busqueda_costo_uniforme(problema, s0):
 # ---------------------------------------------------------------------
 
 
-def busqueda_A_estrella(problema, heuristica):
+def busqueda_A_estrella(problema, s0, heuristica):
     """
     Búsqueda A*
 
@@ -245,8 +245,40 @@ def busqueda_A_estrella(problema, heuristica):
                        o igual a cero con el costo esperado desde nodo hasta
                        un nodo cuyo estado final sea méta.
 
-    @return Un objeto tipo Nodo con la estructura completa
+    @return: Una tupla (plan, nodos_visitados) donde `plan` es un
+             objeto `NodoBusqueda` que representa el plan completo y
+             `nodos_visitados` es el número de nodos extraídos de la
+             frontera durante la búsqueda.
 
     """
-    raise NotImplementedError('Hay que hacerlo de tarea \
-                              (problema 2 en el archivo busquedas.py)')
+    # Si el estado inicial ya es terminal, regresamos de inmediato.
+    if problema.terminal(s0):
+        return NodoBusqueda(s0), 1
+
+    # La frontera es una cola de prioridad ordenada por f(n) = g(n) + h(n)
+    frontera = []
+    nodo_inicial = NodoBusqueda(s0)
+    heapq.heappush(frontera, (heuristica(nodo_inicial), nodo_inicial))
+
+    # `visitados` lleva el mejor costo g(n) conocido para cada estado.
+    visitados = {s0: 0}
+    nodos_visitados = 0
+
+    while frontera:
+        _, plan = heapq.heappop(frontera)
+        nodos_visitados += 1
+
+        # Si el estado del nodo actual es terminal, terminamos.
+        if problema.terminal(plan.estado):
+            return plan, nodos_visitados
+
+        # Expandimos los sucesores del nodo actual.
+        for hijo in plan.expande(problema):
+            costo_g = hijo.costo
+            if hijo.estado not in visitados or visitados[hijo.estado] > costo_g:
+                visitados[hijo.estado] = costo_g
+                costo_f = costo_g + heuristica(hijo)
+                heapq.heappush(frontera, (costo_f, hijo))
+
+    # Si agotamos la frontera sin encontrar solución, devolvemos None.
+    return None, nodos_visitados
