@@ -85,7 +85,7 @@ def h_1_camion_magico(nodo):
     """
 
     x = nodo.estado
-    N = nodo.problema.N
+    N = N_OBJETIVO
 
     if x >= N:
         return 0
@@ -113,7 +113,7 @@ def h_2_camion_magico(nodo):
     """
 
     x = nodo.estado
-    N = nodo.problema.N
+    N = N_OBJETIVO
 
     if x >= N:
         return 0
@@ -196,8 +196,8 @@ def compara_metodos(problema, pos_inicial, heuristica_1, heuristica_2):
     @param heuristica_2: Una función de heurística
 
     """
-    solucion1 = busquedas.busqueda_A_estrella(problema, heuristica_1, pos_inicial)
-    solucion2 = busquedas.busqueda_A_estrella(problema, heuristica_2, pos_inicial)
+    solucion1 = busquedas.busqueda_A_estrella(problema, pos_inicial, heuristica_1)
+    solucion2 = busquedas.busqueda_A_estrella(problema, pos_inicial, heuristica_2)
     
     print('-' * 50)
     print('Método'.center(12) + 'Costo'.center(18) + 'Nodos visitados'.center(20))
@@ -215,8 +215,9 @@ if __name__ == "__main__":
 
     # Compara los métodos de búsqueda para el problema del camión mágico
     # con las heurísticas que desarrollaste
-    pos_inicial = XXXXXXXXXX  # <--- PONLE LA POSICIÓN INICIAL QUE QUIERAS
-    problema = PbCamionMagico( XXXXXXXXXX )  # <--- PONLE LOS PARÁMETROS QUE NECESITES
+    pos_inicial = 1  # <--- PONLE LA POSICIÓN INICIAL QUE QUIERAS
+    problema = PbCamionMagico(20)
+    N_OBJETIVO = problema.N
     compara_metodos(problema, pos_inicial, h_1_camion_magico, h_2_camion_magico)
     
     # Compara los métodos de búsqueda para el problema del cubo de rubik
@@ -224,4 +225,17 @@ if __name__ == "__main__":
     pos_inicial = XXXXXXXXXX  # <--- PONLE LA POSICIÓN INICIAL QUE QUIERAS
     problema = PbCuboRubik( XXXXXXXXXX )  # <--- PONLE LOS PARÁMETROS QUE NECESITES
     compara_metodos(problema, h_1_problema_1, h_2_problema_1)
-    
+
+    N = 20
+    problema = PbCamionMagico(N)
+    s0 = 1
+
+    print("BFS")
+    plan, nodos = busquedas.busqueda_ancho(problema, s0)
+    print(plan)
+    print("Nodos visitados:", nodos)
+
+    print("\nCosto Uniforme")
+    plan, nodos = busquedas.busqueda_costo_uniforme(problema, s0)
+    print(plan)
+    print("Nodos visitados:", nodos)
