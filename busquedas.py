@@ -235,18 +235,48 @@ def busqueda_costo_uniforme(problema, s0):
 # ---------------------------------------------------------------------
 
 
-def busqueda_A_estrella(problema, heuristica):
+def busqueda_A_estrella(problema, heuristica, s0):
     """
     Búsqueda A*
 
     @param problema: Un objeto de una clase heredada de ProblemaBusqueda
-    @param heuristica: Una funcion de heuristica, esto es, una función
-                       heuristica(nodo), la cual devuelva un número mayor
-                       o igual a cero con el costo esperado desde nodo hasta
-                       un nodo cuyo estado final sea méta.
+    @param heuristica: Una función heuristica(nodo) que devuelve un número >= 0
+    @param s0: Estado inicial
 
-    @return Un objeto tipo Nodo con la estructura completa
-
+    @return Un objeto tipo Nodo con la estructura completa o None, y el total de nodos visitados
     """
-    raise NotImplementedError('Hay que hacerlo de tarea \
-                              (problema 2 en el archivo busquedas.py)')
+    
+    nodo_inicial = NodoBusqueda(s0)
+    
+
+    contador = 0
+    
+    f_n = 0 + heuristica(nodo_inicial)
+    frontera = [(f_n, contador, nodo_inicial)]
+    
+    visitados = {s0: 0}
+    
+    nodos_visitados = 0
+
+    while frontera:
+        _, _, nodo_actual = heapq.heappop(frontera)
+        nodos_visitados += 1
+        
+        if problema.terminal(nodo_actual.estado):
+            return nodo_actual, nodos_visitados
+        
+        for hijo in nodo_actual.expande(problema):
+            
+            if hijo.estado not in visitados or visitados[hijo.estado] > hijo.costo:
+                visitados[hijo.estado] = hijo.costo
+                f_hijo = hijo.costo + heuristica(hijo)
+                
+                contador += 1 
+                heapq.heappush(frontera, (f_hijo, contador, hijo))
+                
+    return None, nodos_visitados
+
+
+
+
+    
