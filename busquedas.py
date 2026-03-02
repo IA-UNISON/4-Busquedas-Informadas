@@ -19,7 +19,7 @@ class ProblemaBusqueda:
 
     Todo modelo de búsqueda debe de tener:
         1) Un método que obtenga las acciones legales en cada estado
-        2) Un método que calcule cual es es siguiente estado
+        2) Un método que calcule cual es es siguiente estado  
         3) Una función de costo local
 
     """
@@ -235,7 +235,7 @@ def busqueda_costo_uniforme(problema, s0):
 # ---------------------------------------------------------------------
 
 
-def busqueda_A_estrella(problema, heuristica):
+def busqueda_A_estrella(problema, s0, heuristica): # Agregue s0 como parametro porque en el ocho_puzzle se le pasa s0.
     """
     Búsqueda A*
 
@@ -248,5 +248,29 @@ def busqueda_A_estrella(problema, heuristica):
     @return Un objeto tipo Nodo con la estructura completa
 
     """
+
+    nodo_inicial = NodoBusqueda(s0)
+    frontera = []
+    heapq.heappush(frontera, (0 + heuristica(nodo_inicial) , nodo_inicial))
+    visitados = {s0: 0}
+    nodos_visitados = 0
+
+    while frontera:
+
+        _, plan = heapq.heappop(frontera)
+        nodos_visitados += 1
+
+        if problema.terminal(plan.estado):
+            plan.nodos_visitados = nodos_visitados
+            return plan
+        
+        for hijo in plan.expande(problema):
+            if (hijo.estado not in visitados or visitados[hijo.estado] > hijo.costo):
+                heapq.heappush(frontera, (hijo.costo + heuristica(hijo), hijo))
+                visitados[hijo.estado] = hijo.costo
+
+    return None, nodos_visitados
+
+
     raise NotImplementedError('Hay que hacerlo de tarea \
                               (problema 2 en el archivo busquedas.py)')
