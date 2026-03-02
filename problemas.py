@@ -110,44 +110,75 @@ def h_2_camion_magico(nodo):
 
 class PbCuboRubik(busquedas.ProblemaBusqueda):
     """
-    La clase para el modelo de cubo de rubik, documentación, no olvides poner
-    la documentación de forma clara y concisa.
-    
-    https://en.wikipedia.org/wiki/Rubik%27s_Cube
-    
+    Modelo simplificado de "cubo de Rubik" (mini-rubik) para poder usar A*.
+
+    Representamos el estado como una tupla de 8 piezas (0..7) en posiciones 0..7.
+    - meta: (0,1,2,3,4,5,6,7)
+    - acciones: cuatro "giros" que aplican ciclos (permutaciones) sobre 4 posiciones.
+
+    Cada acción cuesta 1.
+
+    Nota: Esto NO es el cubo 3x3 completo; es una abstracción tipo "puzzle de permutación"
+    para poder diseñar heurísticas y comparar A* como pide la tarea.
     """
-    def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+    def __init__(self, meta=(0, 1, 2, 3, 4, 5, 6, 7)):
+        self.meta = tuple(meta)
+
+        # Definimos 4 "movimientos" como ciclos sobre índices.
+        # Cada movimiento reordena piezas en esas posiciones (ciclo de 4).
+        # Ej: U gira (0,1,2,3): 0<-3,1<-0,2<-1,3<-2
+        self.movs = {
+            'U': (0, 1, 2, 3),
+            'D': (4, 5, 6, 7),
+            'L': (0, 3, 7, 4),
+            'R': (1, 2, 6, 5),
+        }
 
     def acciones(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        # Siempre puedes aplicar cualquier giro
+        return list(self.movs.keys())
 
     def sucesor(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        if accion not in self.movs:
+            raise ValueError(f"Acción desconocida: {accion}")
+
+        s = list(estado)
+        a, b, c, d = self.movs[accion]
+
+        # ciclo: a<-d, b<-a, c<-b, d<-c
+        s[a], s[b], s[c], s[d] = s[d], s[a], s[b], s[c]
+        return tuple(s), 1  # costo local 1
 
     def terminal(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return tuple(estado) == self.meta
 
     @staticmethod
     def bonito(estado):
-        """
-        El prettyprint de un estado dado
-
-        """
-        raise NotImplementedError('Hay que hacerlo de tarea')
- 
+        # Vista simple 2x4
+        s = list(estado)
+        return (
+            f"{s[0]} {s[1]} {s[2]} {s[3]}\n"
+            f"{s[4]} {s[5]} {s[6]} {s[7]}"
+        )
 
 # ------------------------------------------------------------
 #  Desarrolla una política admisible.
 # ------------------------------------------------------------
+
 def h_1_problema_1(nodo):
     """
-    DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN
-    PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
+    h1 = ceil(mal_colocadas / 4)
 
+    Admisible:
+    Cada giro solo afecta 4 posiciones. En el mejor caso, un giro podría colocar correctamente
+    hasta 4 piezas (optimista). Por lo tanto, si hay k piezas mal colocadas, se requieren al menos
+    ceil(k/4) movimientos. Es una cota inferior => no sobreestima => admisible.
     """
-    return 0
-
+    estado = nodo.estado
+    # meta fija del mini-rubik
+    meta = (0, 1, 2, 3, 4, 5, 6, 7)
+    mal = sum(1 for i, v in enumerate(estado) if v != meta[i])
+    return (mal + 3) // 4
 
 # ------------------------------------------------------------
 #  Desarrolla otra política admisible.
@@ -156,11 +187,35 @@ def h_1_problema_1(nodo):
 # ------------------------------------------------------------
 def h_2_problema_1(nodo):
     """
-    DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN
-    PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
+    h2 = ceil(min_swaps_para_ordenar / 3)
 
+    Admisible:
+    Para convertir una permutación en la identidad, el mínimo número de swaps necesarios es:
+        min_swaps = n - (#ciclos)
+    Un giro de 4 posiciones equivale, como máximo, a 3 swaps (un 4-ciclo = 3 transposiciones).
+    Entonces se requieren al menos ceil(min_swaps/3) giros para resolver.
+    Es una cota inferior => no sobreestima => admisible.
+
+    Dominancia:
+    No está garantizado que h2 domine a h1 para todos los estados, pero normalmente h2 suele ser
+    más informada que contar mal colocadas (porque captura estructura de ciclos).
     """
-    return 0
+    estado = nodo.estado
+    n = len(estado)
+    # meta identidad 0..7
+    # Construimos perm p donde p[i] = pieza en posicion i (queremos p[i]=i)
+    # Para ciclos, seguimos i -> p[i]
+    visit = [False] * n
+    ciclos = 0
+    for i in range(n):
+        if not visit[i]:
+            ciclos += 1
+            j = i
+            while not visit[j]:
+                visit[j] = True
+                j = estado[j]  # siguiente
+    min_swaps = n - ciclos
+    return (min_swaps + 2) // 3
 
 
 
@@ -176,9 +231,20 @@ def compara_metodos(problema, pos_inicial, heuristica_1, heuristica_2):
     print('-' * 60 + '\n')
 
 if __name__ == "__main__":
-    # Camión mágico: ejemplo
+    # ---------------- Camión mágico ----------------
     N = 31
     problema = PbCamionMagico(N)
     pos_inicial = (1, N)
-
     compara_metodos(problema, pos_inicial, h_1_camion_magico, h_2_camion_magico)
+
+    # ---------------- Mini-Rubik ----------------
+    problema = PbCuboRubik()
+
+    # “Revolver” aplicando 2 movimientos a la meta
+    s0, _ = problema.sucesor(problema.meta, 'U')
+    s0, _ = problema.sucesor(s0, 'L')
+
+    print("\nMini-Rubik estado inicial:")
+    print(PbCuboRubik.bonito(s0), "\n")
+
+    compara_metodos(problema, s0, h_1_problema_1, h_2_problema_1)
