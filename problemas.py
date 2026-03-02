@@ -31,26 +31,43 @@ class PbCamionMagico(busquedas.ProblemaBusqueda):
     ----------------------------------------------------------------------------------
     
     """
-    def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+class PbCamionMagico(busquedas.ProblemaBusqueda):
+    """
+    Estado: (x, N)
+    Meta: x == N
+    """
+    def __init__(self, N):
+        self.N = int(N)
+        if self.N < 1:
+            raise ValueError("N debe ser >= 1")
 
     def acciones(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        x, N = estado
+        acc = []
+        if x < N:
+            acc.append('caminar')
+        if 2 * x <= N:
+            acc.append('camion')
+        return acc
 
     def sucesor(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        x, N = estado
+        if accion == 'caminar':
+            return (x + 1, N), 1
+        elif accion == 'camion':
+            return (2 * x, N), 2
+        else:
+            raise ValueError(f"Accion desconocida: {accion}")
 
     def terminal(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        x, N = estado
+        return x == N
 
     @staticmethod
     def bonito(estado):
-        """
-        El prettyprint de un estado dado
+        x, N = estado
+        return f"Posición: {x} / Meta: {N}"
 
-        """
-        raise NotImplementedError('Hay que hacerlo de tarea')
- 
 
 # ------------------------------------------------------------
 #  Desarrolla una política admisible.
@@ -58,12 +75,13 @@ class PbCamionMagico(busquedas.ProblemaBusqueda):
 
 def h_1_camion_magico(nodo):
     """
-    DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN
-    PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
+    h1(x,N) = N - x
 
+    Admisible: caminar todo lo que falta siempre logra la meta con costo N-x,
+    entonces el costo óptimo desde (x,N) nunca es mayor que N-x. No sobreestima.
     """
-    return 0
-
+    x, N = nodo.estado
+    return max(0, N - x)
 
 # ------------------------------------------------------------
 #  Desarrolla otra política admisible.
@@ -73,11 +91,18 @@ def h_1_camion_magico(nodo):
 
 def h_2_camion_magico(nodo):
     """
-    DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN
-    PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
+    h2(x,N) = ceil((N - x)/2)
 
+    Admisible (cota inferior):
+    Aunque imagináramos que puedes avanzar 2 posiciones por cada 1 de costo (optimista),
+    todavía necesitarías al menos ceil((N-x)/2) de costo para cubrir la diferencia.
+    Como es optimista, no sobreestima al costo real: admisible.
+
+    Nota: Es más informada que 0, pero no necesariamente domina a h1.
     """
-    return 0
+    x, N = nodo.estado
+    d = max(0, N - x)
+    return (d + 1) // 2
 
 # ------------------------------------------------------------
 #  Desarrolla el modelo del cubo de Rubik
@@ -140,42 +165,20 @@ def h_2_problema_1(nodo):
 
 
 def compara_metodos(problema, pos_inicial, heuristica_1, heuristica_2):
-    """
-    Compara en un cuadro lo nodos expandidos y el costo de la solución
-    de varios métodos de búsqueda
+    plan1, nodos1 = busquedas.busqueda_A_estrella(problema, pos_inicial, heuristica_1)
+    plan2, nodos2 = busquedas.busqueda_A_estrella(problema, pos_inicial, heuristica_2)
 
-    @param problema: Un objeto del tipo ProblemaBusqueda
-    @param pos_inicial: Una tupla con una posicion inicial
-    @param heuristica_1: Una función de heurística
-    @param heuristica_2: Una función de heurística
-
-    """
-    solucion1 = busquedas.busqueda_A_estrella(problema, heuristica_1, pos_inicial)
-    solucion2 = busquedas.busqueda_A_estrella(problema, heuristica_2, pos_inicial)
-    
-    print('-' * 50)
-    print('Método'.center(12) + 'Costo'.center(18) + 'Nodos visitados'.center(20))
-    print('-' * 50 + '\n')
-    print('A* con h1'.center(12) 
-          + str(solucion1.costo).center(18) 
-          + str(solucion1.nodos_visitados))
-    print('A* con h2'.center(12) 
-          + str(solucion2.costo).center(20) 
-          + str(solucion2.nodos_visitados))
-    print('-' * 50 + '\n')
-
+    print('-' * 60)
+    print('Método'.ljust(15) + 'Costo'.ljust(15) + 'Nodos visitados')
+    print('-' * 60)
+    print('A* con h1'.ljust(15) + str(plan1.costo if plan1 else None).ljust(15) + str(nodos1))
+    print('A* con h2'.ljust(15) + str(plan2.costo if plan2 else None).ljust(15) + str(nodos2))
+    print('-' * 60 + '\n')
 
 if __name__ == "__main__":
+    # Camión mágico: ejemplo
+    N = 31
+    problema = PbCamionMagico(N)
+    pos_inicial = (1, N)
 
-    # Compara los métodos de búsqueda para el problema del camión mágico
-    # con las heurísticas que desarrollaste
-    pos_inicial = XXXXXXXXXX  # <--- PONLE LA POSICIÓN INICIAL QUE QUIERAS
-    problema = PbCamionMagico( XXXXXXXXXX )  # <--- PONLE LOS PARÁMETROS QUE NECESITES
     compara_metodos(problema, pos_inicial, h_1_camion_magico, h_2_camion_magico)
-    
-    # Compara los métodos de búsqueda para el problema del cubo de rubik
-    # con las heurísticas que desarrollaste
-    pos_inicial = XXXXXXXXXX  # <--- PONLE LA POSICIÓN INICIAL QUE QUIERAS
-    problema = PbCuboRubik( XXXXXXXXXX )  # <--- PONLE LOS PARÁMETROS QUE NECESITES
-    compara_metodos(problema, h_1_problema_1, h_2_problema_1)
-    
