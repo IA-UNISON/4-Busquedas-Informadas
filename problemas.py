@@ -141,6 +141,8 @@ class PbCuboRubik(busquedas.ProblemaBusqueda):
     5 = azul(R)
     
     El estado resuelto lo dibuje abajo, en su declaracion
+
+    fue increiblemente dificil hacer que funcionara esto
     
     """
 
@@ -257,8 +259,6 @@ class PbCuboRubik(busquedas.ProblemaBusqueda):
                 D D D
                 D D D
                 D D D
-
-        aqui y en aplica_ciclos me ayudo claude !
         """
         nombres = ['U','D','F','B','R','L'] 
         caras = [estado[i*9:(i+1)*9] for i in range(6)]
@@ -284,7 +284,14 @@ class PbCuboRubik(busquedas.ProblemaBusqueda):
 #  Desarrolla una política admisible.
 # ------------------------------------------------------------
 def h_1_problema_1(nodo):
-    raise NotImplementedError
+    """
+    Cuenta cuantos de los 54 stickers no tienen el color correcto. 
+    Aqui divido entre 20 porque un movimiento mueve exactamente 20 stickers
+    y no quiero que sobreestime.
+    """
+    resuelto = PbCuboRubik.ESTADO_RESUELTO
+    fuera = sum(1 for i in range(54) if nodo.estado[i] != resuelto[i])
+    return fuera // 20
 
 
 # ------------------------------------------------------------
@@ -293,7 +300,34 @@ def h_1_problema_1(nodo):
 #  respecto otra política
 # ------------------------------------------------------------
 def h_2_problema_1(nodo):
-    raise NotImplementedError
+    """
+    Cuenta cuantas piezas (piezas no stickers) no estan completamente resueltas.
+
+    Creo que domina a h_1 en todos los casos, o al menos todos los casos que probe, 
+    al ser mas informada por agrupar stickers en piezas.
+
+    Cada movimiento puede resolver como máximo 8 piezas,
+    así que divido entre 8 para garantizar que no sobreestime.
+    """
+    estado = nodo.estado
+    resuelto = PbCuboRubik.ESTADO_RESUELTO
+
+    esquinas = [
+        (0, 29, 45), (2, 27, 38), (6, 18, 47), (8, 20, 36),
+        (9, 24, 53), (11, 26, 42), (15, 35, 51), (17, 33, 44),
+    ]
+    aristas = [
+        (1, 28), (3, 46), (5, 37), (7, 19),
+        (10, 25), (12, 52), (14, 43), (16, 34),
+        (21, 50), (23, 39), (30, 41), (32, 48),
+    ]
+
+    piezas = esquinas + aristas
+    mal_colocadas = sum(
+        1 for pieza in piezas
+        if any(estado[i] != resuelto[i] for i in pieza)
+    )
+    return mal_colocadas // 8
 
 
 def compara_metodos(problema, pos_inicial, heuristica_1, heuristica_2):
@@ -340,15 +374,10 @@ if __name__ == "__main__":
 
     # Compara los métodos de búsqueda para el problema del camión mágico
     # con las heurísticas que desarrollaste
-    # pos_inicial = 1  # <--- PONLE LA POSICIÓN INICIAL QUE QUIERAS
-    # problema = PbCamionMagico( META_CAMION )  # <--- PONLE LOS PARÁMETROS QUE NECESITES
-    # compara_metodos(problema, pos_inicial, h_1_camion_magico, h_2_camion_magico)
+    pos_inicial = 1  # <--- PONLE LA POSICIÓN INICIAL QUE QUIERAS
+    problema = PbCamionMagico( META_CAMION )  # <--- PONLE LOS PARÁMETROS QUE NECESITES
+    compara_metodos(problema, pos_inicial, h_1_camion_magico, h_2_camion_magico)
     
-    # Compara los métodos de búsqueda para el problema del cubo de rubik
-    # con las heurísticas que desarrollaste
-    # pos_inicial = XXXXXXXXXX  # <--- PONLE LA POSICIÓN INICIAL QUE QUIERAS
-    # problema = PbCuboRubik( XXXXXXXXXX )  # <--- PONLE LOS PARÁMETROS QUE NECESITES
-    # compara_metodos(problema, h_1_problema_1, h_2_problema_1)
     
     def revuelve(cubo, n):
         movimientos = ['U', "U'", 'D', "D'", 'F', "F'", 'B', "B'", 'R', "R'", 'L', "L'"]
@@ -356,4 +385,9 @@ if __name__ == "__main__":
         for _ in range(n):
             estado, _ = cubo.sucesor(estado, random.choice(movimientos))
         return estado
-
+    
+    print("\n\nProblema cubo rubik:\n")
+    cubo = PbCuboRubik()
+    estado_inicial = revuelve(cubo, 3)
+    problema = PbCuboRubik(estado_inicial)
+    compara_metodos(problema, estado_inicial, h_1_problema_1, h_2_problema_1)
