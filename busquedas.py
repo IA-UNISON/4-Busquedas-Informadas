@@ -39,8 +39,8 @@ class ProblemaBusqueda:
 
         @param estado: Una tupla con un estado válido.
         @param accion: Una acción legal en el estado.
-        @return: estado_sucesor, costo_local. 
-                 Una tupla con el estado sucesor y 
+        @return: estado_sucesor, costo_local.
+                 Una tupla con el estado sucesor y
                  un número con el costo local de realizar la acción en el estado.
 
         """
@@ -97,12 +97,12 @@ class NodoBusqueda:
                     donde xi es el estado i-ésimo, ai es la acción que se realizara el estado xi
                     para llegar al estado xi+1, y ci es el costo acumulado de realizar las acciones a0 a ai.
                     El último elemento de la lista representa el estado final del plan, por lo que no tiene
-                    acción ni costo asociado. 
+                    acción ni costo asociado.
 
         """
         return (
             [(self.estado, None, None)] if self.padre is None else
-             self.padre.genera_plan()[:-1] + [(self.padre.estado, self.accion, self.costo), 
+             self.padre.genera_plan()[:-1] + [(self.padre.estado, self.accion, self.costo),
                                               (self.estado, None, None)]
         )
 
@@ -118,7 +118,7 @@ class NodoBusqueda:
                 "".join([f"en {x} hace {a} con costo acumulado {c},\n"
                          for (x, a, c) in plan[:-1]] + [f'{plan[-1][0]} es el estado final.']))
 
-    
+
     def __lt__(self, other):
         "Ordena nodos por su profundidad sobrecargando <"
         return self.profundidad < other.profundidad
@@ -235,18 +235,52 @@ def busqueda_costo_uniforme(problema, s0):
 # ---------------------------------------------------------------------
 
 
-def busqueda_A_estrella(problema, heuristica):
+def busqueda_A_estrella(problema, s0, heuristica):
     """
     Búsqueda A*
 
     @param problema: Un objeto de una clase heredada de ProblemaBusqueda
+    @param s0: Estado inicial
     @param heuristica: Una funcion de heuristica, esto es, una función
-                       heuristica(nodo), la cual devuelva un número mayor
-                       o igual a cero con el costo esperado desde nodo hasta
-                       un nodo cuyo estado final sea méta.
+                       heuristica(nodo), la cual devuelva un número >= 0
 
-    @return Un objeto tipo Nodo con la estructura completa
-
+    @return: (plan, nodos_visitados)
+             plan: NodoBusqueda solución (o None)
+             nodos_visitados: número de nodos extraídos de la frontera
     """
-    raise NotImplementedError('Hay que hacerlo de tarea \
-                              (problema 2 en el archivo busquedas.py)')
+    # Si ya estamos en meta
+    if problema.terminal(s0):
+        return NodoBusqueda(s0), 1
+
+    # Heap: (f, g, nodo)
+    frontera = []
+    nodo0 = NodoBusqueda(s0)
+    g0 = nodo0.costo
+    f0 = g0 + heuristica(nodo0)
+    heapq.heappush(frontera, (f0, g0, nodo0))
+
+    # Mejor costo g conocido por estado
+    visitados = {s0: g0}
+    nodos_visitados = 0
+
+    while frontera:
+        _, g_actual, plan = heapq.heappop(frontera)
+        nodos_visitados += 1
+
+        # Si este nodo no corresponde al mejor g para ese estado, lo saltamos
+        if plan.estado in visitados and g_actual > visitados[plan.estado]:
+            continue
+
+        # ¿Meta?
+        if problema.terminal(plan.estado):
+            return plan, nodos_visitados
+
+        # Expandir
+        for hijo in plan.expande(problema):
+            g_hijo = hijo.costo
+            if hijo.estado not in visitados or g_hijo < visitados[hijo.estado]:
+                visitados[hijo.estado] = g_hijo
+                f_hijo = g_hijo + heuristica(hijo)
+                heapq.heappush(frontera, (f_hijo, g_hijo, hijo))
+
+    return None, nodos_visitados
