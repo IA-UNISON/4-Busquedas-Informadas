@@ -234,8 +234,7 @@ def busqueda_costo_uniforme(problema, s0):
 #
 # ---------------------------------------------------------------------
 
-
-def busqueda_A_estrella(problema, heuristica):
+def busqueda_A_estrella(problema, s0, heuristica):
     """
     Búsqueda A*
 
@@ -245,8 +244,47 @@ def busqueda_A_estrella(problema, heuristica):
                        o igual a cero con el costo esperado desde nodo hasta
                        un nodo cuyo estado final sea méta.
 
-    @return Un objeto tipo Nodo con la estructura completa
+    @return None si no se encontro solucion, si se encontró,
+            un objeto tipo Nodo con la estructura completa
 
     """
-    raise NotImplementedError('Hay que hacerlo de tarea \
-                              (problema 2 en el archivo busquedas.py)')
+    
+    frontera = []
+    mejor_costo = {}  
+    explorados = {}  
+    nodos_visitados = 0
+
+    nodo_inicial = NodoBusqueda(s0)
+    f0 = heuristica(nodo_inicial)
+    heapq.heappush(frontera, (f0, nodo_inicial))
+    mejor_costo[s0] = 0
+
+    while frontera:
+        _, nodo = heapq.heappop(frontera)
+        nodos_visitados += 1
+
+        if nodo.estado in explorados and explorados[nodo.estado] <= nodo.costo:
+            continue
+
+        if problema.terminal(nodo.estado):
+            nodo.nodos_visitados = nodos_visitados
+            return nodo
+
+        explorados[nodo.estado] = nodo.costo
+
+        for hijo in nodo.expande(problema):
+
+            g = hijo.costo
+            h = heuristica(hijo)
+            f = g + h
+
+            if hijo.estado in mejor_costo and mejor_costo[hijo.estado] <= g:
+                continue
+
+            if hijo.estado in explorados and explorados[hijo.estado] <= g:
+                continue
+
+            mejor_costo[hijo.estado] = g
+            heapq.heappush(frontera, (f, hijo))
+
+    return None
