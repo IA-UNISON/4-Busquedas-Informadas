@@ -9,7 +9,7 @@ Tarea sobre búsquedas, donde lo que es importante es crear nuevas heurísticas
 """
 
 import busquedas
-
+import random
 
 
 # ------------------------------------------------------------
@@ -142,163 +142,214 @@ class PbCuboRubik(busquedas.ProblemaBusqueda):
     https://en.wikipedia.org/wiki/Rubik%27s_Cube
     
     """
-def __init__(self, estado_inicial=None):
-        self.meta = tuple(
-            [0]*9 + [1]*9 +      
-            [2]*9 + [3]*9 +      
-            [4]*9 + [5]*9        
-        )
-        self.inicial = self.meta if estado_inicial is None else estado_inicial
-
+    def __init__(self, estado_inicial=None):
+            self.meta = tuple(
+                [0]*9 + [1]*9 +      
+                [2]*9 + [3]*9 +      
+                [4]*9 + [5]*9        
+            )
+            self.inicial = self.meta if estado_inicial is None else estado_inicial
+    
     def acciones(self, estado):
         return ['arriba', "arriba'", 'frente', "frente'", 'derecha', "derecha'"]
-
+    
     def sucesor(self, estado, accion):
         if accion == 'arriba':
             return self._girar_arriba(estado), 1
         elif accion == "arriba'":
             return self._girar_arriba_inv(estado), 1
-
+    
         elif accion == 'frente':
             return self._girar_frente(estado), 1
         elif accion == "frente'":
             return self._girar_frente_inv(estado), 1
-
+    
         elif accion == 'derecha':
             return self._girar_derecha(estado), 1
         elif accion == "derecha'":
             return self._girar_derecha_inv(estado), 1
-
+    
         else:
             raise ValueError("Acción no válida")
-
+    
     def terminal(self, estado):
-        return estado == self.meta
-
+            return estado == self.meta
+    
     @staticmethod
     def bonito(estado):
-        print("Arriba:", estado[0:9])
-        print("Derecha:", estado[9:18])
-        print("Frente:", estado[18:27])
-        print("Abajo:", estado[27:36])
-        print("Izquierda:", estado[36:45])
-        print("Atras:", estado[45:54])
-
+        def cara(inicio):
+            f = estado[inicio:inicio+9]
+            return [f[0:3], f[3:6], f[6:9]]
+    
+        arriba = cara(0)
+        derecha = cara(9)
+        frente = cara(18)
+        abajo = cara(27)
+        izquierda = cara(36)
+        atras = cara(45)
+    
+        lineas = []
+        for fila in arriba:
+            lineas.append("      " + " ".join(map(str, fila)))
+    
+        for i in range(3):
+            lineas.append(
+                " ".join(map(str, izquierda[i])) + "   " +
+                " ".join(map(str, frente[i])) + "   " +
+                " ".join(map(str, derecha[i])) + "   " +
+                " ".join(map(str, atras[i]))
+            )
+    
+        for fila in abajo:
+            lineas.append("      " + " ".join(map(str, fila)))
+    
+        return "\n".join(lineas)
+    
     def _rotar_cara_horario(self, cara):
         return [
             cara[6], cara[3], cara[0],
             cara[7], cara[4], cara[1],
             cara[8], cara[5], cara[2]
         ]
-
+    
     def _rotar_cara_antihorario(self, cara):
         return [
             cara[2], cara[5], cara[8],
             cara[1], cara[4], cara[7],
             cara[0], cara[3], cara[6]
         ]
-
+    
     def _girar_arriba(self, estado):
         s = list(estado)
-
+    
         s[0:9] = self._rotar_cara_horario(s[0:9])
-
-        frente = s[18:21]
-        derecha = s[9:12]
-        atras = s[45:48]
-        izquierda = s[36:39]
-
-        s[18:21] = izquierda
-        s[9:12] = frente
-        s[45:48] = derecha
-        s[36:39] = atras
-
+    
+        frente = [18,19,20]
+        derecha = [9,10,11]
+        atras = [45,46,47]
+        izquierda = [36,37,38]
+    
+        temp = [s[i] for i in frente]
+        for j in range(3): s[frente[j]] = s[izquierda[j]]
+        for j in range(3): s[izquierda[j]] = s[atras[j]]
+        for j in range(3): s[atras[j]] = s[derecha[j]]
+        for j in range(3): s[derecha[j]] = temp[j]
+    
         return tuple(s)
-
+    
     def _girar_arriba_inv(self, estado):
         s = list(estado)
-
-        s[0:9] = self._rotar_cara_antihorario(s[0:9])
-
-        frente = s[18:21]
-        derecha = s[9:12]
-        atras = s[45:48]
-        izquierda = s[36:39]
-
-        s[18:21] = derecha
-        s[9:12] = atras
-        s[45:48] = izquierda
-        s[36:39] = frente
-
-        return tuple(s)
+    
+        for _ in range(3):
+            s = self._girar_arriba(s)
+        return s
+            
     def _girar_frente(self, estado):
         s = list(estado)
-
+    
         s[18:27] = self._rotar_cara_horario(s[18:27])
-
+    
         arriba = [6, 7, 8]        
         derecha = [9, 12, 15]     
         abajo = [27, 28, 29]      
         izquierda = [38, 41, 44]  
-
+    
         a = [s[i] for i in arriba]
         d = [s[i] for i in derecha]
         ab = [s[i] for i in abajo]
         iz = [s[i] for i in izquierda]
-
+    
         for j in range(3):
             s[derecha[j]] = a[j]
-
+    
         s[abajo[0]], s[abajo[1]], s[abajo[2]] = d[2], d[1], d[0]
-
+    
         s[izquierda[0]], s[izquierda[1]], s[izquierda[2]] = ab[2], ab[1], ab[0]
-
+    
         for j in range(3):
             s[arriba[j]] = iz[j]
-
+    
         return tuple(s)
-
-
+    
+    
     def _girar_frente_inv(self, estado):
         s = estado
         for _ in range(3):
             s = self._girar_frente(s)
         return s
-    
+        
     def _girar_derecha(self, estado):
         s = list(estado)
-
+    
         s[9:18] = self._rotar_cara_horario(s[9:18])
-
+    
         arriba = [2, 5, 8]    
         frente = [20, 23, 26]   
         abajo = [29, 32, 35]    
         atras = [45, 48, 51]    
-
+    
         a = [s[i] for i in arriba]
         f = [s[i] for i in frente]
         ab = [s[i] for i in abajo]
         at = [s[i] for i in atras]
-
+    
         for j in range(3):
             s[frente[j]] = a[j]
             s[abajo[j]] = f[j]
             s[atras[j]] = ab[j]
             s[arriba[j]] = at[j]
-
+    
         return tuple(s)
-
+    
     def _girar_derecha_inv(self, estado):
         s = estado
         for _ in range(3):
-         s = self._girar_derecha(s)
+            s = self._girar_derecha(s)
         return s
-    
+        
 def h_1_problema_1(nodo):
     """
-    DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN
+     DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN
+    PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
+    
+    Esta heurística cuenta cuántas caras no están completamente resueltas.
+    Si una cara tiene al menos un cuadrito con color incorrecto, se considera
+    una cara mal.
+    Es admisible porque para que una cara quede completamente correcta se
+    necesita al menos un movimiento que afecte esa cara. Un solo movimiento
+    no puede dejar perfectas varias caras de forma arbitraria, por lo que
+    el número de caras mal es una cota inferior del número real de movimientos.
+    """
+    e = nodo.estado
+    objetivos = [0,1,2,3,4,5]
+    rangos = [(0,9),(9,18),(18,27),(27,36),(36,45),(45,54)]
+    
+    caras_mal = 0
+    for cara, (a,b) in enumerate(rangos):
+        color = objetivos[cara]
+        if any(e[i] != color for i in range(a,b)):
+            caras_mal += 1
+    return max(0, caras_mal - 1)
+
+# ------------------------------------------------------------
+#  Desarrolla otra política admisible.
+#  Analiza y di porque piensas que es (o no es) dominante una
+#  respecto otra política
+# ------------------------------------------------------------
+def h_2_problema_1(nodo):
+    """
+    DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
+    Esta heurística cuenta cuántos cuadritos están en la cara incorrecta
+    (mal colocados) y divide entre 20.
+    Se usa 20 porque un movimiento de giro afecta como máximo 20 stickers
+    (8 de la cara rotada y 12 alrededor). Esto significa que en un solo
+    movimiento no se pueden corregir más de 20 posiciones incorrectas.
+
+    Por lo tanto, dividir el total de mal colocados entre 20 y redondear
+    hacia arriba da una cota inferior del número mínimo de movimientos,
+    lo que garantiza que la heurística no sobreestima y es admisible.
     """
     e = nodo.estado
     objetivos = [0,1,2,3,4,5]
@@ -311,27 +362,8 @@ def h_1_problema_1(nodo):
             if e[i] != color:
                 mal += 1
 
-    return mal // 8
-
-# ------------------------------------------------------------
-#  Desarrolla otra política admisible.
-#  Analiza y di porque piensas que es (o no es) dominante una
-#  respecto otra política
-# ------------------------------------------------------------
-def h_2_problema_1(nodo):
-    """
-    DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN
-    PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
-
-    """
-    e = nodo.estado
-    rangos = [(0,9),(9,18),(18,27),(27,36),(36,45),(45,54)]
-
-    mezcla = 0
-    for a,b in rangos:
-        mezcla += (len(set(e[a:b])) - 1)  
-
-    return mezcla
+    return (mal + 19) // 20
+    
 def compara_metodos(problema, pos_inicial, heuristica_1, heuristica_2):
     """
     Compara en un cuadro lo nodos expandidos y el costo de la solución
@@ -357,6 +389,30 @@ def compara_metodos(problema, pos_inicial, heuristica_1, heuristica_2):
           + str(solucion2.nodos_visitados))
     print('-' * 50 + '\n')
 
+def desorden(pb, pasos=8):
+    estado = pb.meta
+    scramble = []
+    for _ in range(pasos):
+        a = random.choice(pb.acciones(estado))
+        estado, _ = pb.sucesor(estado, a)
+        scramble.append(a)
+    return estado, scramble
+
+
+def imprimir_pasos(pb, solucion):
+    plan = solucion.genera_plan()
+
+    for i, (estado, accion, costo) in enumerate(plan):
+        if i == 0:
+            print("Paso 0 - Estado inicial")
+            print("Costo acumulado:", 0)
+            print(pb.bonito(estado))
+            print()
+        else:
+            print(f"Paso {i} - Acción: {plan[i-1][1]}")
+            print("Costo acumulado:", plan[i-1][2])
+            print(pb.bonito(estado))
+            print()
 
 if __name__ == "__main__":
 
@@ -369,8 +425,8 @@ if __name__ == "__main__":
     
     # Compara los métodos de búsqueda para el problema del cubo de rubik
     # con las heurísticas que desarrollaste
-    problema = PbCuboRubik()  
-    pos_inicial = problema._girar_arriba(problema.meta) 
+    problema = PbCuboRubik() 
+    pos_inicial, _ = problema.sucesor(problema.meta, 'arriba')
     compara_metodos(problema, pos_inicial, h_1_problema_1, h_2_problema_1)
 
     N = 20
@@ -388,11 +444,15 @@ if __name__ == "__main__":
     print("Nodos visitados:", nodos)
 
     pb = PbCuboRubik()
-    estado0 = pb.meta
-    print("Cubo resuelto:")
-    pb.bonito(estado0)
+    estado_inicial, scramble = desorden(pb, pasos=8)
 
-    estado1, _ = pb.sucesor(estado0, 'frente')
+    print("Acciones:", scramble)
+    print()
 
-    print("\nDespués de mover frente:")
-    pb.bonito(estado1)
+    sol = busquedas.busqueda_A_estrella(pb, estado_inicial, h_1_problema_1)
+
+    if sol:
+        imprimir_pasos(pb, sol)
+        print("Resuelto:", sol.estado == pb.meta)
+    else:
+        print("No encontró solución")
