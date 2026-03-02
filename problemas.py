@@ -9,7 +9,7 @@ Tarea sobre búsquedas, donde lo que es importante es crear nuevas heurísticas
 """
 
 import busquedas
-
+import math
 
 # ------------------------------------------------------------
 #  Desarrolla el modelo del Camión mágico
@@ -89,33 +89,25 @@ def h_1_camion_magico(nodo):
     DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
+    Justificación:
+    Para esta heurística, hacemos un problema relajado, entonces sabemos que cualquier acción toma como mínimo 1 minuto,
+    también sabemos que la forma más rápida es usando el camión (multiplicandola por 2), si asumiéramos que el camión
+    mágico nos cuesta solo 1 minuto (en vez de 2), el tiempo mínimo ideal para llegar a la meta sería exactamente el
+    logaritmo base 2 de la distancia relativa.
+
+    ¿Por qué es admisible?
+    Al utilizar la fórmula del logaritmo base 2 y truncar los decimales, estamos calculando la cantidad mínima de
+    "turnos" requeridos asumiendo que el camión cuesta 1 minuto, como en la realidad el camión cuesta 2 minutos y
+    caminar solo suma 1, el costo real siempre será mayor o igual a este cálculo matemático y por ende, jamás
+    sobreestima
+
     """
     x, meta = nodo.estado
 
-    h_caminar = meta - x
+    if x >= meta:
+        return 0
 
-    x_temp = x
-    costo = 0
-
-    while x_temp * 2 <= meta:
-        x_temp *= 2
-        costo += 2
-
-    costo += (meta - x_temp)
-
-    return min(h_caminar, costo)
-
-    """
-    Justificación:
-    La heurística estima el costo restante considerando dos escenarios: caminar toda la distancia hasta la meta o seguir 
-    un plan en el que se usa el camión mágico mientras sea posible y luego se camina lo que falta, entonces, al tomar 
-    el menor de ambos valores, se obtiene una estimación del tiempo mínimo bajo condiciones ideales.
-    
-    ¿Por qué es admisible?
-    La política de las heurísticas se basa en que no sobreestime el costo real mínimo, y en ambas estimaciones son cotas
-    inferiores al costo real: caminar nunca sobreestima y el plan con camión asume decisiones perfectas, por ende, como
-    se toma el mínimo entre ellas, el valor resultante nunca supera el costo óptimo, por lo que no sobreestima.
-    """
+    return int(math.log2(meta / x))
 
 
 # ------------------------------------------------------------
@@ -126,27 +118,48 @@ def h_1_camion_magico(nodo):
 
 def h_2_camion_magico(nodo):
     """
-    DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN
-    PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
+    Justificación:
+    Esta heurística utiliza un enfoque que calcula el costo desde la meta hacia atrás (hacia x), la regla óptima inversa
+    es: si la posición es impar, forzosamente tuvimos que llegar caminando y, si es par, lo más eficiente siempre es
+    asumir que llegamos en camión desde la mitad de esa posición, a menos que estemos en la posición 2, donde es más
+    barato caminar desde el 1.
+
+    ¿Por qué es admisible?
+    Porque este algoritmo inverso calcula el costo perfecto exacto para llegar de cualquier punto x a la meta
+    bajo estas reglas, como el valor devuelto es exactamente el costo mínimo real, cumple perfectamente con la regla
+    de admisibilidad: la estimación es igual y NO mayor al costo real.
+
+    Análisis de Dominancia:
+    h2 domina por completo a h1. Mientras que h1 da una estimación logarítmica muy baja asumiendo condiciones imposibles,
+    h2 calcula el costo real exacto. Al estar perfectamente informada, h2 guía al algoritmo A* directamente a la solución
+    sin explorar un solo nodo innecesario.
 
     """
 
     x, meta = nodo.estado
-    return (meta - x) // max(1, x)
+    if x >= meta:
+        return 0
 
-    """
-        Justificación:
-        En esta heurística se piensa que mientras mas grande es x menos acciones faltan, es decir, estima cuántos 
-        avances grandes, faltan para llegar a la meta, ya que, cuando la posicion es grande el camión hace que
-        avance mas rápido, por lo tanto, los pasos disminuyen. La división calcula una aproximación
-        del número mínimo de acciones necesarias.
-        
+    costo = 0
+    actual = meta
 
-        ¿Por qué es admisible?
-        Porque solo toma en cuenta una proporción de la distancia restante e ignora dar pasos innecesarios entonces
-        nunca sobreestima el tiempo para llegar a la meta haciendo que el valor calculado sea menor o igual al costo 
-        real en todos los casos
-        """
+    while actual > x:
+        if actual % 2 != 0:
+            actual -= 1
+            costo += 1
+        else:
+            mitad = actual // 2
+            if mitad >= x:
+                if mitad == 1 and actual == 2:
+                    costo += 1
+                else:
+                    costo += 2
+                actual = mitad
+            else:
+                costo += (actual - x)
+                actual = x
+
+    return costo
 
 # ------------------------------------------------------------
 #  Desarrolla el modelo del cubo de Rubik
@@ -402,6 +415,6 @@ if __name__ == "__main__":
     solucion, _ = busquedas.busqueda_A_estrella(problemarubik, h_1_problema_1, pos_inicial_rubik)
     imprimirpasos(solucion)
 
-    print("\nCorrida:")
+    print("\nCorrida heurísticas cubo:")
     compara_metodos(problemarubik, pos_inicial_rubik, h_1_problema_1, h_2_problema_1)
     
