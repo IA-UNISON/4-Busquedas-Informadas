@@ -32,24 +32,35 @@ class PbCamionMagico(busquedas.ProblemaBusqueda):
     
     """
     def __init__(self):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        self.meta = 50
 
     def acciones(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
-
+        acciones_legales = ['caminar']
+        
+        if estado * 2 <= self.meta:
+            acciones_legales.append('camion')
+        
+        return acciones_legales
+        
     def sucesor(self, estado, accion):
-        raise NotImplementedError('Hay que hacerlo de tarea')
+
+        if accion == 'caminar':
+            return estado + 1, 1
+        
+        elif accion == 'camion':
+            return estado * 2, 2
 
     def terminal(self, estado):
-        raise NotImplementedError('Hay que hacerlo de tarea')
-
+        return estado == self.meta
+        
     @staticmethod
     def bonito(estado):
         """
         El prettyprint de un estado dado
 
         """
-        raise NotImplementedError('Hay que hacerlo de tarea')
+        return f"Posición actual: {estado}"
+    
  
 
 # ------------------------------------------------------------
@@ -57,13 +68,20 @@ class PbCamionMagico(busquedas.ProblemaBusqueda):
 # ------------------------------------------------------------
 
 def h_1_camion_magico(nodo):
-    """
-    DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN
-    PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
+    estado = nodo.estado
+    meta = 50 
+    
+    if estado == meta:
+        return 0
 
-    """
-    return 0
+    if estado * 2 > meta:
+        return meta - estado
+    else:
+        return 2
 
+# Es admisinle porque cuando multiplicamos el estado por 2, no sa un costo exacto y no sobreestima
+# Cuando podemos usar el camion, devuelve 2 que es un costo minimo. Así el costo queda menor o igua al costo
+# real.
 
 # ------------------------------------------------------------
 #  Desarrolla otra política admisible.
@@ -149,9 +167,9 @@ def compara_metodos(problema, pos_inicial, heuristica_1, heuristica_2):
     @param heuristica_1: Una función de heurística
     @param heuristica_2: Una función de heurística
 
-    """
-    solucion1 = busquedas.busqueda_A_estrella(problema, heuristica_1, pos_inicial)
-    solucion2 = busquedas.busqueda_A_estrella(problema, heuristica_2, pos_inicial)
+    """ 
+    solucion1 = busquedas.busqueda_A_estrella(problema, pos_inicial, heuristica_1)
+    solucion2 = busquedas.busqueda_A_estrella(problema, pos_inicial, heuristica_2)
     
     print('-' * 50)
     print('Método'.center(12) + 'Costo'.center(18) + 'Nodos visitados'.center(20))
@@ -169,13 +187,13 @@ if __name__ == "__main__":
 
     # Compara los métodos de búsqueda para el problema del camión mágico
     # con las heurísticas que desarrollaste
-    pos_inicial = XXXXXXXXXX  # <--- PONLE LA POSICIÓN INICIAL QUE QUIERAS
-    problema = PbCamionMagico( XXXXXXXXXX )  # <--- PONLE LOS PARÁMETROS QUE NECESITES
+    pos_inicial = 1  # <--- PONLE LA POSICIÓN INICIAL QUE QUIERAS
+    problema = PbCamionMagico()  # <--- PONLE LOS PARÁMETROS QUE NECESITES
     compara_metodos(problema, pos_inicial, h_1_camion_magico, h_2_camion_magico)
     
     # Compara los métodos de búsqueda para el problema del cubo de rubik
     # con las heurísticas que desarrollaste
-    pos_inicial = XXXXXXXXXX  # <--- PONLE LA POSICIÓN INICIAL QUE QUIERAS
-    problema = PbCuboRubik( XXXXXXXXXX )  # <--- PONLE LOS PARÁMETROS QUE NECESITES
-    compara_metodos(problema, h_1_problema_1, h_2_problema_1)
+    #pos_inicial = XXXXXXXXXX  # <--- PONLE LA POSICIÓN INICIAL QUE QUIERAS
+    #problema = PbCuboRubik( XXXXXXXXXX )  # <--- PONLE LOS PARÁMETROS QUE NECESITES
+    #compara_metodos(problema, h_1_problema_1, h_2_problema_1)
     
