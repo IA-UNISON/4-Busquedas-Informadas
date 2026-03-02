@@ -259,8 +259,31 @@ def h_1_problema_1(nodo):
     DOCUMENTA LA HEURÍSTICA QUE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
+
+    Justificación:
+    Primero que nada, revisamos las 6 caras del cubo, después buscamos la cara que tenga la mayor cantidad
+    de cuadritos fuera de su color. Y al girarlo 90 grados movería 8 de sus cuadritos ya que el centro se
+    queda fijo
+
+    ¿Por qué es admisible?
+    Porque por ejemplo, si la cara que está más desordenada tiene 8 piezas en posiciones incorrectas, podemos
+    asumir que al menos se requerirá 1 movimiento para acomodarla. Al tomar el mayor número de errores y dividirlo
+    entre 8 nos aseguramos de que la estimación nunca exceda la cantidad real de giros necesarios para corregir esa
+    cara, por ende, tampoco se estará sobreestimando el costo total para resolver el cubo.
+
     """
-    return 0
+    estado = nodo.estado
+    meta = (0,) * 9 + (1,) * 9 + (2,) * 9 + (3,) * 9 + (4,) * 9 + (5,) * 9
+
+    max_error = 0
+
+    for i in range(0, 54, 9):
+        # Contamos cuántas estampas están mal solo en este bloque
+        error_cara = sum(1 for j in range(i, i + 9) if estado[j] != meta[j])
+        if error_cara > max_error:
+            max_error = error_cara
+
+    return (max_error + 7) // 8
 
 
 # ------------------------------------------------------------
@@ -271,11 +294,39 @@ def h_1_problema_1(nodo):
 
 def h_2_problema_1(nodo):
     """
+
     DOCUMENTA LA HEURÍSTICA DE DESARROLLES Y DA UNA JUSTIFICACIÓN
     PLATICADA DE PORQUÉ CREES QUE LA HEURÍSTICA ES ADMISIBLE
 
+    Justificación:
+    Una cara resuelta debe tener exactamente 1 color. Si tiene más de uno, los demás colores no deberían de pertenecer
+    ahí, entonces, esta heurística suma todos los colores extra que hay en las 6 caras, al girarlo 90 grados sabemos
+    que podrá desplazar grupos de colores entre 4 caras adyacentes al mismo tiempo, por ende, podríamos asumir que con
+    un solo giro perfecto podría eliminar hasta 4 colores no pertencientes a esa cara de golpe.
+
+    ¿Por qué es admisible?
+    Al contar los colores sobrantes totales y dividirlos entre 4 (el máximo de caras adyacentes que limpiamos en un
+    turno ideal, redondeando hacia arriba), obtenemos un límite inferior estricto, por ende, la estimación jamás será
+    mayor que los movimientos reales requeridos.
+
+    Análisis de Dominancia:
+    Esta heurística (h2) tiende a ser dominante sobre h1 en la mayoría de los estados, ya que, h1 solo evalúa la peor
+    cara e ignora el resto del cubo, arrojando valores muy bajos, en cambio, h2 evalúa el desorden global de todas las
+    caras, entonces al sumar los errores del cubo, h2 arroja valores heurísticos más altos y más cercanos al
+    costo real, lo que permite al algoritmo A* podar más ramas del árbol y visitar menos nodos que h1.
+
     """
-    return 0
+    estado = nodo.estado
+
+    colores_sobrantes = 0
+
+    for i in range(0, 54, 9):
+        cara = estado[i:i + 9]
+        colores_unicos = len(set(cara))
+        if colores_unicos > 1:
+            colores_sobrantes += (colores_unicos - 1)
+
+    return (colores_sobrantes + 3) // 4
 
 
 def compara_metodos(problema, pos_inicial, heuristica_1, heuristica_2):
@@ -351,7 +402,6 @@ if __name__ == "__main__":
     solucion, _ = busquedas.busqueda_A_estrella(problemarubik, h_1_problema_1, pos_inicial_rubik)
     imprimirpasos(solucion)
 
-    #Ahorita que haga heurísticas
-    #print("\nCorrida:")
-    #compara_metodos(problemarubik, pos_inicial_rubik, h_1_problema_1, h_2_problema_1)
+    print("\nCorrida:")
+    compara_metodos(problemarubik, pos_inicial_rubik, h_1_problema_1, h_2_problema_1)
     
